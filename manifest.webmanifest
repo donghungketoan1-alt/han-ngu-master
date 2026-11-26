@@ -1,0 +1,17 @@
+{
+  "name": "Hán Ngữ Master · Học Tiếng Trung HSK 1–5",
+  "short_name": "Hán Ngữ Master",
+  "description": "Học tiếng Trung HSK 1–5: 1.000 từ vựng, đọc hiểu, video, game, kiểm tra và trợ lý AI Tiểu Long.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf7f2",
+  "theme_color": "#b9382c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
