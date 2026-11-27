@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/hsk-5/cong-xuong-ky-thuat/" />
-  <link rel="stylesheet" href="app.css?v=202611271302" />
-  <script src="icons.js?v=202611271302"></script>
+  <link rel="stylesheet" href="app.css?v=202611271321" />
+  <script src="icons.js?v=202611271321"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -314,6 +314,26 @@
     body.dark-mode .tt-panel .tt-oldnote { background: rgba(59,130,246,.15); }
     body.dark-mode .tt-panel .tt-word { border-color: #323846; }
     @media print { .tt-bar, .tt-panel { display: none !important; } }
+    /* Nghe chép: thẻ bộ sưu tập, chữ Hán làm biểu tượng, thanh tiến độ từng câu */
+    .dc-colls { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .dc-colls { grid-template-columns: repeat(2, 1fr); } }
+    .dc-coll { --c: #b9382c; display: flex; gap: 14px; align-items: flex-start; text-align: left; padding: 16px; border-radius: 20px; background: #fff; border: 1px solid #e7e5e4; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, border-color .2s; }
+    .dc-coll:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--c) 45%, #e7e5e4); box-shadow: 0 16px 32px -20px rgba(28,25,23,.45); }
+    .dc-coll.is-empty { opacity: .6; }
+    .dc-glyph { --c: #b9382c; width: 64px; height: 64px; flex-shrink: 0; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 700; color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); border: 1px solid color-mix(in srgb, var(--c) 22%, #fff); }
+    .dc-coll .dc-glyph { --c: inherit; }
+    #dcList .ls-lessons { grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+    #dcList .ls-lesson { min-width: 0; }
+    .dc-prog { display: flex; gap: 4px; }
+    .dc-prog i { flex: 1; height: 6px; border-radius: 999px; background: #e7e5e4; }
+    .dc-prog i.cur { background: #b9382c66; }
+    .dc-prog i.ok { background: #1f6f5b; }
+    .dc-prog i.mid { background: #d97706; }
+    .dc-prog i.bad { background: #dc2626; }
+    body.dark-mode .dc-coll { background: #1b1f27; border-color: #323846; }
+    body.dark-mode .dc-coll b { color: #f5f5f4; }
+    body.dark-mode .dc-glyph { background: #222733; border-color: #323846; }
+    body.dark-mode .dc-prog i { background: #323846; }
     /* Trang từ vựng theo cấp/chủ đề (build.ps1 chèn sẵn nội dung để Google đọc) */
     .seo-h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     .seo-landing { background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; padding: 18px 18px 14px; }
@@ -687,7 +707,6 @@
           <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Chọn kỹ năng · <span id="homeSkillLevel" class="text-[#b9382c]">HSK 1–5</span></h2>
           <p id="skillsSub" class="text-sm text-stone-600 mt-1"></p>
         </div>
-        <button type="button" id="skillsBackBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-xs sm:text-sm font-semibold transition"><i data-lucide="chevron-left" class="w-4 h-4"></i>Đổi trình độ</button>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
@@ -738,25 +757,20 @@
 
     <!-- VIEW: NGHE CHÉP CHÍNH TẢ -->
     <section id="view-dictation" class="hidden">
-      <div class="max-w-2xl mx-auto space-y-4">
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Nghe chép chính tả</h2>
-            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Nghe câu tiếng Trung rồi gõ lại bằng chữ Hán hoặc Pinyin (không cần dấu).</p>
-          </div>
-          <select id="dcSource" class="text-xs sm:text-sm font-semibold bg-white border border-stone-200 rounded-xl px-2.5 py-2 focus:outline-none focus:border-[#b9382c]" title="Chọn loại câu">
-            <option value="short">Câu ngắn (ví dụ từ vựng)</option>
-            <option value="long">Câu trong bài đọc hiểu</option>
-          </select>
-        </div>
+      <!-- Màn 1: các bộ sưu tập · Màn 2: danh sách bài · Màn 3: làm bài (JS dcShow chuyển giữa các màn) -->
+      <div id="dcHome" class="space-y-5"></div>
+      <div id="dcList" class="hidden space-y-4"></div>
+      <div id="dcPlayerWrap" class="hidden max-w-2xl mx-auto space-y-4">
+        <div id="dcPlayerHead"></div>
+        <div id="dcFinish" class="hidden"></div>
 
-        <div class="grid grid-cols-3 gap-2 text-center">
+        <div id="dcStatsRow" class="grid grid-cols-3 gap-2 text-center">
           <div class="rounded-2xl bg-white border border-stone-200 p-2.5"><div id="dcDone" class="text-lg font-bold text-stone-900">0</div><div class="text-[10px] sm:text-xs text-stone-500">câu đã chép</div></div>
           <div class="rounded-2xl bg-white border border-stone-200 p-2.5"><div id="dcAvg" class="text-lg font-bold text-[#1f6f5b]">–</div><div class="text-[10px] sm:text-xs text-stone-500">điểm trung bình</div></div>
           <div class="rounded-2xl bg-white border border-stone-200 p-2.5"><div id="dcToday" class="text-lg font-bold text-[#b9382c]">0</div><div class="text-[10px] sm:text-xs text-stone-500">câu đúng hôm nay</div></div>
         </div>
 
-        <div class="rounded-3xl bg-white border border-stone-200 shadow-sm p-4 sm:p-6 space-y-4">
+        <div id="dcCard" class="rounded-3xl bg-white border border-stone-200 shadow-sm p-4 sm:p-6 space-y-4">
           <div class="flex items-center justify-between gap-2">
             <span id="dcBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold border hsk-badge-1">HSK 1</span>
             <span id="dcLen" class="text-xs text-stone-500"></span>
@@ -776,7 +790,7 @@
           </div>
           <div id="dcResult" class="hidden rounded-2xl border border-stone-200 bg-[#faf7f2] p-4 space-y-2"></div>
         </div>
-        <p class="text-center text-xs text-stone-500">Mẹo: nhấn <kbd class="px-1 py-0.5 bg-white border border-stone-200 rounded">Enter</kbd> để kiểm tra, nhấn lần nữa để sang câu mới.</p>
+        <p id="dcTip" class="text-center text-xs text-stone-500">Mẹo: nhấn <kbd class="px-1 py-0.5 bg-white border border-stone-200 rounded">Enter</kbd> để kiểm tra, nhấn lần nữa để sang câu mới.</p>
       </div>
     </section>
 
@@ -2445,7 +2459,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271302"></script>
-  <script src="app.js?v=202611271302"></script>
+  <script src="data.js?v=202611271321"></script>
+  <script src="app.js?v=202611271321"></script>
 </body>
 </html>

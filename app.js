@@ -4750,7 +4750,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links", ".dc-coll:not([data-dc-coll=\"random\"])", "[data-dc-act]"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -6020,7 +6020,184 @@
     // ---------- Nghe chép chính tả ----------
     const DC_KEY = "han_ngu_dictation_v1";
     PROGRESS_KEYS.push(DC_KEY, "han_ngu_level_v1");
-    const dc = { level: "all", source: "short", item: null, checked: false, hint: 0, recent: [] };
+    const dc = { level: "all", source: "short", item: null, checked: false, hint: 0, recent: [],
+      view: "home", mode: "random", coll: null, lesson: null, queue: [], pos: 0, scores: [] };
+
+    // ---------- Nghe chép: bộ sưu tập → danh sách bài → làm bài theo thứ tự câu ----------
+    const DC_LESSON_SIZE = 8;
+    let dcCache = null;
+    function dcItemFromWord(w) { return { key: `w${w.id}`, hsk: w.hsk, cn: w.exCn, py: w.exPinyin, vi: w.exVi, from: `Ví dụ của từ ${w.hanzi}` }; }
+    function dcBuildCollections() {
+      if (dcCache) return dcCache;
+      const okLen = cn => { const n = hanziOnly(cn || "").length; return n >= 3 && n <= 34; };
+      // 1. Câu giao tiếp theo chủ đề: câu ví dụ của từ vựng, mỗi bài 8 câu
+      const topic = [];
+      [1, 2, 3, 4, 5].forEach(lv => {
+        const byTopic = {}, order = [];
+        VOCAB.filter(w => w.hsk === lv && okLen(w.exCn)).forEach(w => { if (!byTopic[w.topic]) { byTopic[w.topic] = []; order.push(w.topic); } byTopic[w.topic].push(w); });
+        order.forEach(tp => {
+          const list = byTopic[tp];
+          if (list.length < 4) return;
+          const chunks = [];
+          for (let i = 0; i < list.length; i += DC_LESSON_SIZE) chunks.push(list.slice(i, i + DC_LESSON_SIZE));
+          if (chunks.length > 1 && chunks[chunks.length - 1].length <= 3) { const t = chunks.pop(); chunks[chunks.length - 1] = chunks[chunks.length - 1].concat(t); }
+          chunks.forEach((c, k) => topic.push({ id: `t-${lv}-${order.indexOf(tp)}-${k}`, hsk: lv, group: tp, title: chunks.length > 1 ? `${tp} · Bài ${k + 1}` : tp, items: c.map(dcItemFromWord) }));
+        });
+      });
+      // 2. Bài đọc dài: mỗi bài đọc là một bài nghe, nghe từng câu
+      const reading = LONG_SENTENCES.filter(s => s.clauses && s.clauses.length).map(s => ({
+        id: `r-${s.id}`, hsk: s.hsk, group: s.topic || "Bài đọc", title: s.title,
+        items: s.clauses.map((c, i) => ({ key: `${s.id}-${i}`, hsk: s.hsk, cn: c.cn, py: c.py, vi: c.vi, from: s.title }))
+      }));
+      // 3. Hội thoại theo giáo án: nghe từng lượt lời của đoạn hội thoại trong bài ngữ pháp
+      const dialog = [];
+      Object.keys(GRAMMAR_BY_LEVEL).forEach(lvKey => {
+        const lv = Number(lvKey);
+        GRAMMAR_BY_LEVEL[lvKey].forEach((g, gi) => dialog.push({
+          id: `d-${lv}-${g.key}`, hsk: lv, group: `Ngữ pháp HSK ${lv}`, title: g.dialogue.title.split(" · ")[0], sub: `Điểm ${gi + 1} · ${g.title}`,
+          items: g.dialogue.lines.map((l, i) => ({ key: `d-${lv}-${g.key}-${i}`, hsk: lv, cn: l.cn, py: l.py, vi: `${l.who}: ${l.vi}`, from: `Hội thoại: ${g.dialogue.title}` }))
+        }));
+      });
+      dcCache = [
+        { id: "topic", glyph: "话", color: "#b9382c", title: "Câu giao tiếp theo chủ đề", desc: "Câu ngắn dùng hằng ngày theo 15 chủ đề, mỗi bài 8 câu.", lessons: topic },
+        { id: "dialog", glyph: "谈", color: "#2563eb", title: "Hội thoại theo giáo án", desc: "Nghe chép từng lượt lời trong hội thoại của các bài ngữ pháp.", lessons: dialog },
+        { id: "reading", glyph: "读", color: "#1f6f5b", title: "Bài đọc dài", desc: "Nghe chép lần lượt từng câu của một bài đọc hoàn chỉnh.", lessons: reading },
+        { id: "random", glyph: "听", color: "#c8963e", title: "Luyện ngẫu nhiên", desc: "Máy chọn câu bất kỳ trong kho, luyện không giới hạn.", random: true }
+      ];
+      return dcCache;
+    }
+    function dcLevelOk(hsk) { return dc.level === "all" || Number(dc.level) === hsk; }
+    function dcLessonStore() { const s = dcStats(); return s.lessons || {}; }
+    function dcShow(view) {
+      dc.view = view;
+      document.getElementById("dcHome").classList.toggle("hidden", view !== "home");
+      document.getElementById("dcList").classList.toggle("hidden", view !== "list");
+      document.getElementById("dcPlayerWrap").classList.toggle("hidden", view !== "play");
+      if (view === "home") dcRenderHome();
+      if (view === "list") dcRenderList();
+      if (appBooted) { try { window.scrollTo(0, 0); } catch (e) {} }
+      if (window.lucide) lucide.createIcons();
+    }
+    function dcRenderHome() {
+      const colls = dcBuildCollections();
+      const store = dcLessonStore();
+      const s = dcStats();
+      const lvText = dc.level === "all" ? "HSK 1–5" : `HSK ${dc.level}`;
+      document.getElementById("dcHome").innerHTML = `
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Nghe chép chính tả</h2>
+            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Chọn một bộ bài phù hợp với trình độ (${lvText}). Nghe câu rồi gõ lại bằng chữ Hán hoặc Pinyin.</p>
+          </div>
+          <div class="flex gap-2 text-center">
+            <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5"><div class="text-base font-bold text-stone-900">${s.done}</div><div class="text-[10px] text-stone-500">câu đã chép</div></div>
+            <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5"><div class="text-base font-bold text-[#1f6f5b]">${s.done ? Math.round(s.sum / s.done) + "%" : "–"}</div><div class="text-[10px] text-stone-500">điểm trung bình</div></div>
+          </div>
+        </div>
+        <div class="dc-colls">${colls.map(c => {
+          const ls = c.random ? [] : c.lessons.filter(l => dcLevelOk(l.hsk));
+          const all = c.random ? [] : c.lessons;
+          const lvs = all.map(l => l.hsk);
+          const range = c.random ? lvText : lvs.length ? (Math.min(...lvs) === Math.max(...lvs) ? `HSK ${lvs[0]}` : `HSK ${Math.min(...lvs)}–${Math.max(...lvs)}`) : "";
+          const done = ls.filter(l => store[l.id]).length;
+          const empty = !c.random && !ls.length;
+          return `<button type="button" data-dc-coll="${c.id}" class="dc-coll ${empty ? "is-empty" : ""}" style="--c:${c.color}">
+            <span class="dc-glyph font-hanzi">${c.glyph}</span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-center justify-between gap-2"><b class="text-stone-900 text-base">${c.title}</b><i data-lucide="chevron-right" class="w-4 h-4 text-stone-400 shrink-0"></i></span>
+              <span class="block text-sm text-stone-600 mt-0.5 leading-snug">${c.desc}</span>
+              <span class="block text-xs text-stone-500 mt-2"><b class="text-stone-700">Trình độ</b> ${range}${c.random ? " · không giới hạn" : ` · <b class="text-stone-700">${ls.length}</b> bài${ls.length ? ` · đã làm ${done}` : ""}`}</span>
+              ${empty ? `<span class="block text-xs text-amber-700 mt-1">Chưa có bài cho ${lvText} — chọn cấp khác ở thanh trên.</span>` : ""}
+            </span>
+          </button>`;
+        }).join("")}</div>`;
+    }
+    function dcRenderList() {
+      const c = dcBuildCollections().find(x => x.id === dc.coll);
+      if (!c) { dcShow("home"); return; }
+      const store = dcLessonStore();
+      const ls = c.lessons.filter(l => dcLevelOk(l.hsk));
+      const nextL = ls.find(l => !store[l.id]);
+      const groups = [];
+      ls.forEach(l => { const key = `${l.hsk}|${l.group}`; let g = groups.find(x => x.key === key); if (!g) { g = { key, hsk: l.hsk, name: l.group, list: [] }; groups.push(g); } g.list.push(l); });
+      document.getElementById("dcList").innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <button type="button" data-dc-act="home" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-sm font-semibold"><i data-lucide="chevron-left" class="w-4 h-4"></i>Các bộ bài</button>
+          ${nextL ? `<button type="button" data-dc-lesson="${nextL.id}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">Học tiếp: ${nextL.title}<i data-lucide="chevron-right" class="w-4 h-4"></i></button>` : ""}
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="dc-glyph font-hanzi" style="--c:${c.color}">${c.glyph}</span>
+          <div><h2 class="text-xl sm:text-2xl font-bold text-stone-900">${c.title}</h2><p class="text-sm text-stone-600">${c.desc} ${ls.length} bài.</p></div>
+        </div>
+        ${groups.map(g => `
+          <div class="space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-stone-500">${dc.level === "all" ? `HSK ${g.hsk} · ` : ""}${g.name}</div>
+            <div class="ls-lessons" style="padding:0">${g.list.map(l => {
+              const st = store[l.id];
+              const isNext = nextL && nextL.id === l.id;
+              return `<button type="button" data-dc-lesson="${l.id}" class="ls-lesson bg-white ${st ? "is-done" : ""} ${isNext ? "is-next" : ""}">
+                <span class="flex items-center justify-between gap-2"><span class="font-bold text-stone-900 truncate">${l.title}</span>
+                  <span class="text-[11px] font-semibold shrink-0 ${st ? "text-emerald-700" : isNext ? "text-[#b9382c]" : "text-stone-400"}">${st ? `✓ ${st.score}%` : isNext ? "Học tiếp" : `${l.items.length} câu`}</span></span>
+                <span class="font-hanzi-sans text-sm text-stone-600 truncate">${l.items[0].cn}</span>
+                ${l.sub ? `<span class="text-[11px] text-stone-500 truncate">${l.sub}</span>` : `<span class="text-[11px] text-stone-500">HSK ${l.hsk} · ${l.items.length} câu</span>`}
+              </button>`;
+            }).join("")}</div>
+          </div>`).join("")}
+        ${ls.length ? "" : `<div class="ls-card bg-white p-5 text-sm text-stone-600">Chưa có bài cho trình độ này. Chọn cấp khác ở thanh trên.</div>`}`;
+    }
+    function dcStartLesson(id) {
+      const l = dcBuildCollections().flatMap(c => c.lessons || []).find(x => x.id === id);
+      if (!l) return;
+      dc.mode = "lesson"; dc.lesson = l; dc.queue = l.items; dc.pos = 0; dc.scores = [];
+      dc.coll = dcBuildCollections().find(c => (c.lessons || []).includes(l)).id;
+      dcShow("play");
+      dcLoadItem();
+    }
+    function dcStartRandom() {
+      dc.mode = "random"; dc.lesson = null; dc.recent = []; dc.item = null;
+      dcShow("play");
+      dcNext();
+    }
+    function dcLoadItem() {
+      dc.item = dc.queue[dc.pos] || null;
+      dc.checked = false; dc.hint = 0;
+      const inp = document.getElementById("dcInput");
+      inp.value = ""; inp.disabled = false;
+      dcRender();
+      if (dc.item && appBooted && state.activeTab === "dictation" && !isGuest()) setTimeout(() => dcPlay(false), 250);
+    }
+    function dcRenderPlayerHead() {
+      const head = document.getElementById("dcPlayerHead");
+      const finish = document.getElementById("dcFinish");
+      const inLesson = dc.mode === "lesson" && dc.lesson;
+      const finished = inLesson && dc.pos >= dc.queue.length;
+      const back = `<button type="button" data-dc-act="${inLesson ? "list" : "home"}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-sm font-semibold"><i data-lucide="chevron-left" class="w-4 h-4"></i>${inLesson ? "Danh sách bài" : "Các bộ bài"}</button>`;
+      if (!inLesson) {
+        head.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-2">${back}<div class="text-right"><div class="text-xs text-stone-500">Luyện ngẫu nhiên</div><div class="font-bold text-stone-900">${dc.level === "all" ? "HSK 1–5" : `HSK ${dc.level}`} · câu bất kỳ</div></div></div>`;
+      } else {
+        const n = dc.queue.length, cur = Math.min(dc.pos + 1, n);
+        head.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-2">${back}
+            <div class="text-right min-w-0"><div class="text-xs text-stone-500 truncate">HSK ${dc.lesson.hsk} · ${dc.lesson.group}</div><div class="font-bold text-stone-900 truncate">${dc.lesson.title} · ${finished ? "Hoàn thành" : `Câu ${cur}/${n}`}</div></div></div>
+          <div class="dc-prog mt-3">${dc.queue.map((_, i) => `<i class="${i < dc.scores.length ? (dc.scores[i] >= 90 ? "ok" : dc.scores[i] >= 70 ? "mid" : "bad") : i === dc.pos ? "cur" : ""}"></i>`).join("")}</div>`;
+      }
+      ["dcStatsRow", "dcCard", "dcTip"].forEach(id => document.getElementById(id).classList.toggle("hidden", !!finished || (id === "dcStatsRow" && inLesson)));
+      finish.classList.toggle("hidden", !finished);
+      if (finished) {
+        const avg = Math.round(dc.scores.reduce((a, b) => a + b, 0) / (dc.scores.length || 1));
+        const c = dcBuildCollections().find(x => x.id === dc.coll);
+        const ls = c ? c.lessons.filter(l => dcLevelOk(l.hsk)) : [];
+        const nextL = ls[ls.indexOf(dc.lesson) + 1];
+        finish.innerHTML = `<div class="rounded-3xl bg-white border border-stone-200 shadow-sm p-6 text-center space-y-3">
+            <div class="text-5xl">${avg >= 90 ? "🏆" : avg >= 70 ? "🎉" : "💪"}</div>
+            <div class="text-xl font-extrabold text-stone-900">Xong bài “${dc.lesson.title}”</div>
+            <div class="text-3xl font-extrabold ${avg >= 70 ? "text-[#1f6f5b]" : "text-[#b9382c]"}">${avg}%</div>
+            <div class="text-sm text-stone-600">${dc.scores.filter(x => x >= 90).length}/${dc.queue.length} câu chép đúng gần hết.</div>
+            <div class="flex flex-wrap justify-center gap-2 pt-2">
+              <button type="button" data-dc-lesson="${dc.lesson.id}" class="px-4 py-2.5 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700">Làm lại bài này</button>
+              ${nextL ? `<button type="button" data-dc-lesson="${nextL.id}" class="px-5 py-2.5 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">Bài tiếp: ${nextL.title} →</button>` : `<button type="button" data-dc-act="list" class="px-5 py-2.5 rounded-xl bg-[#b9382c] text-white text-sm font-bold">Về danh sách bài</button>`}
+            </div></div>`;
+      }
+    }
 
     function dcStats() {
       let s = {};
@@ -6045,6 +6222,14 @@
         .map(w => ({ key: `w${w.id}`, hsk: w.hsk, cn: w.exCn, py: w.exPinyin, vi: w.exVi, from: `Ví dụ của từ ${w.hanzi}` }));
     }
     function dcNext() {
+      // Đang làm bài theo thứ tự: sang câu kế tiếp (hết câu thì hiện bảng tổng kết)
+      if (dc.mode === "lesson" && dc.lesson) {
+        if (!dc.checked && dc.item) dc.scores[dc.pos] = 0; // bỏ qua câu = 0 điểm
+        dc.pos++;
+        if (dc.pos >= dc.queue.length) { dcFinishLesson(); return; }
+        dcLoadItem();
+        return;
+      }
       const pool = dcPool();
       if (!pool.length) { dc.item = null; dcRender(); return; }
       let cands = pool.filter(p => !dc.recent.includes(p.key));
@@ -6058,8 +6243,25 @@
       dcRender();
       if (appBooted && state.activeTab === "dictation" && !isGuest()) setTimeout(() => dcPlay(false), 250);
     }
+    function dcFinishLesson() {
+      const avg = Math.round(dc.scores.reduce((a, b) => a + b, 0) / (dc.scores.length || 1));
+      const s = dcStats();
+      s.lessons = s.lessons || {};
+      const prev = s.lessons[dc.lesson.id];
+      s.lessons[dc.lesson.id] = { score: prev ? Math.max(prev.score, avg) : avg, at: Date.now() };
+      dcSaveStats(s);
+      dc.item = null;
+      dcRenderPlayerHead();
+      if (window.lucide) lucide.createIcons();
+    }
     function dcRender() {
+      // Màn danh sách / bộ sưu tập: chỉ vẽ lại màn đó
+      if (dc.view === "home") { dcShow("home"); return; }
+      if (dc.view === "list") { dcShow("list"); return; }
+      dcRenderPlayerHead();
+      if (dc.mode === "lesson" && dc.lesson && dc.pos >= dc.queue.length) return;
       if (!dc.item) {
+        if (dc.mode === "lesson" && dc.lesson) { dcLoadItem(); return; }
         if (dcPool().length) { dcNext(); return; }
       }
       const s = dcStats();
@@ -6077,7 +6279,9 @@
       hint.innerHTML = dc.hint === 0 ? "" :
         `<div class="text-stone-700">${escAi(it.vi)}</div>` + (dc.hint > 1 ? `<div class="mt-1 font-semibold text-[#b9382c]">${escAi(it.py)}</div>` : "");
       document.getElementById("dcHintBtn").textContent = dc.hint === 0 ? "Gợi ý nghĩa" : dc.hint === 1 ? "Gợi ý Pinyin" : "Đã hiện gợi ý";
-      document.getElementById("dcCheckBtn").textContent = dc.checked ? "Câu tiếp theo" : "Kiểm tra";
+      const lastInLesson = dc.mode === "lesson" && dc.pos >= dc.queue.length - 1;
+      document.getElementById("dcCheckBtn").textContent = dc.checked ? (lastInLesson ? "Xem kết quả" : "Câu tiếp theo") : "Kiểm tra";
+      document.getElementById("dcSkipBtn").textContent = dc.mode === "lesson" ? "Bỏ qua câu" : "Câu khác";
       if (!dc.checked) document.getElementById("dcResult").classList.add("hidden");
     }
     function dcPlay(slow) {
@@ -6146,6 +6350,7 @@
       box.classList.remove("hidden");
       document.getElementById("dcReplayBtn").addEventListener("click", () => dcPlay(false));
       if (!dc.checked) {
+        if (dc.mode === "lesson") dc.scores[dc.pos] = score;
         const s = dcStats();
         s.done += 1; s.sum += score;
         if (score >= 90) { s.today = (s.today || 0) + 1; addDailySpoken(1); }
@@ -6160,7 +6365,24 @@
       document.getElementById("dcSkipBtn").addEventListener("click", dcNext);
       document.getElementById("dcHintBtn").addEventListener("click", () => { if (dc.hint < 2) { dc.hint++; dcRender(); } });
       document.getElementById("dcCheckBtn").addEventListener("click", () => dc.checked ? dcNext() : dcCheck());
-      document.getElementById("dcSource").addEventListener("change", e => { dc.source = e.target.value; dc.recent = []; dcNext(); });
+      // Chọn bộ bài, chọn bài, quay lại
+      document.getElementById("view-dictation").addEventListener("click", e => {
+        const coll = e.target.closest("[data-dc-coll]");
+        if (coll) {
+          const id = coll.getAttribute("data-dc-coll");
+          if (id === "random") { dcStartRandom(); return; }
+          dc.coll = id; dcShow("list"); return;
+        }
+        const les = e.target.closest("[data-dc-lesson]");
+        if (les) { dcStartLesson(les.getAttribute("data-dc-lesson")); return; }
+        const act = e.target.closest("[data-dc-act]");
+        if (act) {
+          const a = act.getAttribute("data-dc-act");
+          try { window.speechSynthesis && speechSynthesis.cancel(); } catch (er) {}
+          if (a === "home") dcShow("home");
+          if (a === "list") dcShow(dc.coll ? "list" : "home");
+        }
+      });
       document.getElementById("dcInput").addEventListener("keydown", e => {
         if (e.key !== "Enter" || e.shiftKey || e.isComposing || e.keyCode === 229) return;
         e.preventDefault();
@@ -6400,7 +6622,8 @@
         if (appBooted) spkNext();
       }
       if (tab === "dictation" && typeof dc !== "undefined" && String(dc.level) !== lvl) {
-        dc.level = lvl; dc.item = null;
+        dc.level = lvl;
+        if (dc.mode !== "lesson") dc.item = null; // đang làm một bài thì giữ nguyên bài
       }
       if (tab === "quiz" && lvl !== "all") {
         ["quizHskSelect", "exam4HskSelect"].forEach(id => {
@@ -7018,7 +7241,9 @@
 
       // HSK All Button
       document.getElementById("selectAllHskBtn").addEventListener("click", () => { setLevel("all"); switchTab("skills"); });
-      document.getElementById("skillsBackBtn").addEventListener("click", () => switchTab("home"));
+      // Nút "Đổi trình độ" đã bỏ (trùng với dãy nút HSK trên thanh đường dẫn); trang HTML cũ còn nút thì vẫn chạy
+      const skillsBack = document.getElementById("skillsBackBtn");
+      if (skillsBack) skillsBack.addEventListener("click", () => switchTab("home"));
 
       // Trang chủ · đường dẫn · menu Luyện tập · thanh dưới điện thoại
       document.getElementById("homeSkills").addEventListener("click", e => {
