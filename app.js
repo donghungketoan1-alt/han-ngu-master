@@ -980,8 +980,46 @@
       const q = voiceScore(v) >= 60 ? "★ Tự nhiên" : voiceScore(v) >= 30 ? "Khá" : "Cơ bản";
       return `${n} · ${q}`;
     }
+    // ---------- iPhone/iPad: Safari dễ "nuốt" tiếng đọc, vá ở một chỗ cho mọi nút loa ----------
+    // iPad đời mới tự xưng là máy Mac, nên nhận diện thêm qua màn hình cảm ứng
+    const IS_APPLE_TOUCH = /iphone|ipad|ipod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    const BAD_VOICES = new Set();
+    (function patchAppleSpeech() {
+      if (!IS_APPLE_TOUCH || !("speechSynthesis" in window)) return;
+      const ss = window.speechSynthesis;
+      const rawSpeak = ss.speak.bind(ss), rawCancel = ss.cancel.bind(ss);
+      let lastCancel = 0;
+      ss.cancel = function () { lastCancel = Date.now(); rawCancel(); };
+      function speakWithFallback(u) {
+        let started = false;
+        u.addEventListener("start", () => { started = true; });
+        rawSpeak(u);
+        // Giọng đã chọn (vd giọng Siri) không phát được → bỏ giọng đó, đọc lại bằng giọng mặc định tiếng Trung
+        if (u.voice) setTimeout(() => {
+          if (started || ss.speaking) return;
+          BAD_VOICES.add(u.voice.voiceURI || u.voice.name);
+          const r = new SpeechSynthesisUtterance(u.text);
+          r.lang = "zh-CN"; r.rate = u.rate; r.pitch = u.pitch; r.volume = u.volume;
+          r.onstart = u.onstart; r.onend = u.onend; r.onerror = u.onerror; r.onboundary = u.onboundary;
+          rawCancel(); setTimeout(() => rawSpeak(r), 90);
+        }, 1500);
+      }
+      // Safari bỏ qua câu đọc nếu gọi ngay sau cancel() → chờ một nhịp
+      ss.speak = function (u) {
+        if (Date.now() - lastCancel < 80) setTimeout(() => speakWithFallback(u), 90);
+        else speakWithFallback(u);
+      };
+      // Lần chạm đầu tiên: mở khóa tiếng đọc (Safari chỉ cho đọc khi người dùng đã chạm)
+      const unlock = () => {
+        document.removeEventListener("touchend", unlock, true);
+        document.removeEventListener("click", unlock, true);
+        try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; rawSpeak(u); ss.getVoices(); } catch (e) {}
+      };
+      document.addEventListener("touchend", unlock, true);
+      document.addEventListener("click", unlock, true);
+    })();
     function getBestChineseVoice() {
-      const list = zhVoices();
+      const list = zhVoices().filter(v => !BAD_VOICES.has(v.voiceURI || v.name));
       if (!list.length) return null;
       let saved = "";
       try { saved = localStorage.getItem(VOICE_KEY) || ""; } catch (e) {}
@@ -6722,7 +6760,7 @@
     // ---------- Cài web như app (PWA) ----------
     let deferredInstall = null;
     function isStandalone() { return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
-    function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+    function isIos() { return IS_APPLE_TOUCH; }
     function showInstallButtons(show) {
       ["installAppBtn", "mobileInstallBtn"].forEach(id => { const b = document.getElementById(id); if (b) b.classList.toggle("hidden", !show); });
     }
@@ -6769,7 +6807,7 @@
       }
       const best = list[0];
       const ua = navigator.userAgent;
-      const isEdge = /Edg\//.test(ua), isIOS = /iphone|ipad|ipod/i.test(ua), isAndroid = /android/i.test(ua);
+      const isEdge = /Edg\//.test(ua), isIOS = IS_APPLE_TOUCH, isAndroid = /android/i.test(ua);
       if (best && voiceScore(best) >= 60) {
         hint.textContent = "✅ Máy này có giọng đọc tự nhiên. Nếu nghe chưa ưng, anh thử chọn giọng khác rồi bấm Nghe thử.";
       } else if (isIOS) {
@@ -7748,9 +7786,25 @@
           drawer.style.height = window.visualViewport.height + "px";
           const msgs = document.getElementById("aiMessages");
           if (msgs) msgs.scrollTop = msgs.scrollHeight;
+        } else if (open && isTouchDevice() && window.visualViewport) {
+          // iPad/máy tính bảng: bàn phím che mất ô nhập → đẩy khung chat lên trên bàn phím
+          const vv = window.visualViewport;
+          const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+          drawer.style.top = "";
+          drawer.style.height = "";
+          // CSS cho máy tính bảng dùng !important nên phải ghi đè cũng bằng !important
+          if (kb > 80) {
+            drawer.style.setProperty("bottom", (kb + 8) + "px", "important");
+            drawer.style.setProperty("max-height", Math.max(260, vv.height - 16) + "px", "important");
+          } else {
+            drawer.style.removeProperty("bottom");
+            drawer.style.removeProperty("max-height");
+          }
         } else {
           drawer.style.top = "";
           drawer.style.height = "";
+          drawer.style.removeProperty("bottom");
+          drawer.style.removeProperty("max-height");
         }
       };
       new MutationObserver(sync).observe(drawer, { attributes: true, attributeFilter: ["class"] });
