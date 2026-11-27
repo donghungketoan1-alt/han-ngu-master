@@ -253,7 +253,7 @@
     }
 
     const BADGE_CATALOG = [
-      { id: "first_word", icon: "🐣", name: "Tân Binh Khởi Hành", type: "win", desc: "Đánh dấu thuộc từ vựng đầu tiên", check: () => state.mastered.size >= 1, toast: "Khởi đầu thuận lợi! Bước đầu tiên trên con đường chinh phục 1.450 từ HSK!" },
+      { id: "first_word", icon: "🐣", name: "Tân Binh Khởi Hành", type: "win", desc: "Đánh dấu thuộc từ vựng đầu tiên", check: () => state.mastered.size >= 1, toast: "Khởi đầu thuận lợi! Bước đầu tiên trên con đường chinh phục 2.929 từ HSK!" },
       { id: "vocab_10", icon: "📚", name: "Thợ Săn 10 Từ", type: "win", desc: "Thuộc từ 10 từ vựng HSK trở lên", check: () => state.mastered.size >= 10, toast: "10 từ đã vô túi! Tốc độ nạp chữ của sư huynh quá ổn áp!" },
       { id: "vocab_50", icon: "🐉", name: "Học Bá 50 Từ", type: "win", desc: "Thuộc từ 50 từ vựng HSK trở lên", check: () => state.mastered.size >= 50, toast: "50 từ rồi! Tiểu Long chính thức phong danh hiệu Học Bá!" },
       { id: "vocab_200", icon: "👑", name: "Huyền Thoại 200 Từ", type: "win", desc: "Thuộc từ 200 từ vựng HSK trở lên", check: () => state.mastered.size >= 200, toast: "200 từ vựng! Quá khủng khiếp, xứng danh Huyền Thoại Hán Ngữ!" },
@@ -3979,7 +3979,7 @@
           const w = hits[0];
           return { html: `“${escAi(shown)}” tiếng Trung là <span class="font-hanzi text-xl font-bold text-[#b9382c]">${w.hanzi}</span> (${w.pinyin}, Hán-Việt: ${w.hanviet}) — từ HSK ${w.hsk} đó!<div class="text-xs text-stone-600 mt-1">Ví dụ: ${w.exCn}<br/><em>${w.exVi}</em></div>${hits.length > 1 ? `<div class="text-xs mt-1">Ngoài ra còn: ${hits.slice(1).map(h => `<strong>${h.hanzi}</strong> (${h.meaning})`).join(", ")}</div>` : ""}<div class="text-xs mt-1">Thử đặt một câu với ${w.hanzi} xem, em chấm cho!</div>`, speak: w.hanzi };
         }
-        return { html: `Từ “${escAi(shown)}” không nằm trong 1.450 từ HSK 1–5 của em rồi 😅 Anh thử hỏi cách khác, hoặc nhờ thầy/cô bật chế độ AI trực tuyến để em dịch được mọi thứ nha!`, speak: "" };
+        return { html: `Từ “${escAi(shown)}” không nằm trong 2.929 từ HSK 1–5 của em rồi 😅 Anh thử hỏi cách khác, hoặc nhờ thầy/cô bật chế độ AI trực tuyến để em dịch được mọi thứ nha!`, speak: "" };
       }
 
       // 4. Chào hỏi
@@ -3991,12 +3991,12 @@
 
       // 5. Hỏi thăm
       if (has(/(khoe khong|the nao roi|on khong|dang lam gi|lam gi do)/) || /(你好吗|怎么样|在干什么|在做什么)/.test(raw)) {
-        return { html: `Em khỏe re, đang ngồi canh 1.450 từ HSK cho ${aiName()} nè 😆 Tiếng Trung đáp là <span class="font-hanzi-sans font-bold">我很好，谢谢！你呢？</span> (Wǒ hěn hǎo, xièxie! Nǐ ne?). Còn ${aiName()} hôm nay sao rồi?`, speak: "我很好，谢谢！你呢？" };
+        return { html: `Em khỏe re, đang ngồi canh 2.929 từ HSK cho ${aiName()} nè 😆 Tiếng Trung đáp là <span class="font-hanzi-sans font-bold">我很好，谢谢！你呢？</span> (Wǒ hěn hǎo, xièxie! Nǐ ne?). Còn ${aiName()} hôm nay sao rồi?`, speak: "我很好，谢谢！你呢？" };
       }
 
       // 6. Hỏi về Tiểu Long
       if (has(/(ban la ai|em la ai|may la ai|ten gi|ban ten|em ten|ai tao ra|la robot|la nguoi)/) || /你是谁|你叫什么/.test(raw)) {
-        return { html: `Em là <strong>Tiểu Long</strong> 🐉 — chú rồng nhỏ sống trong web Hán Ngữ Master, chuyên cùng mọi người học HSK 1–5. Em biết 1.450 từ vựng, ngữ pháp, các cặp từ dễ nhầm, còn biết đố vui và luyện nói nữa! ${aiName() === "anh" ? "Còn anh tên gì nè?" : "Mình học tiếp nha " + aiName() + "?"}`, speak: "我叫小龙。" };
+        return { html: `Em là <strong>Tiểu Long</strong> 🐉 — chú rồng nhỏ sống trong web Hán Ngữ Master, chuyên cùng mọi người học HSK 1–5. Em biết 2.929 từ vựng, ngữ pháp, các cặp từ dễ nhầm, còn biết đố vui và luyện nói nữa! ${aiName() === "anh" ? "Còn anh tên gì nè?" : "Mình học tiếp nha " + aiName() + "?"}`, speak: "我叫小龙。" };
       }
 
       // 7. Cảm ơn / khen
@@ -4244,7 +4244,7 @@
 
       // Default helpful response
       return {
-        html: `<div>Ui cha, từ “<strong>${raw}</strong>” này lạ quá, Tiểu Long lục tung cả 1.450 từ HSK mà chưa thấy dấu vết đâu cả 😅!</div>
+        html: `<div>Ui cha, từ “<strong>${raw}</strong>” này lạ quá, Tiểu Long lục tung cả 2.929 từ HSK mà chưa thấy dấu vết đâu cả 😅!</div>
           <div class="text-xs text-stone-600">Anh có thể thử gõ trực tiếp một từ tiếng Trung/Việt (vd: <strong>坚持</strong>, <strong>效率</strong>, <strong>du lịch</strong>), hỏi <strong>phân biệt từ dễ nhầm</strong>, hoặc bấm biểu tượng ⚙️ phía trên để gắn <strong>Gemini API Key</strong> nếu muốn hỏi đáp tự do mọi câu hỏi nâng cao nhé!</div>`,
         speak: ""
       };
@@ -7607,7 +7607,7 @@
       const ws = ttFindWords(ttText);
       ttPanel("🔍 Tra từ", ws.length
         ? ttWordList(ws)
-        : `<div class="tt-note">Không thấy từ nào trong kho 1.450 từ.</div><button type="button" class="tt-btn" data-tt-act="ai">🤖 Dịch bằng AI</button>`);
+        : `<div class="tt-note">Không thấy từ nào trong kho 2.929 từ.</div><button type="button" class="tt-btn" data-tt-act="ai">🤖 Dịch bằng AI</button>`);
     }
     function ttCard() {
       const ws = ttFindWords(ttText);
@@ -7829,7 +7829,7 @@
       if (tab === "dict") renderDict();
       if (state.activeTab !== "speak" && activeRec) { try { activeRec.abort(); } catch (e) {} }
       const tabLines = {
-        vocab: ["Vào kho 1.450 từ vựng nạp chữ mới nào sư huynh! Bấm loa nghe cho chuẩn nhé! 📚", "Luyện từ vựng HSK 1–5 thôi anh ơi, nhớ đánh dấu ✓ mấy từ đã thuộc nha!"],
+        vocab: ["Vào kho 2.929 từ vựng nạp chữ mới nào sư huynh! Bấm loa nghe cho chuẩn nhé! 📚", "Luyện từ vựng HSK 1–5 thôi anh ơi, nhớ đánh dấu ✓ mấy từ đã thuộc nha!"],
         sentences: ["Ối giồi ôi, nay sư huynh cày 125 bài câu dài luôn hả? Đọc xong nói mượt như bản xứ! 😎", "Đọc câu dài nhớ thử tắt dịch Việt xem mình hiểu được bao nhiêu % nha anh!"],
         flashcards: ["Lật thẻ ghi nhớ nào! Bấm phím Space lật nhanh như cao thủ võ lâm! 🃏", "Thẻ nào còn lơ mơ thì bấm sao ⭐ cất kho báu để mai cày tiếp nha anh!"],
         videos: ["Bật loa nghe video hoạt hình đọc chậm lặp 2 lần, cho tiếng Trung ngấm thẳng vô não! 🎧", "Học qua video vừa nhàn vừa nhớ lâu, chỉnh 0.6x–0.7x nghe cực đã luôn anh!"],
