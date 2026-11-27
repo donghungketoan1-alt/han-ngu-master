@@ -4750,7 +4750,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links", ".dc-coll:not([data-dc-coll=\"random\"])", "[data-dc-act]"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links", ".dc-coll:not([data-dc-coll=\"random\"])", "[data-dc-act]", "#view-dict", "#brandHome"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -4784,7 +4784,7 @@
       }, true);
       document.addEventListener("keydown", e => {
         if (!isGuest()) return;
-        if (e.target.closest && e.target.closest("#accountModal")) return;
+        if (e.target.closest && e.target.closest("#accountModal, #view-dict")) return;
         if (["Tab", "PageDown", "PageUp", "Home", "End", "ArrowDown", "ArrowUp"].includes(e.key)) return;
         e.stopImmediatePropagation();
         if (e.key === " " || e.key === "/" || (e.ctrlKey && e.key.toLowerCase() === "k")) { e.preventDefault(); promptSignup(); }
@@ -6023,6 +6023,216 @@
     const dc = { level: "all", source: "short", item: null, checked: false, hint: 0, recent: [],
       view: "home", mode: "random", coll: null, lesson: null, queue: [], pos: 0, scores: [] };
 
+    // ---------- Truyện ngắn & hội thoại đời sống (tự biên soạn, chủ yếu dùng từ đúng cấp; cần giáo viên duyệt) ----------
+    const STORIES = [
+      { id: "st1-1", hsk: 1, title: "我的家", vi: "Nhà tôi", lines: [
+        { cn: "我叫小明，我是中国人。", py: "Wǒ jiào Xiǎomíng, wǒ shì Zhōngguó rén.", vi: "Tôi tên là Tiểu Minh, tôi là người Trung Quốc." },
+        { cn: "我家有三口人：爸爸、妈妈和我。", py: "Wǒ jiā yǒu sān kǒu rén: bàba, māma hé wǒ.", vi: "Nhà tôi có ba người: bố, mẹ và tôi." },
+        { cn: "爸爸是医生，他在医院工作。", py: "Bàba shì yīshēng, tā zài yīyuàn gōngzuò.", vi: "Bố tôi là bác sĩ, ông làm việc ở bệnh viện." },
+        { cn: "妈妈是老师，她在学校工作。", py: "Māma shì lǎoshī, tā zài xuéxiào gōngzuò.", vi: "Mẹ tôi là giáo viên, bà làm việc ở trường học." },
+        { cn: "我是学生，我喜欢学习汉语。", py: "Wǒ shì xuésheng, wǒ xǐhuan xuéxí Hànyǔ.", vi: "Tôi là học sinh, tôi thích học tiếng Hán." },
+        { cn: "我家有一个小狗，很漂亮。", py: "Wǒ jiā yǒu yí ge xiǎo gǒu, hěn piàoliang.", vi: "Nhà tôi có một chú chó nhỏ, rất đẹp." },
+        { cn: "我很爱我的家。", py: "Wǒ hěn ài wǒ de jiā.", vi: "Tôi rất yêu gia đình mình." }
+      ] },
+      { id: "st1-2", hsk: 1, title: "星期天", vi: "Ngày Chủ nhật", lines: [
+        { cn: "今天是星期天，天气很好。", py: "Jīntiān shì xīngqītiān, tiānqì hěn hǎo.", vi: "Hôm nay là Chủ nhật, thời tiết rất đẹp." },
+        { cn: "上午九点，我和朋友去商店。", py: "Shàngwǔ jiǔ diǎn, wǒ hé péngyou qù shāngdiàn.", vi: "Chín giờ sáng, tôi và bạn đi cửa hàng." },
+        { cn: "我们买了很多水果和一些衣服。", py: "Wǒmen mǎile hěn duō shuǐguǒ hé yìxiē yīfu.", vi: "Chúng tôi mua nhiều hoa quả và một ít quần áo." },
+        { cn: "中午我们在饭店吃饭。", py: "Zhōngwǔ wǒmen zài fàndiàn chī fàn.", vi: "Buổi trưa chúng tôi ăn cơm ở nhà hàng." },
+        { cn: "下午我们去看电影。", py: "Xiàwǔ wǒmen qù kàn diànyǐng.", vi: "Buổi chiều chúng tôi đi xem phim." },
+        { cn: "我们都很喜欢那个电影。", py: "Wǒmen dōu hěn xǐhuan nàge diànyǐng.", vi: "Chúng tôi đều rất thích bộ phim đó." },
+        { cn: "下午五点，我回家了。", py: "Xiàwǔ wǔ diǎn, wǒ huí jiā le.", vi: "Năm giờ chiều, tôi về nhà." }
+      ] },
+      { id: "st1-3", hsk: 1, title: "在饭店", vi: "Ở nhà hàng", lines: [
+        { cn: "昨天中午，我和王老师去饭店吃饭。", py: "Zuótiān zhōngwǔ, wǒ hé Wáng lǎoshī qù fàndiàn chī fàn.", vi: "Trưa hôm qua, tôi và cô Vương đi ăn ở nhà hàng." },
+        { cn: "饭店里人很多。", py: "Fàndiàn li rén hěn duō.", vi: "Trong nhà hàng rất đông người." },
+        { cn: "王老师想吃米饭和中国菜。", py: "Wáng lǎoshī xiǎng chī mǐfàn hé Zhōngguó cài.", vi: "Cô Vương muốn ăn cơm và món Trung Quốc." },
+        { cn: "我想喝茶。", py: "Wǒ xiǎng hē chá.", vi: "Tôi muốn uống trà." },
+        { cn: "我们吃了很多菜。", py: "Wǒmen chīle hěn duō cài.", vi: "Chúng tôi ăn rất nhiều món." },
+        { cn: "那天的饭是王老师买的。", py: "Nà tiān de fàn shì Wáng lǎoshī mǎi de.", vi: "Bữa cơm hôm đó là cô Vương trả tiền." },
+        { cn: "我说：“谢谢你，王老师！”", py: "Wǒ shuō: “Xièxie nǐ, Wáng lǎoshī!”", vi: "Tôi nói: “Em cảm ơn cô Vương!”" },
+        { cn: "王老师说：“不客气！”", py: "Wáng lǎoshī shuō: “Bú kèqi!”", vi: "Cô Vương nói: “Không có gì!”" }
+      ] },
+      { id: "st1-4", hsk: 1, title: "北京的天气", vi: "Thời tiết Bắc Kinh", lines: [
+        { cn: "现在是十二月，北京很冷。", py: "Xiànzài shì shí'èr yuè, Běijīng hěn lěng.", vi: "Bây giờ là tháng Mười hai, Bắc Kinh rất lạnh." },
+        { cn: "昨天下雨了，今天也下雨了。", py: "Zuótiān xià yǔ le, jīntiān yě xià yǔ le.", vi: "Hôm qua trời mưa, hôm nay cũng mưa." },
+        { cn: "我不喜欢下雨天。", py: "Wǒ bù xǐhuan xià yǔ tiān.", vi: "Tôi không thích ngày mưa." },
+        { cn: "我的朋友在河内。", py: "Wǒ de péngyou zài Hénèi.", vi: "Bạn tôi ở Hà Nội." },
+        { cn: "她说河内现在不冷，很热。", py: "Tā shuō Hénèi xiànzài bù lěng, hěn rè.", vi: "Cô ấy nói bây giờ Hà Nội không lạnh, rất nóng." },
+        { cn: "明天北京天气怎么样？", py: "Míngtiān Běijīng tiānqì zěnmeyàng?", vi: "Ngày mai thời tiết Bắc Kinh thế nào?" },
+        { cn: "明天不下雨，太好了！", py: "Míngtiān bú xià yǔ, tài hǎo le!", vi: "Ngày mai không mưa, tuyệt quá!" }
+      ] },
+      { id: "st1-5", hsk: 1, title: "我的中国朋友", vi: "Người bạn Trung Quốc của tôi", lines: [
+        { cn: "我有一个中国朋友，她叫李月。", py: "Wǒ yǒu yí ge Zhōngguó péngyou, tā jiào Lǐ Yuè.", vi: "Tôi có một người bạn Trung Quốc, cô ấy tên là Lý Nguyệt." },
+        { cn: "她今年二十岁，在北京学习。", py: "Tā jīnnián èrshí suì, zài Běijīng xuéxí.", vi: "Năm nay cô ấy hai mươi tuổi, đang học ở Bắc Kinh." },
+        { cn: "她会说汉语，也会说一点儿越南语。", py: "Tā huì shuō Hànyǔ, yě huì shuō yìdiǎnr Yuènányǔ.", vi: "Cô ấy biết nói tiếng Hán, cũng biết nói một chút tiếng Việt." },
+        { cn: "我们是在学校认识的。", py: "Wǒmen shì zài xuéxiào rènshi de.", vi: "Chúng tôi quen nhau ở trường." },
+        { cn: "星期六我们去喝茶、看书。", py: "Xīngqīliù wǒmen qù hē chá, kàn shū.", vi: "Thứ Bảy chúng tôi đi uống trà, đọc sách." },
+        { cn: "我很高兴认识她。", py: "Wǒ hěn gāoxìng rènshi tā.", vi: "Tôi rất vui được quen cô ấy." }
+      ] },
+      { id: "st1-6", hsk: 1, title: "妈妈的电话", vi: "Cuộc gọi của mẹ", lines: [
+        { cn: "下午三点，妈妈打电话来。", py: "Xiàwǔ sān diǎn, māma dǎ diànhuà lái.", vi: "Ba giờ chiều, mẹ gọi điện đến." },
+        { cn: "妈妈说：“喂，你在哪儿呢？”", py: "Māma shuō: “Wéi, nǐ zài nǎr ne?”", vi: "Mẹ nói: “A lô, con đang ở đâu thế?”" },
+        { cn: "我说：“我在学校看书呢。”", py: "Wǒ shuō: “Wǒ zài xuéxiào kàn shū ne.”", vi: "Tôi nói: “Con đang đọc sách ở trường.”" },
+        { cn: "妈妈说：“你几点回家？”", py: "Māma shuō: “Nǐ jǐ diǎn huí jiā?”", vi: "Mẹ nói: “Mấy giờ con về nhà?”" },
+        { cn: "我说：“五点回家，我想吃米饭。”", py: "Wǒ shuō: “Wǔ diǎn huí jiā, wǒ xiǎng chī mǐfàn.”", vi: "Tôi nói: “Năm giờ con về, con muốn ăn cơm.”" },
+        { cn: "妈妈说：“好，我做饭。”", py: "Māma shuō: “Hǎo, wǒ zuò fàn.”", vi: "Mẹ nói: “Được, mẹ nấu cơm.”" },
+        { cn: "五点我回家了，妈妈在做饭呢。", py: "Wǔ diǎn wǒ huí jiā le, māma zài zuò fàn ne.", vi: "Năm giờ tôi về đến nhà, mẹ đang nấu cơm." }
+      ] },
+      { id: "st2-1", hsk: 2, title: "最快乐的生日", vi: "Sinh nhật vui nhất", lines: [
+        { cn: "今天是我的生日，我二十五岁了。", py: "Jīntiān shì wǒ de shēngrì, wǒ èrshíwǔ suì le.", vi: "Hôm nay là sinh nhật tôi, tôi hai mươi lăm tuổi rồi." },
+        { cn: "早上起床，妻子送给我一块新手表。", py: "Zǎoshang qǐchuáng, qīzi sòng gěi wǒ yí kuài xīn shǒubiǎo.", vi: "Sáng ngủ dậy, vợ tặng tôi một chiếc đồng hồ mới." },
+        { cn: "手表是黑色的，非常漂亮。", py: "Shǒubiǎo shì hēisè de, fēicháng piàoliang.", vi: "Chiếc đồng hồ màu đen, rất đẹp." },
+        { cn: "晚上，我们和几个朋友一起去饭店吃饭。", py: "Wǎnshang, wǒmen hé jǐ ge péngyou yìqǐ qù fàndiàn chī fàn.", vi: "Buổi tối, chúng tôi cùng mấy người bạn đi ăn ở nhà hàng." },
+        { cn: "大家一起唱歌，一起笑，非常快乐。", py: "Dàjiā yìqǐ chàng gē, yìqǐ xiào, fēicháng kuàilè.", vi: "Mọi người cùng hát, cùng cười, rất vui vẻ." },
+        { cn: "我觉得这是我最快乐的一个生日。", py: "Wǒ juéde zhè shì wǒ zuì kuàilè de yí ge shēngrì.", vi: "Tôi thấy đây là sinh nhật vui nhất của tôi." }
+      ] },
+      { id: "st2-2", hsk: 2, title: "第一次去北京", vi: "Lần đầu đi Bắc Kinh", lines: [
+        { cn: "明天我要去北京旅游。", py: "Míngtiān wǒ yào qù Běijīng lǚyóu.", vi: "Ngày mai tôi sẽ đi du lịch Bắc Kinh." },
+        { cn: "我的飞机是早上八点的，所以我六点就要起床。", py: "Wǒ de fēijī shì zǎoshang bā diǎn de, suǒyǐ wǒ liù diǎn jiù yào qǐchuáng.", vi: "Máy bay của tôi lúc tám giờ sáng, nên sáu giờ tôi đã phải dậy." },
+        { cn: "机场离我家很远，坐出租车要一个小时。", py: "Jīchǎng lí wǒ jiā hěn yuǎn, zuò chūzūchē yào yí ge xiǎoshí.", vi: "Sân bay cách nhà tôi rất xa, đi taxi mất một tiếng." },
+        { cn: "我已经准备好了衣服、手机和机票。", py: "Wǒ yǐjīng zhǔnbèi hǎo le yīfu, shǒujī hé jīpiào.", vi: "Tôi đã chuẩn bị xong quần áo, điện thoại và vé máy bay." },
+        { cn: "哥哥说他可以送我去机场。", py: "Gēge shuō tā kěyǐ sòng wǒ qù jīchǎng.", vi: "Anh trai nói có thể đưa tôi ra sân bay." },
+        { cn: "我非常高兴，因为这是我第一次去北京。", py: "Wǒ fēicháng gāoxìng, yīnwèi zhè shì wǒ dì-yī cì qù Běijīng.", vi: "Tôi rất vui, vì đây là lần đầu tôi đến Bắc Kinh." }
+      ] },
+      { id: "st2-3", hsk: 2, title: "我生病了", vi: "Tôi bị ốm", lines: [
+        { cn: "昨天晚上我生病了。", py: "Zuótiān wǎnshang wǒ shēngbìng le.", vi: "Tối hôm qua tôi bị ốm." },
+        { cn: "今天早上我没去上班，去医院看医生。", py: "Jīntiān zǎoshang wǒ méi qù shàngbān, qù yīyuàn kàn yīshēng.", vi: "Sáng nay tôi không đi làm, đến bệnh viện khám bệnh." },
+        { cn: "医生说：“你要多喝水，多休息。”", py: "Yīshēng shuō: “Nǐ yào duō hē shuǐ, duō xiūxi.”", vi: "Bác sĩ nói: “Anh phải uống nhiều nước, nghỉ ngơi nhiều.”" },
+        { cn: "他给了我一些药，一天吃三次。", py: "Tā gěile wǒ yìxiē yào, yì tiān chī sān cì.", vi: "Ông ấy cho tôi ít thuốc, một ngày uống ba lần." },
+        { cn: "下午我在家睡觉，妻子给我做了面条。", py: "Xiàwǔ wǒ zài jiā shuìjiào, qīzi gěi wǒ zuòle miàntiáo.", vi: "Buổi chiều tôi ngủ ở nhà, vợ nấu mì cho tôi." },
+        { cn: "现在我好多了，明天可以去上班了。", py: "Xiànzài wǒ hǎo duō le, míngtiān kěyǐ qù shàngbān le.", vi: "Bây giờ tôi đỡ nhiều rồi, ngày mai có thể đi làm." }
+      ] },
+      { id: "st2-4", hsk: 2, title: "我的一天", vi: "Một ngày của tôi", lines: [
+        { cn: "每天早上六点，我起床去跑步。", py: "Měitiān zǎoshang liù diǎn, wǒ qǐchuáng qù pǎobù.", vi: "Sáu giờ sáng mỗi ngày, tôi dậy đi chạy bộ." },
+        { cn: "七点我喝一杯牛奶，吃两个鸡蛋。", py: "Qī diǎn wǒ hē yì bēi niúnǎi, chī liǎng ge jīdàn.", vi: "Bảy giờ tôi uống một cốc sữa, ăn hai quả trứng." },
+        { cn: "八点我坐公共汽车去公司上班。", py: "Bā diǎn wǒ zuò gōnggòng qìchē qù gōngsī shàngbān.", vi: "Tám giờ tôi đi xe buýt đến công ty làm việc." },
+        { cn: "我的公司离家不远，二十分钟就到了。", py: "Wǒ de gōngsī lí jiā bù yuǎn, èrshí fēnzhōng jiù dào le.", vi: "Công ty tôi cách nhà không xa, hai mươi phút là tới." },
+        { cn: "工作很忙，但是我很喜欢我的工作。", py: "Gōngzuò hěn máng, dànshì wǒ hěn xǐhuan wǒ de gōngzuò.", vi: "Công việc rất bận, nhưng tôi rất thích công việc của mình." },
+        { cn: "晚上我看看书、看看电视，十一点睡觉。", py: "Wǎnshang wǒ kànkan shū, kànkan diànshì, shíyī diǎn shuìjiào.", vi: "Buổi tối tôi đọc sách, xem tivi, mười một giờ đi ngủ." }
+      ] },
+      { id: "st2-5", hsk: 2, title: "买衣服", vi: "Đi mua quần áo", lines: [
+        { cn: "星期六，姐姐和我去商店买衣服。", py: "Xīngqīliù, jiějie hé wǒ qù shāngdiàn mǎi yīfu.", vi: "Thứ Bảy, chị gái và tôi đi cửa hàng mua quần áo." },
+        { cn: "我看见一件红色的衣服，非常漂亮。", py: "Wǒ kànjiàn yí jiàn hóngsè de yīfu, fēicháng piàoliang.", vi: "Tôi nhìn thấy một chiếc áo màu đỏ, rất đẹp." },
+        { cn: "我问服务员：“这件衣服多少钱？”", py: "Wǒ wèn fúwùyuán: “Zhè jiàn yīfu duōshao qián?”", vi: "Tôi hỏi nhân viên: “Chiếc áo này bao nhiêu tiền?”" },
+        { cn: "服务员说：“八百块。”", py: "Fúwùyuán shuō: “Bābǎi kuài.”", vi: "Nhân viên nói: “Tám trăm tệ.”" },
+        { cn: "太贵了！我没有买。", py: "Tài guì le! Wǒ méiyǒu mǎi.", vi: "Đắt quá! Tôi không mua." },
+        { cn: "姐姐找到一件白色的，比那件便宜多了。", py: "Jiějie zhǎodào yí jiàn báisè de, bǐ nà jiàn piányi duō le.", vi: "Chị tôi tìm được một chiếc màu trắng, rẻ hơn chiếc kia nhiều." },
+        { cn: "我很喜欢，就买了。", py: "Wǒ hěn xǐhuan, jiù mǎi le.", vi: "Tôi rất thích nên mua luôn." }
+      ] },
+      { id: "st2-6", hsk: 2, title: "弟弟学游泳", vi: "Em trai học bơi", lines: [
+        { cn: "我的弟弟今年八岁，他非常喜欢运动。", py: "Wǒ de dìdi jīnnián bā suì, tā fēicháng xǐhuan yùndòng.", vi: "Em trai tôi năm nay tám tuổi, nó rất thích thể thao." },
+        { cn: "他会踢足球，也会打篮球，但是不会游泳。", py: "Tā huì tī zúqiú, yě huì dǎ lánqiú, dànshì bú huì yóuyǒng.", vi: "Nó biết đá bóng, biết chơi bóng rổ, nhưng không biết bơi." },
+        { cn: "今年七月，爸爸开始帮助他学游泳。", py: "Jīnnián qī yuè, bàba kāishǐ bāngzhù tā xué yóuyǒng.", vi: "Tháng Bảy năm nay, bố bắt đầu giúp nó học bơi." },
+        { cn: "第一次去的时候，弟弟不想进水里。", py: "Dì-yī cì qù de shíhou, dìdi bù xiǎng jìn shuǐ li.", vi: "Lần đầu đi bơi, em tôi không muốn xuống nước." },
+        { cn: "爸爸笑着说：“没关系，我在你旁边。”", py: "Bàba xiàozhe shuō: “Méi guānxi, wǒ zài nǐ pángbiān.”", vi: "Bố cười nói: “Không sao đâu, bố ở ngay bên con.”" },
+        { cn: "一个月后，弟弟已经会游泳了！", py: "Yí ge yuè hòu, dìdi yǐjīng huì yóuyǒng le!", vi: "Một tháng sau, em tôi đã biết bơi rồi!" }
+      ] }
+    ];
+    const DAILY_DIALOGS = [
+      { id: "dl1-1", hsk: 1, title: "买水果", vi: "Mua hoa quả", lines: [
+        { who: "B", cn: "你好！你想买什么？", py: "Nǐ hǎo! Nǐ xiǎng mǎi shénme?", vi: "Chào bạn! Bạn muốn mua gì?" },
+        { who: "A", cn: "我想买苹果。苹果多少钱？", py: "Wǒ xiǎng mǎi píngguǒ. Píngguǒ duōshao qián?", vi: "Tôi muốn mua táo. Táo bao nhiêu tiền?" },
+        { who: "B", cn: "一个三块钱。", py: "Yí ge sān kuài qián.", vi: "Ba tệ một quả." },
+        { who: "A", cn: "我买五个。", py: "Wǒ mǎi wǔ ge.", vi: "Tôi mua năm quả." },
+        { who: "B", cn: "好，十五块钱。", py: "Hǎo, shíwǔ kuài qián.", vi: "Được, mười lăm tệ." },
+        { who: "A", cn: "钱在这儿，谢谢！", py: "Qián zài zhèr, xièxie!", vi: "Tiền đây, cảm ơn!" },
+        { who: "B", cn: "不客气！再见！", py: "Bú kèqi! Zàijiàn!", vi: "Không có gì! Tạm biệt!" }
+      ] },
+      { id: "dl1-2", hsk: 1, title: "坐出租车", vi: "Đi taxi", lines: [
+        { who: "A", cn: "你好，去北京饭店。", py: "Nǐ hǎo, qù Běijīng Fàndiàn.", vi: "Chào anh, đến khách sạn Bắc Kinh." },
+        { who: "B", cn: "好的。你是中国人吗？", py: "Hǎo de. Nǐ shì Zhōngguó rén ma?", vi: "Vâng. Bạn là người Trung Quốc à?" },
+        { who: "A", cn: "不是，我是越南人。", py: "Bú shì, wǒ shì Yuènán rén.", vi: "Không, tôi là người Việt Nam." },
+        { who: "B", cn: "你会说汉语，太好了！", py: "Nǐ huì shuō Hànyǔ, tài hǎo le!", vi: "Bạn biết nói tiếng Hán, giỏi quá!" },
+        { who: "A", cn: "谢谢！我在学校学习汉语。", py: "Xièxie! Wǒ zài xuéxiào xuéxí Hànyǔ.", vi: "Cảm ơn! Tôi học tiếng Hán ở trường." },
+        { who: "B", cn: "前面是北京饭店。", py: "Qiánmiàn shì Běijīng Fàndiàn.", vi: "Phía trước là khách sạn Bắc Kinh." },
+        { who: "A", cn: "多少钱？", py: "Duōshao qián?", vi: "Bao nhiêu tiền?" },
+        { who: "B", cn: "三十块。", py: "Sānshí kuài.", vi: "Ba mươi tệ." }
+      ] },
+      { id: "dl1-3", hsk: 1, title: "看电影", vi: "Hẹn đi xem phim", lines: [
+        { who: "A", cn: "喂，你好！是小王吗？", py: "Wéi, nǐ hǎo! Shì Xiǎo Wáng ma?", vi: "A lô, xin chào! Tiểu Vương phải không?" },
+        { who: "B", cn: "是我。你是李月吗？", py: "Shì wǒ. Nǐ shì Lǐ Yuè ma?", vi: "Là tôi đây. Bạn là Lý Nguyệt à?" },
+        { who: "A", cn: "对，是我。明天下午你想去看电影吗？", py: "Duì, shì wǒ. Míngtiān xiàwǔ nǐ xiǎng qù kàn diànyǐng ma?", vi: "Đúng rồi. Chiều mai bạn muốn đi xem phim không?" },
+        { who: "B", cn: "想去！几点的电影？", py: "Xiǎng qù! Jǐ diǎn de diànyǐng?", vi: "Muốn chứ! Phim mấy giờ?" },
+        { who: "A", cn: "下午三点。我们在学校前面见，怎么样？", py: "Xiàwǔ sān diǎn. Wǒmen zài xuéxiào qiánmiàn jiàn, zěnmeyàng?", vi: "Ba giờ chiều. Mình gặp nhau trước cổng trường nhé?" },
+        { who: "B", cn: "好，明天见！", py: "Hǎo, míngtiān jiàn!", vi: "Được, mai gặp nhé!" }
+      ] },
+      { id: "dl1-4", hsk: 1, title: "在饭店", vi: "Gọi món ở nhà hàng", lines: [
+        { who: "A", cn: "你们几个人？", py: "Nǐmen jǐ ge rén?", vi: "Các bạn mấy người?" },
+        { who: "B", cn: "我们三个人。", py: "Wǒmen sān ge rén.", vi: "Chúng tôi ba người." },
+        { who: "A", cn: "请坐。你们想吃什么？", py: "Qǐng zuò. Nǐmen xiǎng chī shénme?", vi: "Mời ngồi. Các bạn muốn ăn gì?" },
+        { who: "B", cn: "我们想吃米饭和中国菜。", py: "Wǒmen xiǎng chī mǐfàn hé Zhōngguó cài.", vi: "Chúng tôi muốn ăn cơm và món Trung Quốc." },
+        { who: "A", cn: "想喝什么？", py: "Xiǎng hē shénme?", vi: "Muốn uống gì ạ?" },
+        { who: "B", cn: "三杯茶，谢谢。", py: "Sān bēi chá, xièxie.", vi: "Ba cốc trà, cảm ơn." }
+      ] },
+      { id: "dl1-5", hsk: 1, title: "认识老师", vi: "Làm quen với thầy giáo", lines: [
+        { who: "A", cn: "你好！你是这个学校的学生吗？", py: "Nǐ hǎo! Nǐ shì zhège xuéxiào de xuésheng ma?", vi: "Chào bạn! Bạn là học sinh trường này à?" },
+        { who: "B", cn: "是，我在这儿学习汉语。你呢？", py: "Shì, wǒ zài zhèr xuéxí Hànyǔ. Nǐ ne?", vi: "Vâng, tôi học tiếng Hán ở đây. Còn anh?" },
+        { who: "A", cn: "我是这儿的汉语老师。", py: "Wǒ shì zhèr de Hànyǔ lǎoshī.", vi: "Tôi là giáo viên tiếng Hán ở đây." },
+        { who: "B", cn: "老师好！我叫阮兰，我是越南人。", py: "Lǎoshī hǎo! Wǒ jiào Ruǎn Lán, wǒ shì Yuènán rén.", vi: "Em chào thầy! Em tên là Nguyễn Lan, em là người Việt Nam." },
+        { who: "A", cn: "你好，阮兰！你住在哪儿？", py: "Nǐ hǎo, Ruǎn Lán! Nǐ zhù zài nǎr?", vi: "Chào Nguyễn Lan! Em sống ở đâu?" },
+        { who: "B", cn: "我住在学校里。", py: "Wǒ zhù zài xuéxiào li.", vi: "Em sống trong trường." }
+      ] },
+      { id: "dl1-6", hsk: 1, title: "下雨了", vi: "Trời mưa rồi", lines: [
+        { who: "A", cn: "现在下雨吗？", py: "Xiànzài xià yǔ ma?", vi: "Bây giờ có mưa không?" },
+        { who: "B", cn: "下雨了。今天很冷。", py: "Xià yǔ le. Jīntiān hěn lěng.", vi: "Mưa rồi. Hôm nay lạnh lắm." },
+        { who: "A", cn: "我想去商店买东西。", py: "Wǒ xiǎng qù shāngdiàn mǎi dōngxi.", vi: "Tôi muốn đi cửa hàng mua đồ." },
+        { who: "B", cn: "明天去，怎么样？", py: "Míngtiān qù, zěnmeyàng?", vi: "Mai hãy đi, được không?" },
+        { who: "A", cn: "好。今天在家看电视。", py: "Hǎo. Jīntiān zài jiā kàn diànshì.", vi: "Ừ. Hôm nay ở nhà xem tivi." },
+        { who: "B", cn: "太好了，我想看中国电影。", py: "Tài hǎo le, wǒ xiǎng kàn Zhōngguó diànyǐng.", vi: "Hay quá, tôi muốn xem phim Trung Quốc." }
+      ] },
+      { id: "dl2-1", hsk: 2, title: "问路", vi: "Hỏi đường", lines: [
+        { who: "A", cn: "请问，火车站怎么走？", py: "Qǐngwèn, huǒchēzhàn zěnme zǒu?", vi: "Xin hỏi, đến ga tàu đi thế nào?" },
+        { who: "B", cn: "往前走，在第二个路口往右走。", py: "Wǎng qián zǒu, zài dì-èr ge lùkǒu wǎng yòu zǒu.", vi: "Đi thẳng, đến ngã tư thứ hai thì rẽ phải." },
+        { who: "A", cn: "离这儿远吗？", py: "Lí zhèr yuǎn ma?", vi: "Có xa đây không?" },
+        { who: "B", cn: "不太远，走路十分钟就到了。", py: "Bú tài yuǎn, zǒulù shí fēnzhōng jiù dào le.", vi: "Không xa lắm, đi bộ mười phút là tới." },
+        { who: "A", cn: "火车站旁边有宾馆吗？", py: "Huǒchēzhàn pángbiān yǒu bīnguǎn ma?", vi: "Bên cạnh ga tàu có khách sạn không?" },
+        { who: "B", cn: "有，左边就有一个。", py: "Yǒu, zuǒbian jiù yǒu yí ge.", vi: "Có, ngay bên trái có một cái." },
+        { who: "A", cn: "太谢谢你了！", py: "Tài xièxie nǐ le!", vi: "Cảm ơn bạn nhiều lắm!" }
+      ] },
+      { id: "dl2-2", hsk: 2, title: "在宾馆", vi: "Nhận phòng khách sạn", lines: [
+        { who: "A", cn: "你好，我想要一个房间。", py: "Nǐ hǎo, wǒ xiǎng yào yí ge fángjiān.", vi: "Chào chị, tôi muốn thuê một phòng." },
+        { who: "B", cn: "您好！您要住几天？", py: "Nín hǎo! Nín yào zhù jǐ tiān?", vi: "Chào anh! Anh muốn ở mấy ngày?" },
+        { who: "A", cn: "三天。一天多少钱？", py: "Sān tiān. Yì tiān duōshao qián?", vi: "Ba ngày. Một ngày bao nhiêu tiền?" },
+        { who: "B", cn: "一天四百块。", py: "Yì tiān sìbǎi kuài.", vi: "Bốn trăm tệ một ngày." },
+        { who: "A", cn: "可以。房间里有电脑吗？", py: "Kěyǐ. Fángjiān li yǒu diànnǎo ma?", vi: "Được. Trong phòng có máy tính không?" },
+        { who: "B", cn: "有。您的房间是三零八，请往右边走。", py: "Yǒu. Nín de fángjiān shì sān líng bā, qǐng wǎng yòubian zǒu.", vi: "Có ạ. Phòng của anh là 308, mời anh đi về bên phải." }
+      ] },
+      { id: "dl2-3", hsk: 2, title: "一起去游泳", vi: "Rủ nhau đi bơi", lines: [
+        { who: "A", cn: "你每天都运动吗？", py: "Nǐ měitiān dōu yùndòng ma?", vi: "Ngày nào bạn cũng tập thể thao à?" },
+        { who: "B", cn: "对，我每天早上跑步。你呢？", py: "Duì, wǒ měitiān zǎoshang pǎobù. Nǐ ne?", vi: "Đúng, sáng nào tôi cũng chạy bộ. Còn bạn?" },
+        { who: "A", cn: "我喜欢游泳，但是这个月工作太忙了。", py: "Wǒ xǐhuan yóuyǒng, dànshì zhège yuè gōngzuò tài máng le.", vi: "Tôi thích bơi, nhưng tháng này công việc bận quá." },
+        { who: "B", cn: "运动对身体很好。星期六我们一起去游泳吧！", py: "Yùndòng duì shēntǐ hěn hǎo. Xīngqīliù wǒmen yìqǐ qù yóuyǒng ba!", vi: "Thể thao rất tốt cho sức khỏe. Thứ Bảy mình cùng đi bơi nhé!" },
+        { who: "A", cn: "好！几点去？", py: "Hǎo! Jǐ diǎn qù?", vi: "Được! Mấy giờ đi?" },
+        { who: "B", cn: "早上九点，我在你家门口等你。", py: "Zǎoshang jiǔ diǎn, wǒ zài nǐ jiā ménkǒu děng nǐ.", vi: "Chín giờ sáng, tôi đợi bạn ở cửa nhà bạn." }
+      ] },
+      { id: "dl2-4", hsk: 2, title: "妈妈的生日", vi: "Quà sinh nhật mẹ", lines: [
+        { who: "A", cn: "明天是妈妈的生日，我们送她什么？", py: "Míngtiān shì māma de shēngrì, wǒmen sòng tā shénme?", vi: "Mai là sinh nhật mẹ, mình tặng mẹ gì đây?" },
+        { who: "B", cn: "送她一件衣服怎么样？", py: "Sòng tā yí jiàn yīfu zěnmeyàng?", vi: "Tặng mẹ một bộ quần áo được không?" },
+        { who: "A", cn: "我觉得手表比衣服好。", py: "Wǒ juéde shǒubiǎo bǐ yīfu hǎo.", vi: "Em thấy đồng hồ hay hơn quần áo." },
+        { who: "B", cn: "也可以。什么颜色的？", py: "Yě kěyǐ. Shénme yánsè de?", vi: "Cũng được. Màu gì nhỉ?" },
+        { who: "A", cn: "红色的吧，妈妈最喜欢红色。", py: "Hóngsè de ba, māma zuì xǐhuan hóngsè.", vi: "Màu đỏ đi, mẹ thích màu đỏ nhất." },
+        { who: "B", cn: "好，我们下午一起去买。", py: "Hǎo, wǒmen xiàwǔ yìqǐ qù mǎi.", vi: "Được, chiều nay mình cùng đi mua." }
+      ] },
+      { id: "dl2-5", hsk: 2, title: "准备考试", vi: "Ôn thi", lines: [
+        { who: "A", cn: "你今天很累吗？", py: "Nǐ jīntiān hěn lèi ma?", vi: "Hôm nay bạn mệt lắm à?" },
+        { who: "B", cn: "是的，明天有汉语考试，我昨天晚上准备到十二点。", py: "Shì de, míngtiān yǒu Hànyǔ kǎoshì, wǒ zuótiān wǎnshang zhǔnbèi dào shí'èr diǎn.", vi: "Ừ, mai có bài thi tiếng Hán, tối qua mình ôn đến mười hai giờ." },
+        { who: "A", cn: "考试的题多吗？", py: "Kǎoshì de tí duō ma?", vi: "Đề thi có nhiều câu không?" },
+        { who: "B", cn: "不太多，但是有的题我还不懂。", py: "Bú tài duō, dànshì yǒude tí wǒ hái bù dǒng.", vi: "Không nhiều lắm, nhưng có câu mình vẫn chưa hiểu." },
+        { who: "A", cn: "我可以帮助你，哪个题不懂？", py: "Wǒ kěyǐ bāngzhù nǐ, nǎge tí bù dǒng?", vi: "Mình giúp bạn được, câu nào chưa hiểu?" },
+        { who: "B", cn: "太好了，谢谢你！", py: "Tài hǎo le, xièxie nǐ!", vi: "Tốt quá, cảm ơn bạn!" }
+      ] },
+      { id: "dl2-6", hsk: 2, title: "等朋友", vi: "Đợi bạn", lines: [
+        { who: "A", cn: "你在这儿等谁呢？", py: "Nǐ zài zhèr děng shéi ne?", vi: "Bạn đang đợi ai ở đây thế?" },
+        { who: "B", cn: "我在等我的同学，她还没来。", py: "Wǒ zài děng wǒ de tóngxué, tā hái méi lái.", vi: "Mình đang đợi bạn học, cô ấy vẫn chưa đến." },
+        { who: "A", cn: "你们几点见？", py: "Nǐmen jǐ diǎn jiàn?", vi: "Các bạn hẹn mấy giờ?" },
+        { who: "B", cn: "两点，现在已经两点二十了。", py: "Liǎng diǎn, xiànzài yǐjīng liǎng diǎn èrshí le.", vi: "Hai giờ, bây giờ đã hai giờ hai mươi rồi." },
+        { who: "A", cn: "给她打个电话吧。", py: "Gěi tā dǎ ge diànhuà ba.", vi: "Gọi điện cho cô ấy đi." },
+        { who: "B", cn: "我打了，她说路上车太多，十分钟就到。", py: "Wǒ dǎ le, tā shuō lùshang chē tài duō, shí fēnzhōng jiù dào.", vi: "Mình gọi rồi, cô ấy nói đường đông xe quá, mười phút nữa sẽ tới." },
+        { who: "A", cn: "那你喝杯咖啡，慢慢等吧！", py: "Nà nǐ hē bēi kāfēi, mànmàn děng ba!", vi: "Vậy bạn uống cốc cà phê, cứ thong thả đợi nhé!" }
+      ] }
+    ];
+
     // ---------- Nghe chép: bộ sưu tập → danh sách bài → làm bài theo thứ tự câu ----------
     const DC_LESSON_SIZE = 8;
     let dcCache = null;
@@ -6058,8 +6268,19 @@
           items: g.dialogue.lines.map((l, i) => ({ key: `d-${lv}-${g.key}-${i}`, hsk: lv, cn: l.cn, py: l.py, vi: `${l.who}: ${l.vi}`, from: `Hội thoại: ${g.dialogue.title}` }))
         }));
       });
+      // 4. Truyện ngắn & 5. Hội thoại đời sống (STORIES, DAILY_DIALOGS)
+      const story = STORIES.map(s => ({
+        id: `s-${s.id}`, hsk: s.hsk, group: `Truyện HSK ${s.hsk}`, title: s.title, sub: s.vi,
+        items: s.lines.map((l, i) => ({ key: `${s.id}-${i}`, hsk: s.hsk, cn: l.cn, py: l.py, vi: l.vi, from: `Truyện: ${s.title} · ${s.vi}` }))
+      }));
+      const daily = DAILY_DIALOGS.map(d => ({
+        id: `l-${d.id}`, hsk: d.hsk, group: `Hội thoại HSK ${d.hsk}`, title: d.title, sub: d.vi,
+        items: d.lines.map((l, i) => ({ key: `${d.id}-${i}`, hsk: d.hsk, cn: l.cn, py: l.py, vi: `${l.who}: ${l.vi}`, from: `Hội thoại: ${d.title} · ${d.vi}` }))
+      }));
       dcCache = [
         { id: "topic", glyph: "话", color: "#b9382c", title: "Câu giao tiếp theo chủ đề", desc: "Câu ngắn dùng hằng ngày theo 15 chủ đề, mỗi bài 8 câu.", lessons: topic },
+        { id: "daily", glyph: "聊", color: "#0f766e", title: "Hội thoại đời sống", desc: "Mua sắm, đi taxi, hỏi đường, gọi điện… nghe chép từng lượt lời.", lessons: daily },
+        { id: "story", glyph: "故", color: "#7c3aed", title: "Truyện ngắn", desc: "Truyện ngắn dễ hiểu theo trình độ, nghe chép từng câu.", lessons: story },
         { id: "dialog", glyph: "谈", color: "#2563eb", title: "Hội thoại theo giáo án", desc: "Nghe chép từng lượt lời trong hội thoại của các bài ngữ pháp.", lessons: dialog },
         { id: "reading", glyph: "读", color: "#1f6f5b", title: "Bài đọc dài", desc: "Nghe chép lần lượt từng câu của một bài đọc hoàn chỉnh.", lessons: reading },
         { id: "random", glyph: "听", color: "#c8963e", title: "Luyện ngẫu nhiên", desc: "Máy chọn câu bất kỳ trong kho, luyện không giới hạn.", random: true }
@@ -6532,16 +6753,393 @@
       initPwa();
     }
 
+    // ---------- Từ điển Trung – Việt (mục dict): ai cũng tra được, không cần đăng nhập ----------
+    // Dữ liệu lấy từ VOCAB (chữ Hán, pinyin, Hán-Việt, nghĩa, ví dụ) + câu trong LONG_SENTENCES.
+    // Địa chỉ: tu-dien/?q=你好 (gửi link được). Từ đã tra gần đây lưu trên máy người xem (han_ngu_dict_recent_v1).
+    const DICT_RECENT_KEY = "han_ngu_dict_recent_v1";
+    const DICT_SUGGEST = ["你好", "谢谢", "学习", "朋友", "工作", "喜欢", "旅游", "健康", "经济", "一举两得"];
+    const dict = { ready: false, q: "", level: "all", sel: null, limit: 40, idx: null, say: [], timer: 0 };
+
+    function dictEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    // Tách pinyin thành từng âm tiết, giữ dấu thanh (nǐ hǎo → ["nǐ", "hǎo"]); không khớp thì trả null
+    function dictToned(py) {
+      const out = [];
+      for (const part of String(py || "").split(/[^\p{L}̀-ͯ]+/u)) {
+        if (!part) continue;
+        const nfc = part.normalize("NFC");
+        const seg = splitPinyin(nfc);
+        if (!seg) return null;
+        const letters = [...nfc];
+        let i = 0;
+        for (const x of seg) { out.push(letters.slice(i, i + x.s.length).join("")); i += x.s.length; }
+        if (i !== letters.length) return null;
+      }
+      return out;
+    }
+    function dictIndex() {
+      if (dict.idx) return dict.idx;
+      const addSet = (m, k, v) => { if (!v) return; if (!m.has(k)) m.set(k, new Set()); m.get(k).add(v); };
+      const charPy = new Map(), charHv = new Map(), charWords = new Map(), single = new Map();
+      const words = VOCAB.map(v => {
+        const syl = splitPinyin(v.pinyin) || [];
+        const chars = [...v.hanzi];
+        const toned = dictToned(v.pinyin);
+        const hvs = String(v.hanviet || "").trim().split(/\s+/);
+        chars.forEach((c, i) => {
+          if (!/[一-鿿]/.test(c)) return;
+          if (!charWords.has(c)) charWords.set(c, []);
+          charWords.get(c).push(v);
+          if (toned && toned.length === chars.length && toned[i] !== "r") addSet(charPy, c, toned[i].toLowerCase());
+          if (hvs.length === chars.length) addSet(charHv, c, hvs[i].toLowerCase());
+        });
+        if (chars.length === 1) single.set(v.hanzi, v);
+        return {
+          v, hz: v.hanzi,
+          pyT: stripTone(v.pinyin).replace(/[^a-z]/g, ""),                      // nihao
+          pyN: syl.map(x => x.s + (x.t === 5 ? "" : x.t)).join(""),               // ni3hao3
+          pyM: String(v.pinyin).normalize("NFC").toLowerCase().replace(/[^\p{L}]/gu, ""), // nǐhǎo
+          hv: normViText(v.hanviet || ""),
+          mean: " " + normViText(v.meaning || "") + " "
+        };
+      });
+      const sents = [], seen = new Set();
+      const addSent = s => { if (!s.cn || seen.has(s.cn)) return; seen.add(s.cn); sents.push(s); };
+      VOCAB.forEach(v => addSent({ cn: v.exCn, py: v.exPinyin, vi: v.exVi, from: `Ví dụ của từ ${v.hanzi}`, own: v.id }));
+      if (typeof LONG_SENTENCES !== "undefined") LONG_SENTENCES.forEach(p => (p.clauses || []).forEach(c => addSent({ cn: c.cn, py: c.py, vi: c.vi, from: `Bài đọc: ${p.title}` })));
+      const byHz = new Map(words.map(w => [w.hz, w]));
+      dict.idx = { words, byHz, charPy, charHv, charWords, single, sents, maxLen: Math.min(6, Math.max(...words.map(w => w.hz.length))) };
+      return dict.idx;
+    }
+    // Chấm điểm và xếp hạng kết quả: khớp chữ Hán > pinyin > Hán-Việt > nghĩa
+    function dictSearch(raw) {
+      const { words } = dictIndex();
+      const q = String(raw || "").trim();
+      if (!q) return [];
+      const inLv = w => dict.level === "all" || w.v.hsk === Number(dict.level);
+      const scored = [];
+      const hz = hanziOnly(q);
+      if (hz) {
+        words.forEach(w => {
+          if (!inLv(w)) return;
+          let s = 0;
+          if (w.hz === hz) s = 100;
+          else if (w.hz.startsWith(hz)) s = 60;
+          else if (w.hz.includes(hz)) s = 50;
+          if (s) scored.push([s, w]);
+        });
+        // Dán cả câu (không khớp từ nào): trả về các từ tách được, theo thứ tự trong câu
+        if (!scored.length && hz.length >= 2) {
+          const out = [];
+          dictSegment(hz).forEach(s => { if (s.v && inLv({ v: s.v }) && !out.includes(s.v)) out.push(s.v); });
+          return out;
+        }
+      } else {
+        const lat = q.toLowerCase().normalize("NFC");
+        const base = stripTone(lat).replace(/đ/g, "d").replace(/v/g, "u");
+        const toneless = base.replace(/[^a-z]/g, "");
+        const numeric = /[1-5]/.test(base) ? base.replace(/[^a-z1-5]/g, "").replace(/5/g, "") : "";
+        const hasMark = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(lat);
+        const marked = lat.replace(/[^\p{L}]/gu, "");
+        const vi = normViText(q);
+        words.forEach(w => {
+          if (!inLv(w)) return;
+          let s = 0;
+          if (numeric) {
+            if (w.pyN === numeric) s = 93;
+            else if (numeric.length >= 2 && w.pyN.startsWith(numeric)) s = 42;
+          } else if (toneless) {
+            if (hasMark && w.pyM === marked) s = 95;
+            else if (w.pyT === toneless) s = hasMark ? 66 : 90;
+            else if (toneless.length >= 2 && w.pyT.startsWith(toneless)) s = 40;
+          }
+          if (vi && !numeric) {
+            if (w.hv === vi) s = Math.max(s, 85);
+            if (w.mean.includes(" " + vi + " ")) s = Math.max(s, w.mean.startsWith(" " + vi + " ") ? 78 : 68);
+            else if (vi.length >= 3 && w.mean.includes(vi)) s = Math.max(s, 30);
+            if (vi.length >= 2 && w.hv.startsWith(vi + " ")) s = Math.max(s, 36);
+          }
+          if (s) scored.push([s, w]);
+        });
+      }
+      scored.sort((a, b) => b[0] - a[0] || a[1].v.hsk - b[1].v.hsk || a[1].hz.length - b[1].hz.length);
+      return scored.map(x => x[1].v);
+    }
+    // Tách câu tiếng Trung thành từ có trong kho (khớp dài nhất trước)
+    function dictSegment(hz) {
+      const { byHz, maxLen } = dictIndex();
+      const out = [];
+      let i = 0;
+      while (i < hz.length) {
+        let hit = null;
+        for (let k = Math.min(maxLen, hz.length - i); k >= 1; k--) {
+          const sub = hz.slice(i, i + k);
+          if (byHz.has(sub)) { hit = sub; break; }
+        }
+        out.push(hit ? { t: hit, v: byHz.get(hit).v } : { t: hz[i], v: null });
+        i += hit ? hit.length : 1;
+      }
+      return out;
+    }
+
+    function dictRecent() { try { const a = JSON.parse(localStorage.getItem(DICT_RECENT_KEY) || "[]"); return Array.isArray(a) ? a.slice(0, 12) : []; } catch (e) { return []; } }
+    function dictRemember(hz) {
+      if (!hz) return;
+      try { localStorage.setItem(DICT_RECENT_KEY, JSON.stringify([hz, ...dictRecent().filter(x => x !== hz)].slice(0, 12))); } catch (e) {}
+    }
+    function dictSelWord() { return dict.sel && dict.sel.type === "word" ? VOCAB.find(v => v.id === dict.sel.id) : null; }
+    function dictQueryString() {
+      const w = dictSelWord();
+      const q = w ? w.hanzi : dict.sel && dict.sel.type === "char" ? dict.sel.c : dict.q.trim();
+      return q ? "?q=" + encodeURIComponent(q) : "";
+    }
+    function dictTitle() {
+      const w = dictSelWord();
+      if (w) return `${w.hanzi} (${w.pinyin}) nghĩa là gì · Từ điển Trung – Việt · Hán Ngữ Master`;
+      return "Từ điển Trung – Việt · Tra chữ Hán, pinyin, Hán-Việt · Hán Ngữ Master";
+    }
+    function dictSyncUrl() {
+      if (state.activeTab !== "dict" || !appBooted || navFromHistory) { document.title = dictTitle(); return; }
+      syncUrl("dict", true);
+    }
+    function dictSayBtn(text, label, soft) {
+      dict.say.push(text);
+      return `<button type="button" class="dict-say${soft ? " is-soft" : ""}" data-dict-say="${dict.say.length - 1}" title="Nghe"><i data-lucide="volume-2" class="w-4 h-4"></i>${label || ""}</button>`;
+    }
+    function dictMark(cn, hz) { return hz ? String(cn).split(hz).map(dictEsc).join(`<mark>${dictEsc(hz)}</mark>`) : dictEsc(cn); }
+    function dictExamples(hz, ownId, max) {
+      const { sents } = dictIndex();
+      const own = sents.filter(s => s.own === ownId);
+      const more = sents.filter(s => s.own !== ownId && s.cn.includes(hz)).sort((a, b) => a.cn.length - b.cn.length);
+      return own.concat(more).slice(0, max).map(s => `<div class="dict-ex">${dictSayBtn(s.cn, "", true)}<div class="min-w-0">
+        <div class="dict-ex-cn">${dictMark(s.cn, hz)}</div><div class="dict-ex-py">${dictEsc(s.py)}</div><div class="dict-ex-vi">${dictEsc(s.vi)}</div>
+        ${s.own === ownId ? "" : `<div class="dict-ex-from">${dictEsc(s.from)}</div>`}</div></div>`).join("");
+    }
+    function dictRelHtml(list) {
+      return `<div class="dict-rel">${list.map(v => `<button type="button" data-dict-id="${v.id}"><b>${dictEsc(v.hanzi)}</b>${dictEsc(v.meaning.split(/[;,]/)[0])}</button>`).join("")}</div>`;
+    }
+
+    function dictItemHtml(v) {
+      const active = dict.sel && dict.sel.type === "word" && dict.sel.id === v.id;
+      return `<button type="button" class="dict-item${active ? " is-active" : ""}" data-dict-id="${v.id}">
+        <span class="dict-item-hz">${dictEsc(v.hanzi)}</span>
+        <span class="dict-item-body"><span class="block"><span class="dict-item-py">${dictEsc(v.pinyin)}</span><span class="dict-item-hv">${dictEsc(v.hanviet || "")}</span></span>
+        <span class="dict-item-mean block">${dictEsc(v.meaning)}</span></span>
+        <span class="dict-hsk hsk-badge-${v.hsk}">HSK ${v.hsk}</span></button>`;
+    }
+    function renderDictList() {
+      const box = document.getElementById("dictList");
+      const q = dict.q.trim();
+      let list, head, extra = "";
+      if (!q) {
+        list = VOCAB.filter(v => dict.level === "all" || v.hsk === Number(dict.level));
+        head = `Duyệt ${list.length.toLocaleString("vi-VN")} từ ${dict.level === "all" ? "HSK 1–5" : "HSK " + dict.level}`;
+      } else {
+        list = dictSearch(q);
+        head = list.length ? `${list.length} kết quả cho “${dictEsc(q)}”` : `Không tìm thấy “${dictEsc(q)}”`;
+        const hz = hanziOnly(q);
+        if (hz.length >= 3 && !dictIndex().byHz.has(hz)) {
+          const seg = dictSegment(hz);
+          if (seg.some(s => s.v)) extra = `<div style="padding:12px 16px;border-bottom:1px solid #f0ebe5"><div class="dict-sec-h">Tách từ trong câu</div><div class="dict-rel">` +
+            seg.map(s => s.v ? `<button type="button" data-dict-id="${s.v.id}"><b>${dictEsc(s.t)}</b>${dictEsc(s.v.pinyin)}</button>` : `<button type="button" data-dict-char="${dictEsc(s.t)}"><b>${dictEsc(s.t)}</b></button>`).join("") + `</div></div>`;
+        }
+      }
+      const shown = list.slice(0, dict.limit);
+      const left = list.length - shown.length;
+      box.innerHTML = `<div class="dict-list-head"><span>${head}</span>${q ? `<button type="button" class="text-xs font-semibold text-[#b9382c]" data-dict-act="clear">Xóa tìm</button>` : ""}</div>` + extra +
+        (shown.length ? shown.map(dictItemHtml).join("") :
+          `<div class="dict-empty"><div class="dict-empty-ic">🔎</div>Kho hiện có ${VOCAB.length.toLocaleString("vi-VN")} từ HSK 1–5${dict.level === "all" ? "" : ` (đang lọc HSK ${dict.level})`}.<br>Thử gõ cách khác: chữ Hán, pinyin không dấu (vd: <b>xiexie</b>) hoặc nghĩa tiếng Việt.</div>`) +
+        (left > 0 ? `<button type="button" class="dict-more" data-dict-act="more">Xem thêm ${Math.min(40, left)} từ (còn ${left})</button>` : "");
+      return list;
+    }
+
+    function dictWelcomeHtml() {
+      const recent = dictRecent();
+      const chips = arr => `<div class="dict-rel">${arr.map(h => `<button type="button" data-dict-q="${dictEsc(h)}"><b>${dictEsc(h)}</b></button>`).join("")}</div>`;
+      return `<div class="dict-card dict-in">
+        <div class="flex items-center gap-3"><div class="dict-empty-ic" style="margin:0">📖</div>
+          <div><div class="font-bold text-stone-900 text-lg">Tra từ nào hôm nay?</div><div class="text-sm text-stone-500">Bấm một từ bên dưới hoặc gõ vào ô tìm kiếm.</div></div></div>
+        ${recent.length ? `<div class="dict-sec"><div class="flex items-center justify-between"><div class="dict-sec-h">Vừa tra</div><button type="button" class="text-xs text-stone-400 hover:text-[#b9382c]" data-dict-act="recent-clear">Xóa</button></div>${chips(recent)}</div>` : ""}
+        <div class="dict-sec"><div class="dict-sec-h">Gợi ý</div>${chips(DICT_SUGGEST)}</div>
+        <div class="dict-sec"><div class="dict-sec-h">Mẹo tra</div>
+          <ul class="ls-explain"><li><b>nihao</b>, <b>ni3hao3</b> hay <b>nǐ hǎo</b> đều ra 你好.</li><li>Gõ âm Hán-Việt: <b>học tập</b> → 学习.</li><li>Gõ nghĩa: <b>cảm ơn</b> → 谢谢.</li><li>Dán cả câu tiếng Trung để tách ra từng từ.</li><li>Bấm vào từng chữ Hán trong từ để xem nghĩa của chữ đó.</li></ul></div>
+      </div>`;
+    }
+    function dictWordHtml(v) {
+      const I = dictIndex();
+      const chars = [...v.hanzi];
+      const multi = chars.filter(c => /[一-鿿]/.test(c)).length > 1;
+      const toned = dictToned(v.pinyin);
+      const hvs = String(v.hanviet || "").trim().split(/\s+/);
+      const big = chars.map(c => multi && /[一-鿿]/.test(c) ? `<button type="button" data-dict-char="${c}" title="Xem chữ ${c}">${c}</button>` : dictEsc(c)).join("");
+      const charCards = multi ? chars.map((c, i) => {
+        if (!/[一-鿿]/.test(c)) return "";
+        const one = I.single.get(c);
+        const py = toned && toned.length === chars.length ? toned[i] : (one ? one.pinyin : "");
+        const hv = hvs.length === chars.length ? hvs[i] : (one ? one.hanviet : "");
+        return `<button type="button" class="dict-char" data-dict-char="${c}"><span class="dict-char-hz">${c}</span><span class="min-w-0"><span class="dict-char-py">${dictEsc(py)}</span> <span class="dict-char-hv">${dictEsc(hv)}</span><span class="dict-char-m">${one ? dictEsc(one.meaning) : "Bấm để xem các từ có chữ này"}</span></span></button>`;
+      }).join("") : "";
+      const related = [];
+      new Set(chars).forEach(c => (I.charWords.get(c) || []).forEach(w => { if (w.id !== v.id && !related.includes(w)) related.push(w); }));
+      related.sort((a, b) => a.hsk - b.hsk || a.hanzi.length - b.hanzi.length);
+      const sameTopic = VOCAB.filter(w => w.topic === v.topic && w.hsk === v.hsk && w.id !== v.id && !related.includes(w)).slice(0, 10);
+      const saved = state.bookmarked.has(v.id);
+      const exs = dictExamples(v.hanzi, v.id, 5);
+      return `<div class="dict-card dict-in">
+        <button type="button" class="dict-back dict-act mb-3" data-dict-act="back"><i data-lucide="chevron-left" class="w-4 h-4"></i>Danh sách kết quả</button>
+        <div class="dict-word"><div class="dict-big" lang="zh">${big}</div><div class="pb-1"><div class="dict-py">${dictEsc(v.pinyin)}</div><div class="dict-hv">${dictEsc(v.hanviet || "")}</div></div></div>
+        <div class="flex flex-wrap gap-2 mt-3">${dictSayBtn(v.hanzi, "Nghe")}${dictSayBtn(v.hanzi, "Đọc chậm", true).replace('data-dict-say=', 'data-dict-slow="1" data-dict-say=')}</div>
+        <div class="dict-mean">${dictEsc(v.meaning)}</div>
+        <div class="dict-tags"><span class="dict-hsk hsk-badge-${v.hsk}">HSK ${v.hsk}</span>${v.pos ? `<span class="dict-tag">${dictEsc(v.pos)}</span>` : ""}${v.topic ? `<span class="dict-tag">${dictEsc(v.emoji || "")} ${dictEsc(v.topic)}</span>` : ""}</div>
+        ${exs ? `<div class="dict-sec"><div class="dict-sec-h">Câu ví dụ</div>${exs}</div>` : ""}
+        ${charCards ? `<div class="dict-sec"><div class="dict-sec-h">Phân tích từng chữ</div><div class="dict-chars">${charCards}</div></div>` : ""}
+        ${related.length ? `<div class="dict-sec"><div class="dict-sec-h">Từ có cùng chữ</div>${dictRelHtml(related.slice(0, 12))}</div>` : ""}
+        ${sameTopic.length ? `<div class="dict-sec"><div class="dict-sec-h">Cùng chủ đề · HSK ${v.hsk}</div>${dictRelHtml(sameTopic)}</div>` : ""}
+        <div class="dict-actions">
+          <button type="button" class="dict-act${saved ? " is-on" : ""}" data-dict-act="bookmark"><i data-lucide="star" class="w-4 h-4"></i>${saved ? "Đã lưu vào thẻ nhớ" : "Lưu vào thẻ nhớ"}</button>
+          <button type="button" class="dict-act" data-dict-act="share"><i data-lucide="link" class="w-4 h-4"></i>Sao chép liên kết</button>
+        </div>
+      </div>`;
+    }
+    function dictCharHtml(c) {
+      const I = dictIndex();
+      const pys = [...(I.charPy.get(c) || [])], hvs = [...(I.charHv.get(c) || [])];
+      const ws = (I.charWords.get(c) || []).slice().sort((a, b) => a.hsk - b.hsk || a.hanzi.length - b.hanzi.length);
+      const exs = dictExamples(c, -1, 3);
+      return `<div class="dict-card dict-in">
+        <button type="button" class="dict-back dict-act mb-3" data-dict-act="back"><i data-lucide="chevron-left" class="w-4 h-4"></i>Danh sách kết quả</button>
+        <div class="dict-word"><div class="dict-big" lang="zh">${dictEsc(c)}</div><div class="pb-1"><div class="dict-py">${dictEsc(pys.join(", ") || "—")}</div><div class="dict-hv">${dictEsc(hvs.join(", "))}</div></div></div>
+        <div class="flex flex-wrap gap-2 mt-3">${dictSayBtn(c, "Nghe")}</div>
+        <div class="dict-mean" style="font-size:15px;font-weight:500;color:#78716c">${ws.length ? `Chữ <b>${dictEsc(c)}</b> chưa có mục riêng, nhưng xuất hiện trong ${ws.length} từ dưới đây.` : `Chưa có dữ liệu cho chữ <b>${dictEsc(c)}</b> trong kho HSK 1–5.`}</div>
+        ${ws.length ? `<div class="dict-sec"><div class="dict-sec-h">Từ có chữ ${dictEsc(c)}</div>${dictRelHtml(ws.slice(0, 24))}</div>` : ""}
+        ${exs ? `<div class="dict-sec"><div class="dict-sec-h">Câu có chữ ${dictEsc(c)}</div>${exs}</div>` : ""}
+      </div>`;
+    }
+    function renderDictDetail() {
+      dict.say = [];
+      const box = document.getElementById("dictDetail");
+      const w = dictSelWord();
+      if (w) box.innerHTML = dictWordHtml(w);
+      else if (dict.sel && dict.sel.type === "char") box.innerHTML = dictIndex().single.has(dict.sel.c) ? dictWordHtml(dictIndex().single.get(dict.sel.c)) : dictCharHtml(dict.sel.c);
+      else box.innerHTML = dictWelcomeHtml();
+      if (window.lucide) lucide.createIcons();
+    }
+    function dictSelect(sel, scroll) {
+      dict.sel = sel;
+      const w = dictSelWord();
+      dictRemember(w ? w.hanzi : sel && sel.c);
+      renderDictDetail();
+      document.querySelectorAll("#dictList .dict-item").forEach(b => b.classList.toggle("is-active", !!w && Number(b.dataset.dictId) === w.id));
+      dictSyncUrl();
+      if (scroll && window.innerWidth < 1024) document.getElementById("dictDetailWrap").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    // Gõ tìm: vẽ lại danh sách và tự mở kết quả khớp nhất
+    function dictRun(autoPick) {
+      dict.limit = 40;
+      const list = renderDictList();
+      const q = dict.q.trim();
+      if (!q) { dict.sel = null; renderDictDetail(); }
+      else if (autoPick && list.length) { dict.sel = { type: "word", id: list[0].id }; renderDictDetail(); renderDictList(); }
+      else if (autoPick && hanziOnly(q).length === 1) { dict.sel = { type: "char", c: hanziOnly(q) }; renderDictDetail(); }
+      document.getElementById("dictClear").classList.toggle("hidden", !dict.q);
+      if (window.lucide) lucide.createIcons();
+      dictSyncUrl();
+    }
+    function dictSetQuery(q) {
+      const inp = document.getElementById("dictInput");
+      dict.q = q;
+      inp.value = q;
+      dictRun(true);
+      if (q) dictRemember(dictSelWord() ? dictSelWord().hanzi : null);
+    }
+    function renderDictLevels() {
+      document.getElementById("dictLevels").innerHTML = ["all", 1, 2, 3, 4, 5].map(l =>
+        `<button type="button" class="dict-chip${String(dict.level) === String(l) ? " is-active" : ""}" data-dict-level="${l}">${l === "all" ? "Tất cả" : "HSK " + l}</button>`).join("");
+    }
+    function initDict() {
+      if (dict.ready) return;
+      dict.ready = true;
+      const view = document.getElementById("view-dict");
+      const inp = document.getElementById("dictInput");
+      inp.addEventListener("input", () => {
+        clearTimeout(dict.timer);
+        dict.timer = setTimeout(() => { dict.q = inp.value; dictRun(true); }, 140);
+      });
+      inp.addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); clearTimeout(dict.timer); dict.q = inp.value; dictRun(true); const w = dictSelWord(); if (w) dictRemember(w.hanzi); inp.blur(); }
+        if (e.key === "Escape" && inp.value) { e.preventDefault(); dictSetQuery(""); }
+      });
+      document.getElementById("dictClear").addEventListener("click", () => { dictSetQuery(""); inp.focus(); });
+      view.addEventListener("click", e => {
+        const t = e.target;
+        const say = t.closest("[data-dict-say]");
+        if (say) {
+          const text = dict.say[Number(say.dataset.dictSay)];
+          if (!text) return;
+          if (say.dataset.dictSlow) { const r = state.speechRate; state.speechRate = 0.55; speakChinese(text, say); state.speechRate = r; }
+          else speakChinese(text, say);
+          return;
+        }
+        const lv = t.closest("[data-dict-level]");
+        if (lv) { dict.level = lv.dataset.dictLevel; renderDictLevels(); dict.limit = 40; renderDictList(); return; }
+        const id = t.closest("[data-dict-id]");
+        if (id) { dictSelect({ type: "word", id: Number(id.dataset.dictId) }, true); return; }
+        const ch = t.closest("[data-dict-char]");
+        if (ch) { dictSelect({ type: "char", c: ch.dataset.dictChar }, true); return; }
+        const q = t.closest("[data-dict-q]");
+        if (q) { dictSetQuery(q.dataset.dictQ); if (window.innerWidth < 1024) document.getElementById("dictDetailWrap").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+        const act = t.closest("[data-dict-act]");
+        if (!act) return;
+        const a = act.dataset.dictAct;
+        if (a === "more") { dict.limit += 40; renderDictList(); }
+        else if (a === "clear") { dictSetQuery(""); inp.focus(); }
+        else if (a === "recent-clear") { try { localStorage.removeItem(DICT_RECENT_KEY); } catch (e2) {} renderDictDetail(); }
+        else if (a === "back") document.getElementById("dictList").scrollIntoView({ behavior: "smooth", block: "start" });
+        else if (a === "bookmark") {
+          const w = dictSelWord() || (dict.sel && dict.sel.type === "char" ? dictIndex().single.get(dict.sel.c) : null);
+          if (!w) return;
+          if (isGuest()) { promptSignup("Tạo tài khoản miễn phí để lưu từ vào thẻ nhớ và ôn lại sau nhé! 🐉"); return; }
+          toggleBookmarked(w.id);
+          renderDictDetail();
+          showToast(state.bookmarked.has(w.id) ? `Đã lưu ${w.hanzi} vào thẻ nhớ ⭐` : `Đã bỏ ${w.hanzi} khỏi thẻ nhớ`);
+        } else if (a === "share") {
+          const url = location.href;
+          const done = () => showToast("Đã sao chép liên kết, gửi cho bạn bè được rồi!");
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => showToast(url));
+          else showToast(url);
+        }
+      });
+    }
+    function renderDict() {
+      const first = !dict.ready;
+      initDict();
+      if (first) {
+        // Mở từ địa chỉ: tu-dien/?q=你好
+        let q = "";
+        try { q = new URLSearchParams(location.search).get("q") || ""; } catch (e) {}
+        dict.q = q.slice(0, 60);
+        document.getElementById("dictInput").value = dict.q;
+        renderDictLevels();
+        dictRun(true);
+      } else {
+        renderDictLevels();
+        renderDictList();
+        renderDictDetail();
+        dictSyncUrl();
+      }
+      const inp = document.getElementById("dictInput");
+      if (!dict.q && !(typeof isTouchDevice === "function" && isTouchDevice())) setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    }
+
     // ---------- Trang chủ · đường dẫn · chọn trình độ dùng chung ----------
-    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak"];
+    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak", "dict"];
     const PRACTICE_TABS = ["dictation", "speak", "flashcards", "quiz", "games"];
     const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
-    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng" };
+    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng", dict: "Từ điển" };
     const LEVEL_KEY = "han_ngu_level_v1";
 
     // ---------- Địa chỉ riêng cho từng mục (vd: .../tu-vung/, .../hsk-2/) ----------
     // build.ps1 tạo sẵn một thư mục cho mỗi địa chỉ (đọc từ _ban-goc/routes.json). Thẻ <base> giữ mọi đường dẫn ảnh/file trỏ về thư mục gốc.
-    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong" };
+    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong", dict: "tu-dien" };
     const SITE_TITLE = "Hán Ngữ Master · Học Tiếng Trung HSK 1–5";
     let navFromHistory = false;
     // Trang từ vựng theo cấp/chủ đề (vd: hsk-1/giao-tiep/) do build.ps1 tạo sẵn, có thẻ <meta name="hnm-landing">
@@ -6568,6 +7166,7 @@
       if (tab === "vocab" && landingActive) return LANDING.title;
       if (tab === "home") return SITE_TITLE;
       if (tab === "skills") return `${state.selectedHsk === "all" ? "HSK 1–5" : "HSK " + state.selectedHsk} · Chọn kỹ năng · Hán Ngữ Master`;
+      if (tab === "dict") return dictTitle();
       return `${TAB_LABELS[tab] || ""} · Hán Ngữ Master`;
     }
     function routeFromLocation() {
@@ -6586,7 +7185,8 @@
       document.title = routeTitle(tab);
       if (location.protocol === "file:" || !window.history || !history.pushState) return;
       const slug = routeSlug(tab);
-      const url = new URL(slug ? slug + "/" : "./", document.baseURI).href;
+      let url = new URL(slug ? slug + "/" : "./", document.baseURI).href;
+      if (tab === "dict") url += dictQueryString(); // Từ điển: giữ từ đang tra trên địa chỉ (?q=你好) để gửi link được
       if (url === location.href) return;
       try {
         if (replace) history.replaceState({ tab }, "", url);
@@ -6676,7 +7276,8 @@
       { tab: "quiz", icon: "check-circle-2", color: "#0f766e", title: "Kiểm tra", desc: "Đề thi 4 kỹ năng và trắc nghiệm nhanh" },
       { tab: "videos", icon: "play-circle", color: "#dc2626", title: "Video", desc: "Video bài giảng đọc chậm, có phụ đề" },
       { tab: "games", icon: "gamepad-2", color: "#ea580c", title: "Game", desc: "Lật thẻ, gõ chữ tính giờ" },
-      { tab: "extras", icon: "sparkles", color: "#57534e", title: "Mở rộng", desc: "Tập viết chữ Hán, ngữ pháp, đóng vai, truyện" }
+      { tab: "extras", icon: "sparkles", color: "#57534e", title: "Mở rộng", desc: "Tập viết chữ Hán, ngữ pháp, đóng vai, truyện" },
+      { tab: "dict", icon: "languages", color: "#0e7490", title: "Từ điển", desc: "Tra chữ Hán, pinyin, Hán-Việt, nghĩa và câu ví dụ" }
     ];
     function homeSkillMeta(tab, lvl) {
       const inLvl = arr => arr.filter(x => lvl === "all" || x.hsk === Number(lvl));
@@ -6694,6 +7295,7 @@
       if (tab === "quiz") return "Chấm điểm ngay sau khi nộp";
       if (tab === "games") return "Vừa chơi vừa nhớ từ";
       if (tab === "extras") return "Tập viết, ngữ pháp, truyện";
+      if (tab === "dict") return `${VOCAB.length.toLocaleString("vi-VN")} từ · ai cũng tra được`;
       return "";
     }
 
@@ -7151,7 +7753,7 @@
       document.querySelectorAll(".nav-drop-item, .nav-tab-mobile").forEach(btn => btn.classList.toggle("is-active", btn.dataset.tab === navTab));
       const bottomTabs = Array.from(document.querySelectorAll("#bottomNav [data-tab]")).map(b => b.dataset.tab);
       document.querySelectorAll(".bnav-item").forEach(btn => {
-        btn.classList.toggle("is-active", btn.id === "bottomMoreBtn" ? !bottomTabs.includes(navTab) : btn.dataset.tab === navTab);
+        btn.classList.toggle("is-active", btn.id === "bottomMoreBtn" ? !bottomTabs.includes(navTab) && navTab !== "home" : btn.dataset.tab === navTab);
       });
       closeMobileNav();
       closePracticeMenu();
@@ -7172,6 +7774,7 @@
       if (tab === "games") switchGameSubTab(gameState.subTab);
       if (tab === "extras") switchExtrasSubTab(extrasState.subTab);
       if (tab === "speak" && typeof spkRender === "function") spkRender();
+      if (tab === "dict") renderDict();
       if (state.activeTab !== "speak" && activeRec) { try { activeRec.abort(); } catch (e) {} }
       const tabLines = {
         vocab: ["Vào kho 1.450 từ vựng nạp chữ mới nào sư huynh! Bấm loa nghe cho chuẩn nhé! 📚", "Luyện từ vựng HSK 1–5 thôi anh ơi, nhớ đánh dấu ✓ mấy từ đã thuộc nha!"],

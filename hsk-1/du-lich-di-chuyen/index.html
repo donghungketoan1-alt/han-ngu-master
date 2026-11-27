@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/hsk-1/du-lich-di-chuyen/" />
-  <link rel="stylesheet" href="app.css?v=202611271321" />
-  <script src="icons.js?v=202611271321"></script>
+  <link rel="stylesheet" href="app.css?v=202611271348" />
+  <script src="icons.js?v=202611271348"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -490,6 +490,89 @@
     .badge-card-unlocked {
       box-shadow: 0 6px 18px -6px rgba(185, 56, 44, 0.22);
     }
+    /* ---------- Từ điển (mục dict, khách dùng được) ---------- */
+    .dict-search { position: relative; display: flex; align-items: center; gap: 8px; background: #fff; border: 2px solid #e7e5e4; border-radius: 18px; padding: 6px 8px 6px 16px; box-shadow: 0 6px 24px -14px rgba(28,25,23,.35); transition: border-color .2s, box-shadow .2s; }
+    .dict-search:focus-within { border-color: #b9382c; box-shadow: 0 0 0 4px rgba(185,56,44,.12); }
+    .dict-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 18px; padding: 8px 0; color: #1c1917; }
+    .dict-iconbtn { width: 38px; height: 38px; flex-shrink: 0; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: #78716c; }
+    .dict-iconbtn:hover { background: #f5f5f4; color: #b9382c; }
+    .dict-hint { font-size: 12.5px; color: #78716c; margin-top: 8px; }
+    .dict-hint b { color: #44403c; font-weight: 600; }
+    .dict-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dict-chip { padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; border: 1px solid #e7e5e4; background: #fff; color: #57534e; }
+    .dict-chip:hover { border-color: #b9382c; color: #b9382c; }
+    .dict-chip.is-active { background: #b9382c; border-color: #b9382c; color: #fff; }
+    .dict-layout { display: grid; gap: 18px; margin-top: 18px; align-items: start; }
+    @media (min-width: 1024px) { .dict-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } .dict-detail-wrap { position: sticky; top: 84px; order: 2; } }
+    .dict-panel { background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; }
+    .dict-list-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #f0ebe5; font-size: 13px; color: #78716c; }
+    .dict-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 16px; text-align: left; border-bottom: 1px solid #f5f2ee; transition: background .15s; }
+    .dict-item:last-child { border-bottom: 0; }
+    .dict-item:hover { background: #faf7f2; }
+    .dict-item.is-active { background: #fdf2ef; box-shadow: inset 3px 0 0 #b9382c; }
+    .dict-item-hz { font-size: 22px; font-weight: 700; color: #1c1917; min-width: 64px; line-height: 1.2; }
+    .dict-item-body { min-width: 0; flex: 1; }
+    .dict-item-py { font-size: 13px; font-weight: 600; color: #b9382c; }
+    .dict-item-hv { font-size: 11.5px; font-weight: 700; color: #1f6f5b; text-transform: uppercase; letter-spacing: .02em; margin-left: 6px; }
+    .dict-item-mean { font-size: 13.5px; color: #57534e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dict-hsk { font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; border: 1px solid; flex-shrink: 0; }
+    .dict-more { width: 100%; padding: 12px; font-size: 13px; font-weight: 700; color: #b9382c; border-top: 1px solid #f0ebe5; }
+    .dict-more:hover { background: #faf7f2; }
+    .dict-card { padding: 20px; }
+    .dict-word { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 16px; }
+    .dict-big { font-size: 56px; line-height: 1.05; font-weight: 700; color: #1c1917; letter-spacing: .02em; }
+    .dict-big button { border-radius: 10px; padding: 0 2px; transition: background .15s, color .15s; }
+    .dict-big button:hover { background: #fdf2ef; color: #b9382c; }
+    .dict-py { font-size: 22px; font-weight: 600; color: #b9382c; }
+    .dict-say { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; background: #b9382c; color: #fff; }
+    .dict-say:hover { background: #a3301f; }
+    .dict-say.is-soft { background: #b9382c14; color: #b9382c; }
+    .dict-say.is-soft:hover { background: #b9382c26; }
+    .dict-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .dict-tag { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #f5f5f4; color: #57534e; }
+    .dict-mean { margin-top: 14px; font-size: 19px; font-weight: 600; color: #1c1917; line-height: 1.45; }
+    .dict-hv { font-size: 13px; font-weight: 800; color: #1f6f5b; text-transform: uppercase; letter-spacing: .03em; }
+    .dict-sec { margin-top: 20px; }
+    .dict-sec-h { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #a8a29e; margin-bottom: 8px; }
+    .dict-ex { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: #faf7f2; border: 1px solid #f0ebe5; }
+    .dict-ex + .dict-ex { margin-top: 8px; }
+    .dict-ex-cn { font-size: 17px; color: #1c1917; line-height: 1.5; }
+    .dict-ex-cn mark { background: #fde68a; color: inherit; border-radius: 4px; padding: 0 1px; }
+    .dict-ex-py { font-size: 13px; color: #b9382c; font-weight: 600; }
+    .dict-ex-vi { font-size: 13.5px; color: #57534e; }
+    .dict-ex-from { font-size: 11px; color: #a8a29e; margin-top: 2px; }
+    .dict-chars { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .dict-char { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; border: 1px solid #ede7df; text-align: left; transition: border-color .15s, transform .15s; }
+    .dict-char:hover { border-color: #b9382c; transform: translateY(-1px); }
+    .dict-char-hz { font-size: 30px; font-weight: 700; color: #1c1917; line-height: 1; }
+    .dict-char-py { font-size: 13px; font-weight: 700; color: #b9382c; }
+    .dict-char-hv { font-size: 11px; font-weight: 800; color: #1f6f5b; text-transform: uppercase; }
+    .dict-char-m { font-size: 12px; color: #78716c; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .dict-rel { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dict-rel button { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 11px; border-radius: 12px; border: 1px solid #ede7df; background: #fff; font-size: 13px; color: #57534e; }
+    .dict-rel button b { font-size: 16px; color: #1c1917; }
+    .dict-rel button:hover { border-color: #b9382c; }
+    .dict-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .dict-act { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; border: 1px solid #e7e5e4; color: #44403c; background: #fff; }
+    .dict-act:hover { border-color: #b9382c; color: #b9382c; }
+    .dict-act.is-on { border-color: #c8963e; color: #92400e; background: #fffbeb; }
+    .dict-empty { padding: 28px 20px; text-align: center; color: #78716c; font-size: 14px; }
+    .dict-empty-ic { font-size: 40px; margin-bottom: 6px; }
+    .dict-back { display: none; }
+    @media (max-width: 1023px) { .dict-back { display: inline-flex; } }
+    .dict-in { animation: dictIn .28s ease both; }
+    @keyframes dictIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .dict-in { animation: none; } }
+    @media (max-width: 640px) { .dict-big { font-size: 44px; } .dict-py { font-size: 19px; } .dict-card { padding: 16px; } }
+    body.dark-mode .dict-search, body.dark-mode .dict-panel, body.dark-mode .dict-chip, body.dark-mode .dict-act, body.dark-mode .dict-rel button { background: #1b1f27; border-color: #323846; color: #e7e5e4; }
+    body.dark-mode .dict-search input, body.dark-mode .dict-item-hz, body.dark-mode .dict-big, body.dark-mode .dict-mean, body.dark-mode .dict-ex-cn, body.dark-mode .dict-char-hz, body.dark-mode .dict-rel button b { color: #f5f5f4; }
+    body.dark-mode .dict-item, body.dark-mode .dict-list-head, body.dark-mode .dict-more { border-color: #2a2f3a; }
+    body.dark-mode .dict-item:hover, body.dark-mode .dict-more:hover { background: #222733; }
+    body.dark-mode .dict-item.is-active { background: #2a2026; }
+    body.dark-mode .dict-ex, body.dark-mode .dict-tag { background: #222733; border-color: #323846; color: #d6d3d1; }
+    body.dark-mode .dict-char { border-color: #323846; }
+    body.dark-mode .dict-item-mean, body.dark-mode .dict-ex-vi { color: #d6d3d1; }
+    body.dark-mode .dict-chip.is-active { background: #b9382c; border-color: #b9382c; color: #fff; }
   </style>
   <meta name="hnm-landing" content="{&quot;path&quot;:&quot;hsk-1/du-lich-di-chuyen&quot;,&quot;level&quot;:1,&quot;topic&quot;:&quot;Du lịch \u0026 Di chuyển&quot;,&quot;title&quot;:&quot;Từ vựng HSK 1 chủ đề Du lịch \u0026 Di chuyển (21 từ) · Hán Ngữ Master&quot;}" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Trang chủ","item":"https://donghungketoan1-alt.github.io/han-ngu-master/"},{"@type":"ListItem","position":2,"name":"HSK 1","item":"https://donghungketoan1-alt.github.io/han-ngu-master/hsk-1/"},{"@type":"ListItem","position":3,"name":"Từ vựng HSK 1","item":"https://donghungketoan1-alt.github.io/han-ngu-master/hsk-1/tu-vung/"},{"@type":"ListItem","position":4,"name":"Du lịch \u0026 Di chuyển","item":"https://donghungketoan1-alt.github.io/han-ngu-master/hsk-1/du-lich-di-chuyen/"}]}</script>
@@ -501,17 +584,17 @@
   <header class="sticky top-0 z-40 bg-[#faf7f2]/95 backdrop-blur border-b border-stone-200/80">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
       <!-- Brand -->
-      <div class="flex items-center gap-2.5 shrink-0">
+      <a href="./" id="brandHome" data-tab="home" onclick="event.preventDefault()" class="flex items-center gap-2.5 shrink-0 cursor-pointer" title="Về trang chủ" aria-label="Hán Ngữ Master · Về trang chủ">
         <img src="img/logo.jpg" alt="Hán Ngữ Master Logo" class="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-amber-500/40 shrink-0" />
         <div class="leading-tight">
           <div class="font-bold text-stone-900 text-sm sm:text-base tracking-tight whitespace-nowrap">Hán Ngữ Master</div>
           <div class="text-[11px] text-stone-500 hidden sm:block lg:hidden xl:block">HSK 1–5 · Từ vựng &amp; Câu dài</div>
         </div>
-      </div>
+      </a>
 
-      <!-- Desktop Navigation Tabs -->
+      <!-- Desktop Navigation Tabs (Trang chủ: bấm logo Hán Ngữ Master) -->
       <nav class="hidden lg:flex items-center gap-0.5 xl:gap-1" aria-label="Chế độ học">
-        <button data-tab="home" class="nav-tab">Trang chủ</button>
+        <button data-tab="dict" class="nav-tab">Từ điển</button>
         <button data-tab="lessons" class="nav-tab">Bài học</button>
         <button data-tab="vocab" class="nav-tab">Từ vựng</button>
         <button data-tab="sentences" class="nav-tab">Đọc hiểu</button>
@@ -579,6 +662,7 @@
       <button data-tab="extras" class="nav-tab-mobile"><i data-lucide="sparkles" class="w-4 h-4"></i>Mở rộng</button>
       <button data-tab="vocab" class="nav-tab-mobile"><i data-lucide="book-open" class="w-4 h-4"></i>Từ vựng</button>
       <button data-tab="lessons" class="nav-tab-mobile"><i data-lucide="graduation-cap" class="w-4 h-4"></i>Bài học từng bước</button>
+      <button data-tab="home" class="nav-tab-mobile"><i data-lucide="home" class="w-4 h-4"></i>Trang chủ</button>
     </div>
     <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mt-4 mb-2">Luyện tập</div>
     <div class="grid grid-cols-2 gap-2">
@@ -596,7 +680,7 @@
 
   <!-- Điện thoại: thanh điều hướng dưới đáy -->
   <nav id="bottomNav" class="lg:hidden fixed inset-x-0 bottom-0 z-[46] h-16 bg-white/95 backdrop-blur border-t border-stone-200 grid grid-cols-5" aria-label="Điều hướng chính">
-    <button data-tab="home" class="bnav-item"><i data-lucide="home" class="w-5 h-5"></i><span>Trang chủ</span></button>
+    <button data-tab="dict" class="bnav-item"><i data-lucide="languages" class="w-5 h-5"></i><span>Từ điển</span></button>
     <button data-tab="lessons" class="bnav-item"><i data-lucide="graduation-cap" class="w-5 h-5"></i><span>Bài học</span></button>
     <button data-tab="vocab" class="bnav-item"><i data-lucide="book-open" class="w-5 h-5"></i><span>Từ vựng</span></button>
     <button data-tab="speak" class="bnav-item"><i data-lucide="mic" class="w-5 h-5"></i><span>Luyện nói</span></button>
@@ -756,6 +840,29 @@
     </section>
 
     <!-- VIEW: NGHE CHÉP CHÍNH TẢ -->
+    <!-- VIEW: TỪ ĐIỂN (ai cũng tra được, không cần đăng nhập) -->
+    <section id="view-dict" class="hidden">
+      <div class="max-w-6xl mx-auto">
+        <p class="text-sm font-semibold text-[#b9382c]">Tra cứu miễn phí · không cần đăng nhập</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Từ điển Trung – Việt</h2>
+        <p class="text-sm text-stone-600 mt-1 mb-4">Tra nhanh từ vựng HSK 1–5: chữ Hán, pinyin, âm Hán-Việt, nghĩa, câu ví dụ và phân tích từng chữ.</p>
+        <form id="dictForm" class="dict-search" role="search" autocomplete="off" onsubmit="return false">
+          <i data-lucide="search" class="w-5 h-5 text-stone-400 shrink-0"></i>
+          <input id="dictInput" type="text" inputmode="search" enterkeyhint="search" spellcheck="false" placeholder="Gõ 你好, nihao, nǐ hǎo, ni3hao3, nhĩ hảo hoặc xin chào…" aria-label="Tra từ" />
+          <button type="button" id="dictClear" class="dict-iconbtn hidden" title="Xóa"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </form>
+        <div class="dict-hint">Gõ được <b>chữ Hán</b>, <b>pinyin</b> (có dấu, không dấu hoặc số thanh), <b>âm Hán-Việt</b> hoặc <b>nghĩa tiếng Việt</b>. Dán cả câu tiếng Trung để tách ra từng từ.</div>
+        <div class="flex flex-wrap items-center gap-2 mt-3">
+          <span class="text-xs font-semibold text-stone-500">Cấp:</span>
+          <div id="dictLevels" class="dict-chips"></div>
+        </div>
+        <div class="dict-layout">
+          <div id="dictDetailWrap" class="dict-detail-wrap"><div id="dictDetail" class="dict-panel"></div></div>
+          <div id="dictList" class="dict-panel overflow-hidden"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="view-dictation" class="hidden">
       <!-- Màn 1: các bộ sưu tập · Màn 2: danh sách bài · Màn 3: làm bài (JS dcShow chuyển giữa các màn) -->
       <div id="dcHome" class="space-y-5"></div>
@@ -2459,7 +2566,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271321"></script>
-  <script src="app.js?v=202611271321"></script>
+  <script src="data.js?v=202611271348"></script>
+  <script src="app.js?v=202611271348"></script>
 </body>
 </html>
