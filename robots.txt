@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://donghungketoan1-alt.github.io/han-ngu-master/sitemap.xml

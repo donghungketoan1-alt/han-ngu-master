@@ -1,7 +1,8 @@
 ﻿// Hán Ngữ Master — service worker: cho phép cài như app và học khi mất mạng.
 // Mỗi lần sửa index.html KHÔNG cần sửa file này: trang luôn lấy bản mới khi có mạng.
 // Các file data.js, app.css, icons.js có đuôi ?v=... đổi theo mỗi lần cập nhật, nên máy học viên tự lấy bản mới.
-const CACHE = "han-ngu-master-v3";
+// v4: thêm trang con (tu-vung/, hsk-2/...), mỗi trang lưu riêng để học offline
+const CACHE = "han-ngu-master-v4";
 const CORE = [
   "./",
   "./index.html",
@@ -48,12 +49,26 @@ self.addEventListener("fetch", event => {
   // Không cache máy chủ Apps Script / Gemini (dữ liệu tài khoản, AI)
   if (url.hostname.endsWith("script.google.com") || url.hostname.endsWith("googleusercontent.com") || url.hostname.endsWith("googleapis.com")) return;
 
-  // Trang chính: luôn hỏi GitHub bản mới nhất (bỏ qua bộ nhớ đệm), mất mạng thì dùng bản đã lưu
+  // Các trang (trang chủ và trang con như tu-vung/, hsk-2/): luôn hỏi GitHub bản mới nhất,
+  // lưu riêng từng trang; mất mạng thì mở bản đã lưu của đúng trang đó,
+  // trang nào chưa từng mở thì chuyển về trang chủ đã lưu.
   if (req.mode === "navigate" || (url.origin === location.origin && url.pathname.endsWith(".html"))) {
+    const scope = new URL(self.registration.scope);
+    const isRoot = url.pathname === scope.pathname || url.pathname === scope.pathname + "index.html";
     event.respondWith(
       fetch(req, { cache: "no-cache" })
-        .then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put("./index.html", copy)); return res; })
-        .catch(() => caches.match("./index.html").then(r => r || caches.match("./")))
+        .then(res => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put(isRoot ? "./index.html" : url.origin + url.pathname, copy));
+          }
+          return res;
+        })
+        .catch(async () => {
+          if (isRoot) return (await caches.match("./index.html")) || (await caches.match("./"));
+          const page = await caches.match(url.origin + url.pathname);
+          return page || Response.redirect(scope.href, 302);
+        })
     );
     return;
   }
