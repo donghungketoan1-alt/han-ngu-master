@@ -5115,6 +5115,379 @@
       spk.word = spkPickWord();
     }
 
+    // ---------- Giáo án HSK 1: 15 điểm ngữ pháp theo đề cương HSK 1, mỗi điểm có mục tiêu, công thức,
+    // giải thích, ví dụ, luyện tập nhanh và một đoạn hội thoại (nội dung tự biên soạn, cần giáo viên duyệt) ----------
+    const GRAMMAR_HSK1 = [
+      {
+        key: "shi", title: "Câu chữ 是: A 是 B", goal: "Giới thiệu bản thân, nói ai là ai.",
+        pattern: "A + 是 + B　｜　A + 不是 + B",
+        explain: ["是 (shì) nghĩa là “là”, nối hai danh từ hoặc đại từ.", "Phủ định: thêm 不 trước 是 → 不是 (bú shì, 不 đổi sang thanh 2 khi đứng trước thanh 4).", "Không dùng 是 trước tính từ: nói 我很好, không nói 我是好."],
+        examples: [
+          { cn: "我是学生。", py: "Wǒ shì xuésheng.", vi: "Tôi là học sinh." },
+          { cn: "他是我的老师。", py: "Tā shì wǒ de lǎoshī.", vi: "Anh ấy là thầy giáo của tôi." },
+          { cn: "她不是中国人。", py: "Tā bú shì Zhōngguó rén.", vi: "Cô ấy không phải người Trung Quốc." }
+        ],
+        practice: [
+          { q: "我（　）学生。", opts: ["是", "有", "在", "很"], a: 0, vi: "Tôi là học sinh." },
+          { q: "他不是老师，他是（　）。", opts: ["学生", "吃", "好", "去"], a: 0, vi: "Anh ấy không phải giáo viên, anh ấy là học sinh." }
+        ],
+        dialogue: { title: "认识你很高兴 · Rất vui được làm quen", lines: [
+          { who: "A", cn: "你好！我叫王明。", py: "Nǐ hǎo! Wǒ jiào Wáng Míng.", vi: "Chào bạn! Tôi tên là Vương Minh." },
+          { who: "B", cn: "你好！我叫李月。", py: "Nǐ hǎo! Wǒ jiào Lǐ Yuè.", vi: "Chào bạn! Tôi tên là Lý Nguyệt." },
+          { who: "A", cn: "你是老师吗？", py: "Nǐ shì lǎoshī ma?", vi: "Bạn là giáo viên à?" },
+          { who: "B", cn: "不是，我是学生。你呢？", py: "Bú shì, wǒ shì xuésheng. Nǐ ne?", vi: "Không, tôi là học sinh. Còn bạn?" },
+          { who: "A", cn: "我是老师。认识你很高兴！", py: "Wǒ shì lǎoshī. Rènshi nǐ hěn gāoxìng!", vi: "Tôi là giáo viên. Rất vui được quen bạn!" }
+        ] }
+      },
+      {
+        key: "ma", title: "Câu hỏi có / không với 吗", goal: "Đặt câu hỏi có/không và trả lời.",
+        pattern: "Câu trần thuật + 吗？",
+        explain: ["Thêm 吗 (ma) vào cuối câu trần thuật là thành câu hỏi có/không.", "Trả lời bằng cách lặp lại động từ hoặc tính từ: 是 / 不是, 喝 / 不喝, 好 / 不好.", "Câu đã có từ để hỏi (什么, 谁, 哪儿…) thì không thêm 吗."],
+        examples: [
+          { cn: "你是中国人吗？", py: "Nǐ shì Zhōngguó rén ma?", vi: "Bạn là người Trung Quốc phải không?" },
+          { cn: "你喝茶吗？", py: "Nǐ hē chá ma?", vi: "Bạn có uống trà không?" },
+          { cn: "你妈妈好吗？", py: "Nǐ māma hǎo ma?", vi: "Mẹ bạn có khỏe không?" }
+        ],
+        practice: [
+          { q: "你是老师（　）？", opts: ["吗", "的", "很", "了"], a: 0, vi: "Bạn là giáo viên phải không?" },
+          { q: "A：你去学校吗？　B：我（　）去。", opts: ["不", "没", "吗", "是"], a: 0, vi: "B: Tôi không đi." }
+        ],
+        dialogue: { title: "你喝茶吗 · Bạn uống trà không", lines: [
+          { who: "A", cn: "你喝茶吗？", py: "Nǐ hē chá ma?", vi: "Bạn uống trà không?" },
+          { who: "B", cn: "不喝，谢谢。", py: "Bù hē, xièxie.", vi: "Không uống, cảm ơn." },
+          { who: "A", cn: "你喝水吗？", py: "Nǐ hē shuǐ ma?", vi: "Bạn uống nước không?" },
+          { who: "B", cn: "好，谢谢！", py: "Hǎo, xièxie!", vi: "Vâng, cảm ơn!" },
+          { who: "A", cn: "你是北京人吗？", py: "Nǐ shì Běijīng rén ma?", vi: "Bạn là người Bắc Kinh phải không?" },
+          { who: "B", cn: "不是，我是越南人。", py: "Bú shì, wǒ shì Yuènán rén.", vi: "Không, tôi là người Việt Nam." }
+        ] }
+      },
+      {
+        key: "wh", title: "Hỏi với 什么、谁、哪、哪儿", goal: "Hỏi tên, hỏi người, hỏi quốc tịch và nơi chốn.",
+        pattern: "你叫什么名字？ · 他是谁？ · 你是哪国人？ · 你去哪儿？",
+        explain: ["什么 shénme: cái gì · 谁 shéi: ai · 哪 nǎ: nào · 哪儿 nǎr: ở đâu.", "Từ để hỏi đứng đúng chỗ của thông tin cần hỏi, không đưa lên đầu câu.", "Đã có từ để hỏi thì không thêm 吗 ở cuối câu."],
+        examples: [
+          { cn: "你叫什么名字？", py: "Nǐ jiào shénme míngzi?", vi: "Bạn tên là gì?" },
+          { cn: "她是谁？", py: "Tā shì shéi?", vi: "Cô ấy là ai?" },
+          { cn: "你是哪国人？", py: "Nǐ shì nǎ guó rén?", vi: "Bạn là người nước nào?" }
+        ],
+        practice: [
+          { q: "你叫（　）名字？", opts: ["什么", "谁", "哪儿", "几"], a: 0, vi: "Bạn tên là gì?" },
+          { q: "你想去（　）？", opts: ["哪儿", "谁", "什么", "吗"], a: 0, vi: "Bạn muốn đi đâu?" }
+        ],
+        dialogue: { title: "你是哪国人 · Bạn là người nước nào", lines: [
+          { who: "A", cn: "你叫什么名字？", py: "Nǐ jiào shénme míngzi?", vi: "Bạn tên là gì?" },
+          { who: "B", cn: "我叫阮兰。", py: "Wǒ jiào Ruǎn Lán.", vi: "Tôi tên là Nguyễn Lan." },
+          { who: "A", cn: "你是哪国人？", py: "Nǐ shì nǎ guó rén?", vi: "Bạn là người nước nào?" },
+          { who: "B", cn: "我是越南人。她是谁？", py: "Wǒ shì Yuènán rén. Tā shì shéi?", vi: "Tôi là người Việt Nam. Cô ấy là ai?" },
+          { who: "A", cn: "她是我的汉语老师。", py: "Tā shì wǒ de Hànyǔ lǎoshī.", vi: "Cô ấy là cô giáo tiếng Hán của tôi." }
+        ] }
+      },
+      {
+        key: "de", title: "Trợ từ sở hữu 的", goal: "Nói đồ vật là của ai.",
+        pattern: "Người / vật sở hữu + 的 + danh từ",
+        explain: ["的 (de) chỉ sở hữu: 我的书 = sách của tôi. Thứ tự ngược với tiếng Việt: người sở hữu đứng trước.", "Với người thân, bạn bè, nơi mình thuộc về thường bỏ 的: 我妈妈, 我朋友, 我们学校.", "Tính từ + 的 + danh từ: 漂亮的衣服 (quần áo đẹp)."],
+        examples: [
+          { cn: "这是我的书。", py: "Zhè shì wǒ de shū.", vi: "Đây là sách của tôi." },
+          { cn: "那是老师的电脑。", py: "Nà shì lǎoshī de diànnǎo.", vi: "Kia là máy tính của thầy giáo." },
+          { cn: "我妈妈是医生。", py: "Wǒ māma shì yīshēng.", vi: "Mẹ tôi là bác sĩ." }
+        ],
+        practice: [
+          { q: "这是谁（　）杯子？", opts: ["的", "吗", "呢", "了"], a: 0, vi: "Đây là cốc của ai?" },
+          { q: "那本书是（　）的。", opts: ["我", "很", "是", "去"], a: 0, vi: "Quyển sách kia là của tôi." }
+        ],
+        dialogue: { title: "这是谁的书 · Sách này của ai", lines: [
+          { who: "A", cn: "这是谁的书？", py: "Zhè shì shéi de shū?", vi: "Đây là sách của ai?" },
+          { who: "B", cn: "是我的。", py: "Shì wǒ de.", vi: "Của tôi." },
+          { who: "A", cn: "那个杯子是你的吗？", py: "Nàge bēizi shì nǐ de ma?", vi: "Cái cốc kia là của bạn à?" },
+          { who: "B", cn: "不是，是我朋友的。", py: "Bú shì, shì wǒ péngyou de.", vi: "Không, là của bạn tôi." },
+          { who: "A", cn: "你朋友叫什么名字？", py: "Nǐ péngyou jiào shénme míngzi?", vi: "Bạn của bạn tên là gì?" },
+          { who: "B", cn: "她叫小红。", py: "Tā jiào Xiǎohóng.", vi: "Cô ấy tên là Tiểu Hồng." }
+        ] }
+      },
+      {
+        key: "ne", title: "Câu hỏi tỉnh lược với 呢", goal: "Hỏi lại “còn bạn?”, hỏi đồ vật ở đâu.",
+        pattern: "……，B 呢？　｜　Danh từ + 呢？",
+        explain: ["Nói về mình xong, hỏi người kia cùng câu đó: 我很好，你呢？ (Còn bạn?)", "Hỏi người/vật đang ở đâu: 我的书呢？ (Sách của tôi đâu?)"],
+        examples: [
+          { cn: "我是越南人，你呢？", py: "Wǒ shì Yuènán rén, nǐ ne?", vi: "Tôi là người Việt Nam, còn bạn?" },
+          { cn: "我喜欢喝茶，你呢？", py: "Wǒ xǐhuan hē chá, nǐ ne?", vi: "Tôi thích uống trà, còn bạn?" },
+          { cn: "我的书呢？", py: "Wǒ de shū ne?", vi: "Sách của tôi đâu rồi?" }
+        ],
+        practice: [
+          { q: "我很好，你（　）？", opts: ["呢", "吗", "的", "了"], a: 0, vi: "Tôi khỏe, còn bạn?" },
+          { q: "A：我的杯子（　）？　B：在桌子上。", opts: ["呢", "吗", "是", "很"], a: 0, vi: "A: Cốc của tôi đâu? B: Ở trên bàn." }
+        ],
+        dialogue: { title: "你呢 · Còn bạn thì sao", lines: [
+          { who: "A", cn: "你好吗？", py: "Nǐ hǎo ma?", vi: "Bạn khỏe không?" },
+          { who: "B", cn: "我很好。你呢？", py: "Wǒ hěn hǎo. Nǐ ne?", vi: "Tôi khỏe. Còn bạn?" },
+          { who: "A", cn: "我很好，谢谢！你妈妈呢？", py: "Wǒ hěn hǎo, xièxie! Nǐ māma ne?", vi: "Tôi khỏe, cảm ơn! Mẹ bạn thì sao?" },
+          { who: "B", cn: "她很好，她在家里。", py: "Tā hěn hǎo, tā zài jiā li.", vi: "Mẹ tôi khỏe, bà đang ở nhà." }
+        ] }
+      },
+      {
+        key: "num", title: "Số đếm · 几 / 多少 · lượng từ 个、本、口", goal: "Đếm người, đồ vật; hỏi số lượng và giá tiền.",
+        pattern: "Số + lượng từ + danh từ · 几 + lượng từ + danh từ？ · 多少 + (lượng từ) + danh từ？",
+        explain: ["Giữa số và danh từ phải có lượng từ: 一个人, 两本书, 三口人 (nhà có 3 người).", "Trước lượng từ, số 2 đọc là 两 (liǎng): 两个, không nói 二个.", "几 hỏi số nhỏ (thường dưới 10) và phải có lượng từ: 你有几个朋友？", "多少 hỏi số bất kỳ, có thể bỏ lượng từ: 多少钱？多少学生？"],
+        examples: [
+          { cn: "我家有三口人。", py: "Wǒ jiā yǒu sān kǒu rén.", vi: "Nhà tôi có ba người." },
+          { cn: "你有几本汉语书？", py: "Nǐ yǒu jǐ běn Hànyǔ shū?", vi: "Bạn có mấy quyển sách tiếng Hán?" },
+          { cn: "这个苹果多少钱？", py: "Zhège píngguǒ duōshao qián?", vi: "Quả táo này bao nhiêu tiền?" }
+        ],
+        practice: [
+          { q: "我有两（　）书。", opts: ["本", "口", "岁", "号"], a: 0, vi: "Tôi có hai quyển sách." },
+          { q: "你家有（　）口人？", opts: ["几", "什么", "谁", "哪"], a: 0, vi: "Nhà bạn có mấy người?" }
+        ],
+        dialogue: { title: "你家有几口人 · Nhà bạn có mấy người", lines: [
+          { who: "A", cn: "你家有几口人？", py: "Nǐ jiā yǒu jǐ kǒu rén?", vi: "Nhà bạn có mấy người?" },
+          { who: "B", cn: "我家有三口人：爸爸、妈妈和我。", py: "Wǒ jiā yǒu sān kǒu rén: bàba, māma hé wǒ.", vi: "Nhà tôi có ba người: bố, mẹ và tôi." },
+          { who: "A", cn: "你有几个中国朋友？", py: "Nǐ yǒu jǐ ge Zhōngguó péngyou?", vi: "Bạn có mấy người bạn Trung Quốc?" },
+          { who: "B", cn: "我有两个中国朋友。", py: "Wǒ yǒu liǎng ge Zhōngguó péngyou.", vi: "Tôi có hai người bạn Trung Quốc." },
+          { who: "A", cn: "这些苹果多少钱？", py: "Zhèxiē píngguǒ duōshao qián?", vi: "Chỗ táo này bao nhiêu tiền?" },
+          { who: "B", cn: "十块钱。", py: "Shí kuài qián.", vi: "Mười tệ." }
+        ] }
+      },
+      {
+        key: "adj", title: "Câu vị ngữ tính từ: 很 + tính từ, 太……了", goal: "Miêu tả người, đồ vật, thời tiết.",
+        pattern: "Chủ ngữ + 很 + tính từ　｜　太 + tính từ + 了！",
+        explain: ["Tính từ làm vị ngữ trực tiếp, không cần 是: 天气很冷 (Trời lạnh).", "很 ở đây thường đọc nhẹ, không nhấn mạnh “rất”; bỏ 很 thì câu nghe như đang so sánh.", "太……了: quá… (cảm thán): 太好了！太热了！", "Phủ định: 不 + tính từ: 不冷, 不大."],
+        examples: [
+          { cn: "今天很热。", py: "Jīntiān hěn rè.", vi: "Hôm nay nóng." },
+          { cn: "这个杯子太小了！", py: "Zhège bēizi tài xiǎo le!", vi: "Cái cốc này nhỏ quá!" },
+          { cn: "她的衣服很漂亮。", py: "Tā de yīfu hěn piàoliang.", vi: "Quần áo của cô ấy rất đẹp." }
+        ],
+        practice: [
+          { q: "今天天气（　）冷。", opts: ["很", "是", "的", "吗"], a: 0, vi: "Hôm nay trời lạnh." },
+          { q: "这个苹果（　）大了！", opts: ["太", "很", "是", "不"], a: 0, vi: "Quả táo này to quá!" }
+        ],
+        dialogue: { title: "北京冷吗 · Bắc Kinh có lạnh không", lines: [
+          { who: "A", cn: "北京冷吗？", py: "Běijīng lěng ma?", vi: "Bắc Kinh có lạnh không?" },
+          { who: "B", cn: "现在很冷。", py: "Xiànzài hěn lěng.", vi: "Bây giờ lạnh lắm." },
+          { who: "A", cn: "河内呢？", py: "Hénèi ne?", vi: "Còn Hà Nội?" },
+          { who: "B", cn: "河内不冷，很热。", py: "Hénèi bù lěng, hěn rè.", vi: "Hà Nội không lạnh, nóng lắm." },
+          { who: "A", cn: "太好了！我喜欢热天。", py: "Tài hǎo le! Wǒ xǐhuan rè tiān.", vi: "Tuyệt quá! Tôi thích trời nóng." }
+        ] }
+      },
+      {
+        key: "modal", title: "Động từ năng nguyện 会、能、想", goal: "Nói mình biết làm gì, có thể làm gì, muốn làm gì.",
+        pattern: "Chủ ngữ + 会 / 能 / 想 + động từ",
+        explain: ["会 huì: biết (kỹ năng do học mà có): 我会说汉语.", "能 néng: có thể, được phép: 我能坐这儿吗？", "想 xiǎng: muốn: 我想喝茶.", "Phủ định: 不会, 不能, 不想."],
+        examples: [
+          { cn: "我会写汉字。", py: "Wǒ huì xiě Hànzì.", vi: "Tôi biết viết chữ Hán." },
+          { cn: "我能坐这儿吗？", py: "Wǒ néng zuò zhèr ma?", vi: "Tôi ngồi đây được không?" },
+          { cn: "我想去中国。", py: "Wǒ xiǎng qù Zhōngguó.", vi: "Tôi muốn đi Trung Quốc." }
+        ],
+        practice: [
+          { q: "你（　）说汉语吗？", opts: ["会", "是", "很", "的"], a: 0, vi: "Bạn biết nói tiếng Hán không?" },
+          { q: "我（　）喝水，你有吗？", opts: ["想", "会", "是", "在"], a: 0, vi: "Tôi muốn uống nước, bạn có không?" }
+        ],
+        dialogue: { title: "你会说汉语吗 · Bạn biết nói tiếng Hán không", lines: [
+          { who: "A", cn: "你会说汉语吗？", py: "Nǐ huì shuō Hànyǔ ma?", vi: "Bạn biết nói tiếng Hán không?" },
+          { who: "B", cn: "会一点儿。", py: "Huì yìdiǎnr.", vi: "Biết một chút." },
+          { who: "A", cn: "你会写汉字吗？", py: "Nǐ huì xiě Hànzì ma?", vi: "Bạn biết viết chữ Hán không?" },
+          { who: "B", cn: "不会。我想学习写汉字。", py: "Bú huì. Wǒ xiǎng xuéxí xiě Hànzì.", vi: "Không biết. Tôi muốn học viết chữ Hán." },
+          { who: "A", cn: "我能坐这儿吗？", py: "Wǒ néng zuò zhèr ma?", vi: "Tôi ngồi đây được không?" },
+          { who: "B", cn: "请坐！", py: "Qǐng zuò!", vi: "Mời ngồi!" }
+        ] }
+      },
+      {
+        key: "time", title: "Ngày tháng, thứ, giờ (câu vị ngữ danh từ)", goal: "Hỏi và nói ngày, thứ, giờ, tuổi.",
+        pattern: "今天 + ngày / thứ　｜　现在 + giờ　｜　几月几号？星期几？几点？",
+        explain: ["Thời gian đi từ lớn đến nhỏ: 年 → 月 → 号 → 星期 → 点 → 分.", "Câu nói ngày, thứ, giờ, tuổi thường không cần 是: 今天星期一, 我二十岁.", "Thứ Hai đến thứ Bảy: 星期一 … 星期六; Chủ nhật: 星期日 / 星期天."],
+        examples: [
+          { cn: "今天几月几号？", py: "Jīntiān jǐ yuè jǐ hào?", vi: "Hôm nay ngày mấy tháng mấy?" },
+          { cn: "明天星期五。", py: "Míngtiān xīngqīwǔ.", vi: "Ngày mai thứ Sáu." },
+          { cn: "现在下午三点十分。", py: "Xiànzài xiàwǔ sān diǎn shí fēn.", vi: "Bây giờ là 3 giờ 10 chiều." }
+        ],
+        practice: [
+          { q: "今天星期（　）？", opts: ["几", "什么", "多少", "哪"], a: 0, vi: "Hôm nay thứ mấy?" },
+          { q: "我女儿今年五（　）。", opts: ["岁", "点", "号", "月"], a: 0, vi: "Con gái tôi năm nay 5 tuổi." }
+        ],
+        dialogue: { title: "现在几点 · Bây giờ mấy giờ", lines: [
+          { who: "A", cn: "现在几点？", py: "Xiànzài jǐ diǎn?", vi: "Bây giờ mấy giờ?" },
+          { who: "B", cn: "现在上午十点。", py: "Xiànzài shàngwǔ shí diǎn.", vi: "Bây giờ là 10 giờ sáng." },
+          { who: "A", cn: "今天几号？", py: "Jīntiān jǐ hào?", vi: "Hôm nay ngày mấy?" },
+          { who: "B", cn: "今天九月一号，星期一。", py: "Jīntiān jiǔ yuè yī hào, xīngqīyī.", vi: "Hôm nay mùng 1 tháng 9, thứ Hai." },
+          { who: "A", cn: "你几点去学校？", py: "Nǐ jǐ diǎn qù xuéxiào?", vi: "Mấy giờ bạn đến trường?" },
+          { who: "B", cn: "我下午两点去学校。", py: "Wǒ xiàwǔ liǎng diǎn qù xuéxiào.", vi: "Hai giờ chiều tôi đến trường." }
+        ] }
+      },
+      {
+        key: "zai", title: "在: ở đâu, làm gì ở đâu", goal: "Nói ai ở đâu, làm việc / học ở đâu.",
+        pattern: "A + 在 + nơi chốn　｜　A + 在 + nơi chốn + động từ",
+        explain: ["在 là động từ “ở”: 我在家.", "Cụm 在 + nơi chốn đặt TRƯỚC động từ: 我在学校学习汉语 (tiếng Việt nói ngược: học tiếng Hán ở trường).", "Hỏi: 你在哪儿？你在哪儿工作？"],
+        examples: [
+          { cn: "我妈妈在医院。", py: "Wǒ māma zài yīyuàn.", vi: "Mẹ tôi ở bệnh viện." },
+          { cn: "他在饭店工作。", py: "Tā zài fàndiàn gōngzuò.", vi: "Anh ấy làm việc ở nhà hàng." },
+          { cn: "猫在椅子下面。", py: "Māo zài yǐzi xiàmiàn.", vi: "Con mèo ở dưới ghế." }
+        ],
+        practice: [
+          { q: "你儿子在（　）工作？", opts: ["哪儿", "什么", "谁", "几"], a: 0, vi: "Con trai bạn làm việc ở đâu?" },
+          { q: "我（　）家里看电视。", opts: ["在", "是", "有", "去"], a: 0, vi: "Tôi xem tivi ở nhà." }
+        ],
+        dialogue: { title: "你在哪儿工作 · Bạn làm việc ở đâu", lines: [
+          { who: "A", cn: "你在哪儿工作？", py: "Nǐ zài nǎr gōngzuò?", vi: "Bạn làm việc ở đâu?" },
+          { who: "B", cn: "我在医院工作，我是医生。", py: "Wǒ zài yīyuàn gōngzuò, wǒ shì yīshēng.", vi: "Tôi làm ở bệnh viện, tôi là bác sĩ." },
+          { who: "A", cn: "你儿子呢？", py: "Nǐ érzi ne?", vi: "Còn con trai bạn?" },
+          { who: "B", cn: "他在北京学习汉语。", py: "Tā zài Běijīng xuéxí Hànyǔ.", vi: "Nó đang học tiếng Hán ở Bắc Kinh." },
+          { who: "A", cn: "你现在在哪儿？", py: "Nǐ xiànzài zài nǎr?", vi: "Bây giờ bạn đang ở đâu?" },
+          { who: "B", cn: "我在家里。", py: "Wǒ zài jiā li.", vi: "Tôi ở nhà." }
+        ] }
+      },
+      {
+        key: "you", title: "有 / 没有: có, ở đâu có gì", goal: "Nói mình có gì, ở đâu có gì.",
+        pattern: "A + 有 + B　｜　Nơi chốn + 有 + người / vật　｜　没有",
+        explain: ["有 yǒu: có (sở hữu): 我有一个女儿.", "Nơi chốn + 有 + vật: 桌子上有一本书 (Trên bàn có một quyển sách).", "Phủ định của 有 là 没有 (méiyǒu), không nói 不有."],
+        examples: [
+          { cn: "我有一个中国朋友。", py: "Wǒ yǒu yí ge Zhōngguó péngyou.", vi: "Tôi có một người bạn Trung Quốc." },
+          { cn: "桌子上有一个杯子。", py: "Zhuōzi shang yǒu yí ge bēizi.", vi: "Trên bàn có một cái cốc." },
+          { cn: "我没有钱。", py: "Wǒ méiyǒu qián.", vi: "Tôi không có tiền." }
+        ],
+        practice: [
+          { q: "我（　）有电脑。", opts: ["没", "不", "是", "很"], a: 0, vi: "Tôi không có máy tính." },
+          { q: "学校前面（　）一个商店。", opts: ["有", "是", "在", "去"], a: 0, vi: "Phía trước trường có một cửa hàng." }
+        ],
+        dialogue: { title: "这儿有商店吗 · Ở đây có cửa hàng không", lines: [
+          { who: "A", cn: "这儿有商店吗？", py: "Zhèr yǒu shāngdiàn ma?", vi: "Ở đây có cửa hàng không?" },
+          { who: "B", cn: "有，学校前面有一个商店。", py: "Yǒu, xuéxiào qiánmiàn yǒu yí ge shāngdiàn.", vi: "Có, phía trước trường có một cửa hàng." },
+          { who: "A", cn: "商店里有水果吗？", py: "Shāngdiàn li yǒu shuǐguǒ ma?", vi: "Trong cửa hàng có hoa quả không?" },
+          { who: "B", cn: "有，有很多苹果。", py: "Yǒu, yǒu hěn duō píngguǒ.", vi: "Có, có nhiều táo lắm." },
+          { who: "A", cn: "有茶吗？", py: "Yǒu chá ma?", vi: "Có trà không?" },
+          { who: "B", cn: "没有茶。", py: "Méiyǒu chá.", vi: "Không có trà." }
+        ] }
+      },
+      {
+        key: "zenme", title: "怎么 và 怎么样", goal: "Hỏi cách làm, hỏi tình hình, rủ rê.",
+        pattern: "怎么 + động từ？　｜　……怎么样？",
+        explain: ["怎么 zěnme + động từ: hỏi cách làm: 这个字怎么读？", "怎么样 zěnmeyàng: hỏi tình hình, ý kiến: 天气怎么样？", "Rủ rê: ……，怎么样？ = …, được không?"],
+        examples: [
+          { cn: "你怎么去学校？", py: "Nǐ zěnme qù xuéxiào?", vi: "Bạn đến trường bằng cách nào?" },
+          { cn: "这个字怎么写？", py: "Zhège zì zěnme xiě?", vi: "Chữ này viết thế nào?" },
+          { cn: "明天天气怎么样？", py: "Míngtiān tiānqì zěnmeyàng?", vi: "Thời tiết ngày mai thế nào?" }
+        ],
+        practice: [
+          { q: "这个汉字（　）读？", opts: ["怎么", "怎么样", "什么", "哪儿"], a: 0, vi: "Chữ Hán này đọc thế nào?" },
+          { q: "我们去看电影，（　）？", opts: ["怎么样", "怎么", "几", "谁"], a: 0, vi: "Chúng ta đi xem phim, được không?" }
+        ],
+        dialogue: { title: "明天天气怎么样 · Thời tiết ngày mai thế nào", lines: [
+          { who: "A", cn: "明天天气怎么样？", py: "Míngtiān tiānqì zěnmeyàng?", vi: "Thời tiết ngày mai thế nào?" },
+          { who: "B", cn: "明天下雨。", py: "Míngtiān xià yǔ.", vi: "Ngày mai trời mưa." },
+          { who: "A", cn: "我们明天去看电影，怎么样？", py: "Wǒmen míngtiān qù kàn diànyǐng, zěnmeyàng?", vi: "Mai chúng ta đi xem phim, được không?" },
+          { who: "B", cn: "好！我们怎么去？", py: "Hǎo! Wǒmen zěnme qù?", vi: "Được! Chúng ta đi bằng gì?" },
+          { who: "A", cn: "坐出租车去。", py: "Zuò chūzūchē qù.", vi: "Đi taxi." }
+        ] }
+      },
+      {
+        key: "zaine", title: "Đang làm gì: 在……呢", goal: "Nói việc đang diễn ra; gọi điện thoại hỏi thăm.",
+        pattern: "Chủ ngữ + 在 + động từ (+ tân ngữ) + 呢",
+        explain: ["Diễn tả hành động đang diễn ra: 他在看书呢 (Anh ấy đang đọc sách).", "Có thể bỏ 在 hoặc bỏ 呢, nghĩa vẫn là “đang”.", "Hỏi: 你在做什么呢？ · Nghe điện thoại: 喂 (wéi) = A lô."],
+        examples: [
+          { cn: "妈妈在做饭呢。", py: "Māma zài zuò fàn ne.", vi: "Mẹ đang nấu cơm." },
+          { cn: "我在学习汉语呢。", py: "Wǒ zài xuéxí Hànyǔ ne.", vi: "Tôi đang học tiếng Hán." },
+          { cn: "他们在看电视呢。", py: "Tāmen zài kàn diànshì ne.", vi: "Họ đang xem tivi." }
+        ],
+        practice: [
+          { q: "你在做什么（　）？", opts: ["呢", "吗", "的", "了"], a: 0, vi: "Bạn đang làm gì thế?" },
+          { q: "爸爸（　）睡觉呢。", opts: ["在", "是", "有", "很"], a: 0, vi: "Bố đang ngủ." }
+        ],
+        dialogue: { title: "喂，你在做什么呢 · A lô, bạn đang làm gì thế", lines: [
+          { who: "A", cn: "喂，你在做什么呢？", py: "Wéi, nǐ zài zuò shénme ne?", vi: "A lô, bạn đang làm gì thế?" },
+          { who: "B", cn: "我在看书呢。", py: "Wǒ zài kàn shū ne.", vi: "Tôi đang đọc sách." },
+          { who: "A", cn: "你妈妈呢？", py: "Nǐ māma ne?", vi: "Còn mẹ bạn?" },
+          { who: "B", cn: "她在做饭呢。", py: "Tā zài zuò fàn ne.", vi: "Mẹ tôi đang nấu cơm." },
+          { who: "A", cn: "下午我们去商店，怎么样？", py: "Xiàwǔ wǒmen qù shāngdiàn, zěnmeyàng?", vi: "Chiều nay chúng mình đi cửa hàng nhé?" },
+          { who: "B", cn: "好，下午见！", py: "Hǎo, xiàwǔ jiàn!", vi: "Được, hẹn gặp chiều nay!" }
+        ] }
+      },
+      {
+        key: "le", title: "了 (đã xong) và 没 (chưa / không)", goal: "Kể việc đã làm, hỏi đã làm chưa.",
+        pattern: "Động từ + 了 (+ tân ngữ)　｜　没 + động từ　｜　……了吗？",
+        explain: ["了 sau động từ hoặc cuối câu cho biết việc đã xảy ra, đã xong: 我买了三个苹果.", "Phủ định việc đã qua dùng 没 (没有) và bỏ 了: 我没买 (không nói 我没买了).", "Hỏi: 你吃饭了吗？"],
+        examples: [
+          { cn: "我昨天买了一本书。", py: "Wǒ zuótiān mǎile yì běn shū.", vi: "Hôm qua tôi đã mua một quyển sách." },
+          { cn: "你吃饭了吗？", py: "Nǐ chī fàn le ma?", vi: "Bạn ăn cơm chưa?" },
+          { cn: "他没去学校。", py: "Tā méi qù xuéxiào.", vi: "Anh ấy không đến trường." }
+        ],
+        practice: [
+          { q: "我昨天去（　）商店。", opts: ["了", "呢", "吗", "的"], a: 0, vi: "Hôm qua tôi đã đi cửa hàng." },
+          { q: "A：你看那个电影了吗？　B：我（　）看。", opts: ["没", "不", "了", "很"], a: 0, vi: "B: Tôi chưa xem." }
+        ],
+        dialogue: { title: "你买了什么 · Bạn đã mua gì", lines: [
+          { who: "A", cn: "你昨天去哪儿了？", py: "Nǐ zuótiān qù nǎr le?", vi: "Hôm qua bạn đi đâu thế?" },
+          { who: "B", cn: "我去商店了。", py: "Wǒ qù shāngdiàn le.", vi: "Tôi đi cửa hàng." },
+          { who: "A", cn: "你买了什么？", py: "Nǐ mǎile shénme?", vi: "Bạn đã mua gì?" },
+          { who: "B", cn: "我买了一些水果和几本书。", py: "Wǒ mǎile yìxiē shuǐguǒ hé jǐ běn shū.", vi: "Tôi mua ít hoa quả và mấy quyển sách." },
+          { who: "A", cn: "你买杯子了吗？", py: "Nǐ mǎi bēizi le ma?", vi: "Bạn có mua cốc không?" },
+          { who: "B", cn: "没买。", py: "Méi mǎi.", vi: "Không mua." }
+        ] }
+      },
+      {
+        key: "shide", title: "Nhấn mạnh với 是……的", goal: "Kể việc đã qua: đến khi nào, bằng gì, với ai.",
+        pattern: "Chủ ngữ + 是 + (thời gian / nơi chốn / cách thức) + động từ + 的",
+        explain: ["Dùng khi việc ĐÃ xảy ra, muốn nhấn mạnh khi nào, ở đâu, bằng cách nào, với ai.", "我是坐飞机来的 = Tôi đến bằng máy bay (nhấn mạnh phương tiện).", "Trong văn nói có thể bỏ 是, nhưng không bỏ 的."],
+        examples: [
+          { cn: "我是昨天来的。", py: "Wǒ shì zuótiān lái de.", vi: "Tôi đến hôm qua." },
+          { cn: "他是坐出租车来的。", py: "Tā shì zuò chūzūchē lái de.", vi: "Anh ấy đến bằng taxi." },
+          { cn: "你是在哪儿认识她的？", py: "Nǐ shì zài nǎr rènshi tā de?", vi: "Bạn quen cô ấy ở đâu?" }
+        ],
+        practice: [
+          { q: "我是坐飞机来（　）。", opts: ["的", "了", "吗", "呢"], a: 0, vi: "Tôi đến bằng máy bay." },
+          { q: "你是（　）来北京的？", opts: ["什么时候", "什么", "谁", "多少"], a: 0, vi: "Bạn đến Bắc Kinh khi nào?" }
+        ],
+        dialogue: { title: "你是怎么来的 · Bạn đến bằng gì", lines: [
+          { who: "A", cn: "你是什么时候来北京的？", py: "Nǐ shì shénme shíhou lái Běijīng de?", vi: "Bạn đến Bắc Kinh khi nào?" },
+          { who: "B", cn: "我是上个月来的。", py: "Wǒ shì shàng ge yuè lái de.", vi: "Tôi đến tháng trước." },
+          { who: "A", cn: "你是怎么来的？", py: "Nǐ shì zěnme lái de?", vi: "Bạn đến bằng gì?" },
+          { who: "B", cn: "我是坐飞机来的。", py: "Wǒ shì zuò fēijī lái de.", vi: "Tôi đến bằng máy bay." },
+          { who: "A", cn: "你是和朋友来的吗？", py: "Nǐ shì hé péngyou lái de ma?", vi: "Bạn đến cùng bạn bè à?" },
+          { who: "B", cn: "不是，我是和我妈妈来的。", py: "Bú shì, wǒ shì hé wǒ māma lái de.", vi: "Không, tôi đến cùng mẹ tôi." }
+        ] }
+      }
+    ];
+    const GRAMMAR_BY_LEVEL = { 1: GRAMMAR_HSK1 };
+    // Giao diện phần giáo án (mục tiêu, ngữ pháp, hội thoại) — đặt trong app.js để chỉ cần cập nhật một file
+    (function injectLessonCss() {
+      if (document.getElementById("lsGrammarCss")) return;
+      const s = document.createElement("style");
+      s.id = "lsGrammarCss";
+      s.textContent = `
+        .ls-goal { border: 1px solid #f1d5c9; background: linear-gradient(135deg, #fff7ed, #fff); border-radius: 18px; padding: 12px 16px; margin-bottom: 14px; }
+        .ls-goal-h { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; color: #b9382c; margin-bottom: 4px; }
+        .ls-goal ul { margin: 0; padding-left: 18px; list-style: disc; font-size: 14px; color: #44403c; line-height: 1.6; }
+        .ls-gtag { display: block; font-size: 11.5px; font-weight: 600; color: #1f6f5b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ls-pattern { background: #faf7f2; border: 1px dashed #d6d3d1; border-radius: 14px; padding: 10px 14px; font-size: 16px; font-weight: 700; color: #b9382c; line-height: 1.6; }
+        .ls-explain { margin: 0; padding-left: 18px; list-style: disc; font-size: 14.5px; color: #44403c; line-height: 1.65; }
+        .ls-explain li + li { margin-top: 4px; }
+        .ls-ex { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: #fff; border: 1px solid #f0ebe5; }
+        .ls-say { width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; background: #b9382c14; color: #b9382c; display: inline-flex; align-items: center; justify-content: center; }
+        .ls-say:hover { background: #b9382c26; }
+        .ls-py { color: #b9382c; font-size: 13px; font-weight: 600; }
+        .ls-dialog { display: flex; flex-direction: column; gap: 10px; }
+        .ls-line { display: flex; align-items: flex-start; gap: 8px; }
+        .ls-line.is-b { flex-direction: row-reverse; }
+        .ls-who { width: 30px; height: 30px; flex-shrink: 0; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; background: #b9382c; }
+        .ls-line.is-b .ls-who { background: #1f6f5b; }
+        .ls-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; background: #faf7f2; border: 1px solid #ede7df; transition: box-shadow .2s, border-color .2s; }
+        .ls-line.is-a .ls-bubble { border-top-left-radius: 4px; }
+        .ls-line.is-b .ls-bubble { border-top-right-radius: 4px; background: #f0f7f4; border-color: #d5e9e0; }
+        .ls-line.is-playing .ls-bubble { border-color: #b9382c; box-shadow: 0 0 0 3px rgba(185,56,44,.15); }
+        body.dark-mode .ls-goal { background: #1b1f27; border-color: #4a3a33; }
+        body.dark-mode .ls-goal ul, body.dark-mode .ls-explain { color: #d6d3d1; }
+        body.dark-mode .ls-pattern, body.dark-mode .ls-bubble, body.dark-mode .ls-ex { background: #222733; border-color: #323846; }
+        body.dark-mode .ls-line.is-b .ls-bubble { background: #1d2a26; border-color: #2c4038; }`;
+      document.head.appendChild(s);
+    })();
+    // Gán điểm ngữ pháp cho bài: chia đều theo thứ tự bài của cấp, mỗi điểm gắn vào bài đầu tiên của nhóm
+    function lsGrammarFor(lesson) {
+      const list = GRAMMAR_BY_LEVEL[lesson.hsk];
+      if (!list || lesson.id === "review") return null;
+      const all = lsAllLessons(lesson.hsk);
+      const i = all.findIndex(l => l.id === lesson.id);
+      if (i < 0) return null;
+      const g = Math.floor(i * list.length / all.length);
+      const firstOfGroup = i === 0 || Math.floor((i - 1) * list.length / all.length) !== g;
+      return firstOfGroup ? Object.assign({ no: g + 1 }, list[g]) : null;
+    }
+
     // ---------- Bài học từng bước: dữ liệu & danh sách bài ----------
     const LESSON_KEY = "han_ngu_lessons_v1";
     PROGRESS_KEYS.push(LESSON_KEY);
@@ -5185,7 +5558,7 @@
             <span class="skill-ico" style="background:#b9382c14;color:#b9382c"><i data-lucide="graduation-cap" class="w-5 h-5"></i></span>
             <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-[#b9382c]">Học tiếp</span>
               <span class="block font-bold text-stone-900 truncate">${next.topic} · Bài ${next.no}</span>
-              <span class="block text-xs text-stone-500">HSK ${next.hsk} · ${next.words.length} từ · khoảng 6 phút</span></span>
+              <span class="block text-xs text-stone-500">HSK ${next.hsk} · ${next.words.length} từ${lsGrammarFor(next) ? ` · ngữ pháp ${lsGrammarFor(next).title.split(":")[0]} · khoảng 12 phút` : " · khoảng 6 phút"}</span></span>
             <span class="lvl-go" style="--c:#b9382c">Bắt đầu<i data-lucide="chevron-right"></i></span>
           </button>`
         : `<div class="ls-card bg-white p-4 flex items-center gap-3"><span class="text-3xl">🏆</span><div><div class="font-bold text-stone-900">Đã học hết các bài của ${levelLabel(sel)}!</div><div class="text-xs text-stone-500">Chọn cấp khác ở thanh phía trên để học tiếp.</div></div></div>`;
@@ -5219,10 +5592,12 @@
             <div class="ls-topic-body"><div><div class="ls-lessons">${t.lessons.map(l => {
               const m = lsMasteredCount(l), done = lsIsDone(l, store), isNext = next && next.id === l.id;
               const preview = l.words.slice(0, 4).map(id => VOCAB[id - 1].hanzi).join(" · ");
+              const gr = lsGrammarFor(l);
               return `<button type="button" data-ls-start="${l.id}" class="ls-lesson bg-white ${done ? "is-done" : ""} ${isNext ? "is-next" : ""}">
                 <span class="flex items-center justify-between gap-2"><span class="font-bold text-stone-900">Bài ${l.no}</span>
                   <span class="text-[11px] font-semibold ${done ? "text-emerald-700" : isNext ? "text-[#b9382c]" : "text-stone-400"}">${done ? "✓ Hoàn thành" : isNext ? "Học tiếp" : `${l.words.length} từ`}</span></span>
                 <span class="font-hanzi-sans text-sm text-stone-600 truncate">${preview}${l.words.length > 4 ? " …" : ""}</span>
+                ${gr ? `<span class="ls-gtag">📘 Ngữ pháp: ${gr.title}</span>` : ""}
                 <span class="ls-mini"><i style="width:${Math.round(m / l.words.length * 100)}%"></i></span>
                 <span class="text-[11px] text-stone-500">Đã thuộc ${m}/${l.words.length}</span>
               </button>`;
@@ -5237,6 +5612,8 @@
     // ---------- Bài học từng bước: phần học ----------
     const LS_STEPS = {
       intro: { label: "Làm quen", icon: "book-open" },
+      grammar: { label: "Ngữ pháp", icon: "book-marked" },
+      dialog: { label: "Hội thoại", icon: "messages-square" },
       flash: { label: "Thẻ nhớ", icon: "layers" },
       match: { label: "Ghép thẻ", icon: "link" },
       quiz: { label: "Trắc nghiệm", icon: "check-circle-2" },
@@ -5252,7 +5629,10 @@
       clearTimeout(lp.timer);
       lp.lesson = lesson; lp.review = !!review;
       lp.words = lesson.words.map(lsW).filter(Boolean);
-      lp.steps = review ? ["quiz"] : ["intro", "flash", "match", "quiz"].concat(SpeechRec ? ["speak"] : []);
+      // Giáo án: Làm quen → (Ngữ pháp → Hội thoại, nếu bài có điểm ngữ pháp) → Thẻ nhớ → Ghép thẻ → Trắc nghiệm → Nói thử
+      lp.grammar = review ? null : lsGrammarFor(lesson);
+      lp.gpAns = {}; lp.dlgPy = true; lp.dlgVi = true;
+      lp.steps = review ? ["quiz"] : ["intro"].concat(lp.grammar ? ["grammar", "dialog"] : [], ["flash", "match", "quiz"], SpeechRec ? ["speak"] : []);
       lp.step = 0; lp.errors = new Set(); lp.finished = false;
       lsEnterStep();
       document.getElementById("lsListWrap").classList.add("hidden");
@@ -5303,14 +5683,109 @@
       if (!box) return;
       box.classList.remove("ls-stage"); void box.offsetWidth; box.classList.add("ls-stage");
       const k = lp.finished ? "done" : lp.steps[lp.step];
-      box.innerHTML = ({ intro: lsIntroHtml, flash: lsFlashHtml, match: lsMatchHtml, quiz: lsQuizHtml, speak: lsSpeakHtml, done: lsDoneHtml })[k]();
+      box.innerHTML = ({ intro: lsIntroHtml, grammar: lsGrammarHtml, dialog: lsDialogHtml, flash: lsFlashHtml, match: lsMatchHtml, quiz: lsQuizHtml, speak: lsSpeakHtml, done: lsDoneHtml })[k]();
       if (window.lucide) lucide.createIcons();
       if (k === "quiz") { const q = lp.quiz.qs[lp.quiz.i]; if (q && q.type === 1) setTimeout(() => speakChinese(lsW(q.id).hanzi, null), 250); }
     }
 
     // Bước 1: Làm quen
+    // Nút sang bước kế tiếp, ghi đúng tên bước
+    function lsNextBtn() {
+      const nk = lp.steps[lp.step + 1];
+      return `<div class="flex justify-end mt-5"><button type="button" data-ls-act="next" class="${LS_BTN}">${nk ? `Sang bước ${LS_STEPS[nk].label}` : "Hoàn thành bài"}<i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>`;
+    }
+    // Mục tiêu bài học (giáo án)
+    function lsGoalHtml() {
+      if (lp.review) return "";
+      const g = lp.grammar;
+      return `<div class="ls-goal">
+        <div class="ls-goal-h"><i data-lucide="target" class="w-4 h-4"></i>Mục tiêu bài học</div>
+        <ul>
+          <li><b>Từ vựng:</b> ${lp.words.length} từ chủ đề “${lp.lesson.topic}”: ${lp.words.slice(0, 5).map(w => w.hanzi).join("、")}${lp.words.length > 5 ? "…" : ""}</li>
+          ${g ? `<li><b>Ngữ pháp:</b> ${g.title}</li><li><b>Giao tiếp:</b> ${g.goal}</li>` : `<li><b>Ôn tập:</b> nhớ mặt chữ, nghĩa và phát âm qua thẻ nhớ, ghép thẻ, trắc nghiệm.</li>`}
+        </ul>
+      </div>`;
+    }
+    // Bước Ngữ pháp: công thức, giải thích, ví dụ có phát âm, 2 câu luyện nhanh
+    function lsGrammarHtml() {
+      const g = lp.grammar;
+      const listLen = (GRAMMAR_BY_LEVEL[lp.lesson.hsk] || []).length;
+      return `<div class="ls-card bg-white p-5 space-y-4">
+          <div>
+            <div class="text-xs font-bold text-[#b9382c] uppercase tracking-wider">Ngữ pháp HSK ${lp.lesson.hsk} · Điểm ${g.no}/${listLen}</div>
+            <h3 class="text-xl font-extrabold text-stone-900 mt-1">${g.title}</h3>
+          </div>
+          <div class="ls-pattern font-hanzi-sans">${g.pattern}</div>
+          <ul class="ls-explain">${g.explain.map(x => `<li>${x}</li>`).join("")}</ul>
+          <div class="space-y-2">
+            <div class="text-xs font-bold text-stone-500 uppercase tracking-wider">Ví dụ</div>
+            ${g.examples.map(e => `<div class="ls-ex">
+              <button type="button" data-ls-act="say-text" data-text="${e.cn}" class="ls-say" title="Nghe"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+              <div class="min-w-0"><div class="font-hanzi-sans text-lg text-stone-900">${e.cn}</div><div class="ls-py">${e.py}</div><div class="text-sm text-stone-600">${e.vi}</div></div>
+            </div>`).join("")}
+          </div>
+        </div>
+        <div class="ls-card bg-white p-5 mt-4 space-y-4">
+          <div class="text-xs font-bold text-stone-500 uppercase tracking-wider">Luyện nhanh · Chọn từ điền vào chỗ trống</div>
+          ${g.practice.map((p, qi) => {
+            const ans = lp.gpAns[qi];
+            return `<div class="space-y-2">
+              <div class="font-hanzi-sans text-lg text-stone-900">${qi + 1}. ${p.q}</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">${p.opts.map((o, oi) => {
+                const cls = ans === undefined ? "" : oi === p.a ? "is-ok" : oi === ans ? "is-bad" : "";
+                return `<button type="button" data-ls-act="gp" data-q="${qi}" data-o="${oi}" ${ans !== undefined ? "disabled" : ""} class="ls-opt bg-white font-hanzi-sans text-lg text-center ${cls}">${o}</button>`;
+              }).join("")}</div>
+              ${ans !== undefined ? `<div class="text-sm ${ans === p.a ? "text-emerald-700" : "text-rose-700"} font-semibold">${ans === p.a ? "✓ Đúng rồi!" : `✗ Đáp án: ${p.opts[p.a]}`} <span class="text-stone-600 font-normal">· ${p.vi}</span></div>` : ""}
+            </div>`;
+          }).join("")}
+        </div>
+        ${lsNextBtn()}`;
+    }
+    // Bước Hội thoại: bong bóng A/B, nghe từng câu hoặc cả bài, bật tắt Pinyin / bản dịch
+    function lsDialogHtml() {
+      const d = lp.grammar.dialogue;
+      return `<div class="ls-card bg-white p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h3 class="font-extrabold text-stone-900 text-lg">💬 ${d.title}</h3>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-ls-act="dlg-all" class="lvl-pill"><i data-lucide="play" class="w-3.5 h-3.5 inline"></i> Nghe cả bài</button>
+              <button type="button" data-ls-act="dlg-py" class="lvl-pill ${lp.dlgPy ? "is-active" : ""}">Pinyin</button>
+              <button type="button" data-ls-act="dlg-vi" class="lvl-pill ${lp.dlgVi ? "is-active" : ""}">Dịch</button>
+            </div>
+          </div>
+          <div class="ls-dialog">${d.lines.map((l, i) => `
+            <div class="ls-line ${l.who === "A" ? "is-a" : "is-b"}" data-line="${i}">
+              <span class="ls-who">${l.who}</span>
+              <div class="ls-bubble">
+                <div class="font-hanzi-sans text-lg text-stone-900">${l.cn}</div>
+                ${lp.dlgPy ? `<div class="ls-py">${l.py}</div>` : ""}
+                ${lp.dlgVi ? `<div class="text-sm text-stone-600">${l.vi}</div>` : ""}
+              </div>
+              <button type="button" data-ls-act="say-text" data-text="${l.cn}" class="ls-say" title="Nghe"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+            </div>`).join("")}</div>
+          <p class="text-xs text-stone-500 mt-4">Mẹo: tắt Pinyin và Dịch, nghe cả bài rồi đọc to theo từng câu. Bôi đen chữ bất kỳ để tra từ hoặc dịch bằng AI.</p>
+        </div>
+        ${lsNextBtn()}`;
+    }
+    // Nghe cả đoạn hội thoại, lần lượt từng câu (tô sáng câu đang đọc)
+    function lsPlayDialog() {
+      clearTimeout(lp.timer);
+      const lines = lp.grammar ? lp.grammar.dialogue.lines : [];
+      let i = 0;
+      const step = () => {
+        document.querySelectorAll("#lsStage .ls-line").forEach(el => el.classList.toggle("is-playing", Number(el.dataset.line) === i));
+        if (i >= lines.length) return;
+        const text = lines[i].cn;
+        speakChinese(text, null);
+        const ms = Math.round((text.length * 320) / (state.speechRate || 1)) + 900;
+        i++;
+        lp.timer = setTimeout(step, ms);
+      };
+      step();
+    }
+
     function lsIntroHtml() {
-      return `<p class="text-sm text-stone-600 mb-3">Đọc qua từng từ, bấm loa để nghe phát âm. Xem xong thì sang bước lật thẻ.</p>
+      return `${lsGoalHtml()}<p class="text-sm text-stone-600 mb-3">Đọc qua từng từ, bấm loa để nghe phát âm. Xem xong thì sang bước tiếp theo.</p>
         <div class="grid gap-3 sm:grid-cols-2">${lp.words.map((w, i) => `
           <div class="ls-word bg-white" style="--i:${i}">
             <div class="text-center shrink-0" style="min-width:84px">
@@ -5325,7 +5800,7 @@
             </div>
             <button type="button" data-ls-act="say" data-id="${w.id}" class="w-9 h-9 shrink-0 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-600 flex items-center justify-center" title="Nghe"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
           </div>`).join("")}</div>
-        <div class="flex justify-end mt-5"><button type="button" data-ls-act="next" class="${LS_BTN}">Sang bước Thẻ nhớ<i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>`;
+        ${lsNextBtn()}`;
     }
 
     // Bước 2: Thẻ nhớ (lật thẻ, chưa nhớ thì thẻ quay lại cuối hàng)
@@ -5515,6 +5990,17 @@
         if (act === "back") { clearTimeout(lp.timer); if (activeRec) { try { activeRec.abort(); } catch (er) {} } renderLessonsView(); }
         else if (act === "next") lsNextStep();
         else if (act === "say") speakChinese(lsW(Number(b.dataset.id)).hanzi, b);
+        else if (act === "say-text") { clearTimeout(lp.timer); speakChinese(b.dataset.text, b); }
+        else if (act === "gp") {
+          const qi = Number(b.dataset.q), oi = Number(b.dataset.o);
+          if (lp.gpAns[qi] !== undefined) return;
+          lp.gpAns[qi] = oi;
+          if (oi === lp.grammar.practice[qi].a) speakChinese(lp.grammar.practice[qi].q.replace(/（　）/, lp.grammar.practice[qi].opts[oi]).replace(/^A：|B：/g, ""), null);
+          lsRenderStage();
+        }
+        else if (act === "dlg-py") { lp.dlgPy = !lp.dlgPy; lsRenderStage(); }
+        else if (act === "dlg-vi") { lp.dlgVi = !lp.dlgVi; lsRenderStage(); }
+        else if (act === "dlg-all") lsPlayDialog();
         else if (act === "flip") { const was = b.classList.contains("is-flipped"); b.classList.toggle("is-flipped"); if (!was) speakChinese(lsW(lp.flashQ[0]).hanzi, null); }
         else if (act === "flash-yes" || act === "flash-no") {
           const id = lp.flashQ.shift();
@@ -6491,7 +6977,20 @@
       if (state.activeTab === "videos") renderVideos();
     }
 
+    // Trang HTML cũ còn trên máy chủ (chưa tải lại) vẫn có "Nghe chép" ở thanh dưới: đổi thành "Bài học" cho đồng bộ
+    function patchBottomNav() {
+      const nav = document.getElementById("bottomNav");
+      if (!nav || nav.querySelector('[data-tab="lessons"]')) return;
+      const dc = nav.querySelector('[data-tab="dictation"]');
+      if (!dc) return;
+      dc.setAttribute("data-tab", "lessons");
+      dc.innerHTML = '<i data-lucide="graduation-cap" class="w-5 h-5"></i><span>Bài học</span>';
+      const home = nav.querySelector('[data-tab="home"]');
+      if (home) home.after(dc);
+    }
+
     function initApp() {
+      patchBottomNav();
       loadProgress();
       try {
         const savedLvl = localStorage.getItem(LEVEL_KEY);
