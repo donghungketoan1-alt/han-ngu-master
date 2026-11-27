@@ -1842,7 +1842,9 @@
     // =========================================================
     const exam4 = {
       hsk: "3",
-      scope: "all",
+      // Các phần được chọn, gộp thành một bài (mặc định Đọc + Viết)
+      parts: { listen: false, speak: false, read: true, write: true },
+      highlights: {}, // idx câu → [{ text, color }] tô màu người học
       questions: [],
       answers: {}, // idx -> { answered, earned, display, detail }
       idx: 0,
@@ -1872,13 +1874,37 @@
       if (exam4.recognition) { try { exam4.recognition.stop(); } catch (e) {} exam4.recognition = null; }
     }
 
+    // Số câu mỗi phần và thời gian gợi ý (giây/câu)
+    const EX4_PARTS = {
+      listen: { count: 10, sec: 60, label: "Nghe" },
+      speak: { count: 10, sec: 60, label: "Nói" },
+      read: { count: 15, sec: 75, label: "Đọc" },
+      write: { count: 15, sec: 90, label: "Viết" }
+    };
     function renderExam4ScopeButtons() {
-      document.querySelectorAll(".ex4-scope-btn").forEach(btn => {
-        const active = btn.getAttribute("data-ex4-scope") === exam4.scope;
+      document.querySelectorAll(".ex4-part-btn").forEach(btn => {
+        const k = btn.getAttribute("data-ex4-part");
+        const active = !!exam4.parts[k];
         btn.className = active
-          ? "ex4-scope-btn p-3 rounded-2xl border-2 border-[#1f6f5b] bg-emerald-50/70 transition text-center shadow-xs"
-          : "ex4-scope-btn p-3 rounded-2xl border-2 border-stone-200 bg-[#faf7f2] hover:border-stone-300 transition text-center";
+          ? "ex4-part-btn p-3 rounded-2xl border-2 border-[#1f6f5b] bg-emerald-50/70 transition text-center shadow-xs"
+          : "ex4-part-btn p-3 rounded-2xl border-2 border-stone-200 bg-[#faf7f2] hover:border-stone-300 transition text-center opacity-70";
+        btn.setAttribute("aria-pressed", String(active));
+        const tick = btn.querySelector(".ex4-part-tick");
+        if (tick) tick.textContent = active ? "✓ " : "";
       });
+      const on = Object.keys(EX4_PARTS).filter(k => exam4.parts[k]);
+      document.querySelectorAll(".ex4-preset").forEach(b => {
+        const want = b.getAttribute("data-ex4-preset").split(",");
+        b.classList.toggle("is-active", want.length === on.length && want.every(k => on.includes(k)));
+      });
+      const total = on.reduce((a, k) => a + EX4_PARTS[k].count, 0);
+      const mins = Math.round(on.reduce((a, k) => a + EX4_PARTS[k].count * EX4_PARTS[k].sec, 0) / 60);
+      const sum = document.getElementById("ex4Summary");
+      if (sum) sum.textContent = on.length
+        ? `Bài gồm: ${on.map(k => `${EX4_PARTS[k].label} ${EX4_PARTS[k].count} câu`).join(" + ")} = ${total} câu · khoảng ${mins} phút · thang điểm 100`
+        : "Hãy chọn ít nhất một phần.";
+      const startBtn = document.getElementById("startExam4Btn");
+      if (startBtn) startBtn.disabled = on.length === 0;
     }
 
     function startExam4() {
@@ -1892,56 +1918,117 @@
       sentPool.forEach(s => s.clauses.forEach(c => allClauses.push({ hsk: s.hsk, title: s.title, grammar: s.grammar, ...c })));
 
       const pickRand = (arr, n) => [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+      const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
       const questions = [];
-      const isAll = exam4.scope === "all";
-      const ptsFor = (idx, count) => isAll ? (idx === count - 1 ? 9 : 8) : 10;
+      const P = 10; // mỗi câu 10 điểm, cuối bài quy về thang 100
+      const on = k => !!exam4.parts[k];
 
-      if (isAll || exam4.scope === "listen") {
-        const cnt = isAll ? 3 : 10;
-        pickRand(allClauses, cnt).forEach((item, i) => {
-          const distractors = pickRand(allClauses.filter(x => x.cn !== item.cn), 3);
-          questions.push({ skill: "listen", points: ptsFor(i, cnt), item, options: [item, ...distractors].sort(() => Math.random() - 0.5) });
+      // NGHE: HSK 1–2 chọn nghĩa tiếng Việt; từ HSK 3 chọn đúng câu tiếng Trung vừa nghe (đáp án toàn tiếng Trung)
+      // Nhiều dạng câu xen kẽ trong mỗi phần (giống cấu trúc đề HSK thật)
+      const shortWords = vocabPool.filter(w => w.hanzi.length <= 4);
+      const wordDistractors = (w, n = 3) => {
+        const sameLvl = VOCAB.filter(x => x.hsk === w.hsk && x.id !== w.id && x.hanzi !== w.hanzi && x.hanzi.length <= 4);
+        const samePos = sameLvl.filter(x => x.pos === w.pos);
+        return pickRand(samePos.length >= n ? samePos : sameLvl, n);
+      };
+      if (on("listen")) {
+        // Dạng: choose (nghe câu chọn câu/nghĩa) · word (听词选字: nghe từ chọn chữ) · judge (听句判断: nghe rồi phán đoán đúng/sai)
+        const LTYPES = ["choose", "word", "judge"];
+        const clauses = pickRand(allClauses, EX4_PARTS.listen.count);
+        const words = pickRand(shortWords, EX4_PARTS.listen.count);
+        clauses.forEach((item, i) => {
+          const ltype = LTYPES[i % LTYPES.length];
+          if (ltype === "word" && words[i]) {
+            const w = words[i];
+            questions.push({ skill: "listen", ltype, points: P, word: w, adv: w.hsk >= 3, options: shuffle([w, ...wordDistractors(w)]) });
+            return;
+          }
+          const same = allClauses.filter(x => x.cn !== item.cn && x.hsk === item.hsk);
+          const distractors = pickRand(same.length >= 3 ? same : allClauses.filter(x => x.cn !== item.cn), 3);
+          if (ltype === "judge") {
+            const match = Math.random() < 0.5;
+            questions.push({ skill: "listen", ltype, points: P, item, adv: item.hsk >= 3, statement: match ? item : distractors[0], match });
+            return;
+          }
+          questions.push({ skill: "listen", ltype: "choose", points: P, item, adv: item.hsk >= 3, options: shuffle([item, ...distractors]) });
         });
       }
-      if (isAll || exam4.scope === "speak") {
-        const cnt = isAll ? 3 : 10;
-        pickRand(vocabPool, cnt).forEach((w, i) => {
-          questions.push({ skill: "speak", points: ptsFor(i, cnt), word: w });
-        });
+      if (on("speak")) {
+        // Dạng: read (nhìn câu đọc to) · repeat (听后重复: chỉ nghe rồi nói lại, không thấy chữ)
+        pickRand(vocabPool, EX4_PARTS.speak.count).forEach((w, i) => questions.push({ skill: "speak", stype: i % 2 === 0 ? "read" : "repeat", points: P, word: w }));
       }
-      if (isAll || exam4.scope === "read") {
-        const cnt = isAll ? 3 : 10;
-        pickRand(sentPool, cnt).forEach((p, i) => {
-          const distractors = pickRand(sentPool.filter(x => x.id !== p.id), 3);
-          questions.push({ skill: "read", points: ptsFor(i, cnt), passage: p, options: [p, ...distractors].sort(() => Math.random() - 0.5) });
+      // ĐỌC: xen kẽ "điền từ vào câu" và "bài đọc";
+      // bài đọc HSK 1–2: chọn nội dung chính (tiếng Việt); từ HSK 3: chọn câu tiếng Trung điền vào chỗ trống
+      if (on("read")) {
+        const cnt = EX4_PARTS.read.count;
+        // Dạng: fill (选词填空) · order3 (排列顺序: sắp xếp 3 câu A/B/C) · cloze/topic (bài đọc) — mỗi dạng khoảng 1/3
+        const fillPool = vocabPool.filter(w => w.exCn && w.exCn.includes(w.hanzi) && w.hanzi.length <= 4);
+        const fills = pickRand(fillPool, Math.ceil(cnt / 3));
+        const orderPool = sentPool.filter(p => p.clauses && p.clauses.length >= 3);
+        const orders = pickRand(orderPool, Math.floor(cnt / 3));
+        const passages = pickRand(sentPool.filter(p => p.clauses && p.clauses.length >= 2 && !orders.includes(p)), cnt - fills.length - orders.length);
+        const readQs = [];
+        fills.forEach(w => {
+          const sameLvl = VOCAB.filter(x => x.hsk === w.hsk && x.id !== w.id && x.hanzi !== w.hanzi && !w.exCn.includes(x.hanzi) && x.hanzi.length <= 4);
+          const samePos = sameLvl.filter(x => x.pos === w.pos);
+          const distractors = pickRand(samePos.length >= 3 ? samePos : sameLvl, 3);
+          readQs.push({ skill: "read", rtype: "fill", points: P, word: w, adv: w.hsk >= 3, sentence: w.exCn.replace(w.hanzi, "（　　）"), options: shuffle([w, ...distractors]) });
         });
+        orders.forEach(p => {
+          const start = Math.floor(Math.random() * (p.clauses.length - 2));
+          const parts = p.clauses.slice(start, start + 3);
+          // Xáo 3 câu, gắn nhãn A/B/C; đáp án là thứ tự nhãn đúng (vd "BAC")
+          const labeled = shuffle(parts.map((c, i) => ({ c, i }))).map((x, li) => ({ label: "ABC"[li], c: x.c, i: x.i }));
+          const correct = [0, 1, 2].map(i => labeled.find(x => x.i === i).label).join("");
+          const perms = ["ABC", "ACB", "BAC", "BCA", "CAB", "CBA"].filter(x => x !== correct);
+          readQs.push({ skill: "read", rtype: "order3", points: P, passage: p, adv: p.hsk >= 3, labeled, correct, options: shuffle([correct, ...pickRand(perms, 3)]) });
+        });
+        passages.forEach(p => {
+          if (p.hsk >= 3) {
+            const k = Math.floor(Math.random() * p.clauses.length);
+            const answer = p.clauses[k];
+            const others = allClauses.filter(c => c.hsk === p.hsk && c.cn !== answer.cn && !p.clauses.some(pc => pc.cn === c.cn));
+            const distractors = pickRand(others.length >= 3 ? others : allClauses.filter(c => c.cn !== answer.cn), 3);
+            readQs.push({ skill: "read", rtype: "cloze", points: P, passage: p, adv: true, gap: k, answer, options: shuffle([answer, ...distractors]) });
+          } else {
+            const distractors = pickRand(sentPool.filter(x => x.id !== p.id), 3);
+            readQs.push({ skill: "read", rtype: "topic", points: P, passage: p, adv: false, options: shuffle([p, ...distractors]) });
+          }
+        });
+        questions.push(...shuffle(readQs));
       }
-      if (isAll || exam4.scope === "write") {
-        const cnt = isAll ? 3 : 10;
-        const orderLimit = isAll ? 2 : 6;
-        pickRand(vocabPool, cnt).forEach((w, i) => {
-          if (i < orderLimit && w.hsk < 3) {
-            const raw = w.exCn.replace(/[。？！]$/, "");
+      // VIẾT: xen kẽ "sắp xếp thành câu" và "dùng từ đặt câu" (tất cả bằng tiếng Trung; từ HSK 3 hướng dẫn cũng bằng tiếng Trung)
+      if (on("write")) {
+        // Dạng: order (连词成句) · pinyin (看拼音写汉字) · compose (看词造句) — xen kẽ
+        pickRand(vocabPool, EX4_PARTS.write.count).forEach((w, i) => {
+          const raw = (w.exCn || "").replace(/[。？！]$/, "");
+          if (i % 3 === 1 && w.exCn && w.exCn.includes(w.hanzi)) {
+            questions.push({ skill: "write", wtype: "pinyin", points: P, word: w, adv: w.hsk >= 3, sentence: w.exCn.replace(w.hanzi, `（ ${w.pinyin} ）`) });
+            return;
+          }
+          if (i % 3 === 0 && raw.length >= 4) {
             const chunks = raw.includes("，")
               ? raw.split("，").flatMap(part => part.length <= 7 ? [part] : [part.slice(0, Math.floor(part.length / 2)), part.slice(Math.floor(part.length / 2))])
               : [raw.slice(0, Math.ceil(raw.length / 3)), raw.slice(Math.ceil(raw.length / 3), Math.ceil(2 * raw.length / 3)), raw.slice(Math.ceil(2 * raw.length / 3))];
             const cleanChunks = chunks.filter(Boolean);
             questions.push({
-              skill: "write", wtype: "order", points: ptsFor(i, cnt), word: w,
+              skill: "write", wtype: "order", points: P, word: w, adv: w.hsk >= 3,
               expected: cleanChunks.join(""),
-              tiles: [...cleanChunks].map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5)
+              tiles: cleanChunks.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5)
             });
           } else {
-            questions.push({ skill: "write", wtype: w.hsk >= 3 ? "translate_vi" : "compose", points: ptsFor(i, cnt), word: w });
+            questions.push({ skill: "write", wtype: "compose", points: P, word: w, adv: w.hsk >= 3 });
           }
         });
       }
 
+      if (!questions.length) { showToast("Hãy chọn ít nhất một phần để làm bài"); return; }
       exam4.questions = questions;
       exam4.answers = {};
+      exam4.highlights = {};
       exam4.idx = 0;
       exam4.scores = { listen: 0, speak: 0, read: 0, write: 0 };
-      exam4.timerSec = isAll ? 900 : 1200;
+      exam4.timerSec = Object.keys(EX4_PARTS).filter(on).reduce((a, k) => a + EX4_PARTS[k].count * EX4_PARTS[k].sec, 0);
 
       document.getElementById("exam4TopLabel").textContent =
         `THI THỬ ${exam4.hsk === 'all' ? 'TỔNG HỢP HSK 1–5' : 'HSK ' + exam4.hsk} · ${questions.length} CÂU · ĐANG LÀM BÀI`;
@@ -2021,6 +2108,23 @@
       nextBtn.textContent = exam4.idx === totalQ - 1 ? "Nộp bài ✓" : "Câu sau →";
     }
 
+    // Đề bài + đáp án chuẩn của một câu (dùng cho Phiếu trả lời và phần chữa bài)
+    function ex4Reference(q) {
+      if (q.skill === "listen" && q.ltype === "word") return { prompt: `🎧 ${q.word.hanzi}`, answer: `${q.word.hanzi} (${q.word.pinyin}) — ${q.word.meaning}` };
+      if (q.skill === "listen" && q.ltype === "judge") return { prompt: `★ ${q.statement.cn}`, answer: `${q.match ? "对 · Đúng" : "错 · Sai"} — Câu nghe: ${q.item.cn} (${q.item.vi})` };
+      if (q.skill === "listen") return { prompt: q.item.cn, answer: `${q.item.cn} (${q.item.py}) — ${q.item.vi}` };
+      if (q.skill === "read" && q.rtype === "order3") return { prompt: q.labeled.map(x => `${x.label}. ${x.c.cn}`).join(" "), answer: `${q.correct.split("").join(" → ")} · ${q.labeled.slice().sort((a, b) => a.i - b.i).map(x => x.c.cn).join("")}` };
+      if (q.skill === "write" && q.wtype === "pinyin") return { prompt: q.sentence, answer: `${q.word.hanzi} (${q.word.pinyin}) — ${q.word.meaning}` };
+      if (q.skill === "speak") return { prompt: q.word.exCn, answer: `${q.word.exPinyin} — ${q.word.exVi}` };
+      if (q.skill === "read") {
+        if (q.rtype === "fill") return { prompt: q.sentence, answer: `${q.word.hanzi} (${q.word.pinyin}) — ${q.word.meaning} · ${q.word.exCn} ${q.word.exVi}` };
+        if (q.rtype === "cloze") return { prompt: q.passage.clauses.map((c, i) => i === q.gap ? "（①）" : c.cn).join(""), answer: `${q.answer.cn} (${q.answer.py}) — ${q.answer.vi}` };
+        return { prompt: q.passage.title, answer: `${q.passage.title} — ${q.passage.clauses.map(c => c.vi).join(" ")}` };
+      }
+      if (q.wtype === "order") return { prompt: q.tiles.map(t => t.text).join(" / "), answer: `${q.word.exCn} (${q.word.exPinyin}) — ${q.word.exVi}` };
+      return { prompt: `${q.word.hanzi} (${q.word.pinyin})`, answer: `Câu mẫu: ${q.word.exCn} — ${q.word.exVi}` };
+    }
+
     function renderExam4Question() {
       const q = exam4.questions[exam4.idx];
       const saved = exam4.answers[exam4.idx];
@@ -2028,16 +2132,96 @@
       document.getElementById("exam4Feedback").classList.add("hidden");
 
       const stage = document.getElementById("exam4Stage");
+      // Khung dùng chung cho các dạng câu chọn đáp án
+      const optBtns = (labels, cn) => labels.map((lab, oi) => {
+        const chosen = saved && saved.choiceIdx === oi;
+        return `
+          <button type="button" data-ex4-opt="${oi}" class="ex4-opt w-full p-4 rounded-2xl border-2 text-left text-sm transition flex items-center gap-3 ${chosen ? 'border-[#1f6f5b] bg-emerald-50/70 font-semibold text-stone-900' : 'border-stone-200 bg-white hover:border-[#b9382c] text-stone-800'}">
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0 ${chosen ? 'bg-[#1f6f5b] text-white' : 'bg-stone-100 text-stone-600'}">${String.fromCharCode(65 + oi)}</span>
+            <span class="${cn ? 'font-hanzi-sans text-base' : ''}">${lab}</span>
+          </button>`;
+      }).join("");
+      const bindOpts = (isOk, userAnsOf) => {
+        stage.querySelectorAll(".ex4-opt").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const oi = Number(btn.getAttribute("data-ex4-opt"));
+            const ok = isOk(oi);
+            const ref = ex4Reference(q);
+            exam4.answers[exam4.idx] = { choiceIdx: oi, earned: ok ? q.points : 0, ok, promptText: ref.prompt, userAns: userAnsOf(oi), correctAns: ref.answer };
+            renderExam4Question();
+          });
+        });
+      };
+      const audioBar = (adv) => `
+        <div class="p-4 rounded-2xl bg-[#faf7f2] border border-dashed border-stone-300 flex flex-wrap items-center gap-3">
+          <button id="ex4Play" type="button" class="px-4 py-2 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs"><i data-lucide="play" class="w-4 h-4 fill-white"></i>${adv ? "播放录音" : "Nghe"}</button>
+          <button id="ex4PlaySlow" type="button" class="px-3.5 py-2 rounded-xl bg-white border border-stone-200 hover:bg-stone-50 text-stone-800 text-xs font-bold flex items-center gap-1.5"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>${adv ? "慢速 0.7x" : "Phát chậm (0.7x)"}</button>
+        </div>`;
+      const bindAudio = (text) => {
+        const playRate = (r) => { const prev = state.speechRate; state.speechRate = r; speakChinese(text); state.speechRate = prev; };
+        document.getElementById("ex4Play").addEventListener("click", () => playRate(0.95));
+        document.getElementById("ex4PlaySlow").addEventListener("click", () => playRate(0.7));
+      };
+      const headLine = (adv, cnLabel, viLabel, lvl) => `<div class="text-xs font-bold uppercase tracking-wider text-stone-400">${adv ? `${cnLabel} · 第 ${exam4.idx + 1} 题 · HSK ${lvl} (${q.points}分)` : `${viLabel} · CÂU ${exam4.idx + 1} · HSK ${lvl} (${q.points}đ)`}</div>`;
 
-      if (q.skill === "listen") {
-        const advL = q.item.hsk >= 3;
+      if (q.skill === "listen" && q.ltype === "word") {
+        // 听词选字: nghe một từ, chọn đúng chữ Hán
+        const w = q.word;
+        stage.innerHTML = `<div class="space-y-4">
+          ${headLine(q.adv, "听力 · 听词选字", "NGHE · CHỌN TỪ", w.hsk)}
+          <div class="font-bold text-base sm:text-lg text-stone-900">${q.adv ? "请听录音，选出你听到的词语：" : "Nghe và chọn đúng từ vừa đọc:"}</div>
+          ${audioBar(q.adv)}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">${optBtns(q.options.map(o => q.adv ? o.hanzi : `${o.hanzi} <span class="text-xs text-stone-500">· ${o.meaning}</span>`), true)}</div>
+        </div>`;
+        bindAudio(w.hanzi);
+        bindOpts(oi => q.options[oi].id === w.id, oi => q.options[oi].hanzi);
+      } else if (q.skill === "listen" && q.ltype === "judge") {
+        // 听句判断: nghe câu, phán đoán câu viết dưới đây có đúng là câu vừa nghe không
+        stage.innerHTML = `<div class="space-y-4">
+          ${headLine(q.adv, "听力 · 判断对错", "NGHE · ĐÚNG HAY SAI", q.item.hsk)}
+          <div class="font-bold text-base sm:text-lg text-stone-900">${q.adv ? "请听录音，判断下面的句子和你听到的内容是否一致：" : "Nghe câu, rồi cho biết câu viết dưới đây có đúng là câu vừa nghe không:"}</div>
+          ${audioBar(q.adv)}
+          <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-stone-200 font-hanzi-sans text-lg text-stone-900 leading-relaxed">★ ${q.statement.cn}</div>
+          <div class="grid grid-cols-2 gap-2.5">${optBtns(q.adv ? ["对 ✓", "错 ✗"] : ["Đúng ✓", "Sai ✗"], q.adv)}</div>
+        </div>`;
+        bindAudio(q.item.cn);
+        bindOpts(oi => (oi === 0) === q.match, oi => (oi === 0 ? (q.adv ? "对" : "Đúng") : (q.adv ? "错" : "Sai")));
+      } else if (q.skill === "read" && q.rtype === "order3") {
+        // 排列顺序: sắp xếp 3 câu A/B/C theo đúng thứ tự
+        stage.innerHTML = `<div class="space-y-4">
+          ${headLine(q.adv, "阅读 · 排列顺序", "ĐỌC · SẮP XẾP THỨ TỰ", q.passage.hsk)}
+          <div class="text-sm font-bold text-stone-800">${q.adv ? "请把下面三个句子排列成正确的顺序：" : "Sắp xếp 3 câu dưới đây theo đúng thứ tự của đoạn văn:"}</div>
+          <div class="space-y-2">${q.labeled.map(x => `<div class="p-3.5 rounded-2xl bg-[#faf7f2] border border-stone-200 flex items-start gap-3"><span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0 bg-[#b9382c] text-white">${x.label}</span><span class="font-hanzi-sans text-base text-stone-900 leading-relaxed">${x.c.cn}</span></div>`).join("")}</div>
+          <div class="grid grid-cols-2 gap-2.5">${optBtns(q.options.map(o => o.split("").join(" → ")), false)}</div>
+        </div>`;
+        bindOpts(oi => q.options[oi] === q.correct, oi => q.options[oi]);
+      } else if (q.skill === "write" && q.wtype === "pinyin") {
+        // 看拼音写汉字: nhìn pinyin trong câu, gõ chữ Hán
+        const w = q.word;
+        stage.innerHTML = `<div class="space-y-4">
+          ${headLine(q.adv, "书写 · 看拼音写汉字", "VIẾT · NHÌN PINYIN VIẾT CHỮ HÁN", w.hsk)}
+          <div class="text-sm font-bold text-stone-800">${q.adv ? "请根据拼音，在括号里写出正确的汉字：" : "Gõ chữ Hán đúng với pinyin trong ngoặc:"}</div>
+          <div class="p-4 sm:p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 font-hanzi-sans text-lg sm:text-xl text-stone-900 leading-relaxed">${q.sentence}</div>
+          ${q.adv ? "" : `<p class="text-xs text-stone-500 italic">${w.exVi}</p>`}
+          <input id="ex4PinyinInput" type="text" value="${saved ? String(saved.rawText).replace(/"/g, "&quot;") : ""}" placeholder="${q.adv ? "请输入汉字" : "Gõ chữ Hán vào đây"}" class="w-full p-4 rounded-2xl border-2 border-stone-200 font-hanzi-sans text-xl focus:outline-none focus:border-[#b9382c] bg-white" />
+        </div>`;
+        document.getElementById("ex4PinyinInput").addEventListener("input", (e) => {
+          const txt = e.target.value.trim();
+          if (!txt) { delete exam4.answers[exam4.idx]; renderExam4NavChrome(); return; }
+          const ok = txt === w.hanzi;
+          const ref = ex4Reference(q);
+          exam4.answers[exam4.idx] = { rawText: e.target.value, earned: ok ? q.points : 0, ok, promptText: ref.prompt, userAns: txt, correctAns: ref.answer };
+          renderExam4NavChrome();
+        });
+      } else if (q.skill === "listen") {
+        const advL = q.adv;
         stage.innerHTML = `
           <div class="space-y-4">
             <div class="text-xs font-bold uppercase tracking-wider text-stone-400">
               ${advL ? `听力 · 第 ${exam4.idx + 1} 题 · HSK ${q.item.hsk} (${q.points}分)` : `NGHE · CÂU ${exam4.idx + 1} · HSK ${q.item.hsk} (${q.points}đ)`}
             </div>
             <div class="font-bold text-base sm:text-lg text-stone-900">
-              ${advL ? '请仔细听下面的中文句子，选择最准确的越南语翻译：' : 'Nghe câu tiếng Trung và chọn nghĩa tiếng Việt đúng nhất:'}
+              ${advL ? '请仔细听录音，选出你听到的句子：' : 'Nghe câu tiếng Trung và chọn nghĩa tiếng Việt đúng nhất:'}
             </div>
             <!-- Clean Audio Bar (No subtitles shown during exam!) -->
             <div class="p-4 rounded-2xl bg-[#faf7f2] border border-dashed border-stone-300 flex flex-wrap items-center gap-3">
@@ -2055,7 +2239,7 @@
                 return `
                   <button type="button" data-ex4-lopt="${oi}" class="ex4-lopt w-full p-4 rounded-2xl border-2 text-left text-sm transition flex items-start gap-3 ${chosen ? 'border-[#1f6f5b] bg-emerald-50/70 font-semibold text-stone-900' : 'border-stone-200 bg-white hover:border-[#b9382c] text-stone-800'}">
                     <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0 ${chosen ? 'bg-[#1f6f5b] text-white' : 'bg-stone-100 text-stone-600'}">${String.fromCharCode(65 + oi)}</span>
-                    <span>${opt.vi}</span>
+                    <span class="${advL ? 'font-hanzi-sans text-base' : ''}">${advL ? opt.cn : opt.vi}</span>
                   </button>
                 `;
               }).join("")}
@@ -2078,7 +2262,7 @@
               earned: ok ? q.points : 0,
               ok,
               promptText: q.item.cn,
-              userAns: q.options[oi].vi,
+              userAns: advL ? q.options[oi].cn : q.options[oi].vi,
               correctAns: `${q.item.vi} (${q.item.py})`
             };
             renderExam4Question();
@@ -2094,9 +2278,14 @@
               ${advS ? `口语 · 第 ${exam4.idx + 1} 题 · HSK ${w.hsk} (${q.points}分)` : `NÓI · CÂU ${exam4.idx + 1} · HSK ${w.hsk} (${q.points}đ)`}
             </div>
             <div class="p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 text-center space-y-3">
-              <p class="text-xs sm:text-sm font-semibold text-stone-600">${advS ? '请直接朗读下面的中文长句（交卷后查看参考翻译）：' : 'Nghe mẫu rồi đọc to câu tiếng Trung sau:'}</p>
-              <div class="font-hanzi-sans text-xl sm:text-2xl font-bold text-stone-900 leading-relaxed">${w.exCn}</div>
-              ${advS ? '' : `<div class="text-sm font-semibold text-[#b9382c]">${w.exPinyin}</div><div class="text-xs text-stone-500 italic">${w.exVi}</div>`}
+              ${q.stype === "repeat" ? `
+                <p class="text-xs sm:text-sm font-semibold text-stone-600">${advS ? '听后重复：请先听录音，然后不看文字，大声重复你听到的句子。' : 'Nghe rồi nhắc lại: bấm nghe câu mẫu, sau đó nói lại câu vừa nghe (không nhìn chữ).'}</p>
+                ${saved ? `<div class="font-hanzi-sans text-lg font-bold text-stone-900 leading-relaxed">${w.exCn}</div>` : `<div class="text-3xl">🎧</div>`}
+              ` : `
+                <p class="text-xs sm:text-sm font-semibold text-stone-600">${advS ? '请直接朗读下面的中文句子（交卷后查看参考翻译）：' : 'Nghe mẫu rồi đọc to câu tiếng Trung sau:'}</p>
+                <div class="font-hanzi-sans text-xl sm:text-2xl font-bold text-stone-900 leading-relaxed">${w.exCn}</div>
+                ${advS ? '' : `<div class="text-sm font-semibold text-[#b9382c]">${w.exPinyin}</div><div class="text-xs text-stone-500 italic">${w.exVi}</div>`}
+              `}
               <div class="flex flex-wrap items-center justify-center gap-2.5 pt-2">
                 <button id="ex4SpeakModelBtn" type="button" class="px-4 py-2 rounded-xl bg-white border border-stone-200 hover:bg-stone-50 text-stone-800 text-xs font-bold flex items-center gap-1.5">
                   <i data-lucide="volume-2" class="w-4 h-4 text-[#1f6f5b]"></i>Nghe mẫu chậm
@@ -2152,23 +2341,41 @@
           });
         }
       } else if (q.skill === "read") {
-        const p = q.passage;
-        const fullCn = p.clauses.map(c => c.cn).join("");
+        const adv = q.adv;
+        const lvl = q.rtype === "fill" ? q.word.hsk : q.passage.hsk;
+        const head = adv ? `阅读 · 第 ${exam4.idx + 1} 题 · HSK ${lvl} (${q.points}分)` : `ĐỌC HIỂU · CÂU ${exam4.idx + 1} · HSK ${lvl} (${q.points}đ)`;
+        let body = "", ask = "", optText;
+        if (q.rtype === "fill") {
+          body = `<div class="p-4 sm:p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 font-hanzi-sans text-lg sm:text-xl text-stone-900 leading-relaxed">${q.sentence}</div>`;
+          ask = adv ? "请选出最恰当的词语填入括号：" : "Chọn từ đúng điền vào chỗ trống:";
+          optText = opt => `<span class="font-hanzi-sans text-base">${opt.hanzi}</span>${adv ? "" : `<span class="text-xs text-stone-500 ml-2">${opt.pinyin}</span>`}`;
+        } else if (q.rtype === "cloze") {
+          const p = q.passage;
+          const txt = p.clauses.map((c, i) => i === q.gap ? `<span class="inline-block text-center text-[#b9382c] font-bold" style="min-width:96px;border-bottom:2px solid #b9382c">（ ${String.fromCharCode(0x2460)} ）</span>` : c.cn).join("");
+          body = `<div class="p-4 sm:p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 font-hanzi-sans text-base sm:text-lg text-stone-900 leading-relaxed">${txt}</div>`;
+          ask = "请阅读短文，选出最适合填入 ① 处的句子：";
+          optText = opt => `<span class="font-hanzi-sans text-base">${opt.cn}</span>`;
+        } else {
+          const p = q.passage;
+          body = `<div class="p-4 sm:p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 font-hanzi-sans text-base sm:text-lg text-stone-900 leading-relaxed">${p.clauses.map(c => c.cn).join("")}</div>`;
+          ask = "Đoạn văn trên nói về nội dung chính nào?";
+          optText = opt => `<span>${opt.title}</span>`;
+        }
         stage.innerHTML = `
           <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">${p.hsk >= 3 ? `阅读 · 第 ${exam4.idx + 1} 题 · HSK ${p.hsk} (${q.points}分)` : `ĐỌC HIỂU · CÂU ${exam4.idx + 1} · HSK ${p.hsk} (${q.points}đ)`}</span>
-              <span class="text-xs font-semibold text-[#1f6f5b]">${p.hsk >= 3 ? `语法：${p.grammar}` : `Ngữ pháp: ${p.grammar}`}</span>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">${head}</span>
+              ${q.passage && q.passage.grammar ? `<span class="text-xs font-semibold text-[#1f6f5b]">${adv ? "语法：" : "Ngữ pháp: "}${q.passage.grammar}</span>` : ""}
             </div>
-            <div class="p-4 sm:p-5 rounded-2xl bg-[#faf7f2] border border-stone-200 font-hanzi-sans text-base sm:text-lg text-stone-900 leading-relaxed">${fullCn}</div>
-            <div class="text-sm font-bold text-stone-800">${p.hsk >= 3 ? '请阅读短文，选择最符合文意的越南语主题翻译：' : 'Đoạn văn trên nói về nội dung chính nào?'}</div>
+            ${body}
+            <div class="text-sm font-bold text-stone-800">${ask}</div>
             <div class="space-y-2.5">
               ${q.options.map((opt, oi) => {
                 const chosen = saved && saved.choiceIdx === oi;
                 return `
                   <button type="button" data-ex4-ropt="${oi}" class="ex4-ropt w-full p-4 rounded-2xl border-2 text-left text-sm transition flex items-center gap-3 ${chosen ? 'border-[#1f6f5b] bg-emerald-50/70 font-semibold text-stone-900' : 'border-stone-200 bg-white hover:border-[#b9382c] text-stone-800'}">
                     <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0 ${chosen ? 'bg-[#1f6f5b] text-white' : 'bg-stone-100 text-stone-600'}">${String.fromCharCode(65 + oi)}</span>
-                    <span>${opt.title}</span>
+                    ${optText(opt)}
                   </button>
                 `;
               }).join("")}
@@ -2178,11 +2385,13 @@
         stage.querySelectorAll(".ex4-ropt").forEach(btn => {
           btn.addEventListener("click", () => {
             const oi = Number(btn.getAttribute("data-ex4-ropt"));
-            const ok = q.options[oi].id === p.id;
+            const opt = q.options[oi];
+            const ref = ex4Reference(q);
+            const ok = q.rtype === "fill" ? opt.id === q.word.id : q.rtype === "cloze" ? opt.cn === q.answer.cn : opt.id === q.passage.id;
             exam4.answers[exam4.idx] = {
               choiceIdx: oi, earned: ok ? q.points : 0, ok,
-              promptText: fullCn.slice(0, 60) + "...", userAns: q.options[oi].title,
-              correctAns: `${p.title} — ${p.clauses.map(c => c.vi).join(" ")}`
+              promptText: ref.prompt, userAns: q.rtype === "fill" ? opt.hanzi : q.rtype === "cloze" ? opt.cn : opt.title,
+              correctAns: ref.answer
             };
             renderExam4Question();
           });
@@ -2215,19 +2424,19 @@
           let chosenIds = saved && Array.isArray(saved.chosenIds) ? [...saved.chosenIds] : [];
           stage.innerHTML = `
             <div class="space-y-4">
-              <div class="text-xs font-bold uppercase tracking-wider text-stone-400">VIẾT · SẮP XẾP CÂU · CÂU ${exam4.idx + 1} · HSK ${w.hsk} (${q.points}đ)</div>
-              <div class="text-sm font-semibold text-stone-800">Ghép các mảnh từ bên dưới thành câu tiếng Trung đúng nghĩa:</div>
-              <p class="text-sm text-[#1f6f5b] italic font-semibold">“${w.exVi}”</p>
+              <div class="text-xs font-bold uppercase tracking-wider text-stone-400">${q.adv ? `书写 · 排列顺序 · 第 ${exam4.idx + 1} 题 · HSK ${w.hsk} (${q.points}分)` : `VIẾT · SẮP XẾP CÂU · CÂU ${exam4.idx + 1} · HSK ${w.hsk} (${q.points}đ)`}</div>
+              <div class="text-sm font-semibold text-stone-800">${q.adv ? "请把下面的词语排列成一个正确的句子：" : "Ghép các mảnh từ bên dưới thành câu tiếng Trung đúng nghĩa:"}</div>
+              ${q.adv ? "" : `<p class="text-sm text-[#1f6f5b] italic font-semibold">“${w.exVi}”</p>`}
               <div id="ex4OrderPreview" class="min-h-[54px] bg-[#faf7f2] rounded-xl border-2 border-dashed border-stone-300 p-3 flex flex-wrap gap-1.5 items-center font-hanzi-sans text-base"></div>
               <div id="ex4OrderBank" class="flex flex-wrap gap-2"></div>
-              <button id="ex4OrderClear" type="button" class="text-xs text-stone-500 hover:text-stone-800 font-semibold">Xếp lại câu này</button>
+              <button id="ex4OrderClear" type="button" class="text-xs text-stone-500 hover:text-stone-800 font-semibold">${q.adv ? "重新排列" : "Xếp lại câu này"}</button>
             </div>
           `;
           const syncTiles = () => {
             const prevEl = document.getElementById("ex4OrderPreview");
             const bankEl = document.getElementById("ex4OrderBank");
             prevEl.innerHTML = chosenIds.length === 0
-              ? `<span class="text-xs text-stone-400">Bấm các mảnh bên dưới để ghép câu...</span>`
+              ? `<span class="text-xs text-stone-400">${q.adv ? "点击下面的词语组成句子……" : "Bấm các mảnh bên dưới để ghép câu..."}</span>`
               : chosenIds.map(id => `<button type="button" data-rm-tile="${id}" class="px-3 py-1.5 rounded-lg bg-[#b9382c] text-white font-hanzi-sans text-sm font-semibold">${q.tiles.find(x => x.id === id).text}</button>`).join("");
             prevEl.querySelectorAll("[data-rm-tile]").forEach(b => {
               b.addEventListener("click", () => { chosenIds = chosenIds.filter(x => x !== Number(b.getAttribute("data-rm-tile"))); syncTiles(); });
@@ -2257,23 +2466,27 @@
           const prevVal = saved ? saved.rawText : "";
           stage.innerHTML = `
             <div class="space-y-4">
-              <div class="text-xs font-bold uppercase tracking-wider text-stone-400">VIẾT · ĐẶT CÂU · CÂU ${exam4.idx + 1} · HSK ${w.hsk} (${q.points}đ)</div>
-              <div class="text-sm font-semibold text-stone-800">Đặt 1 câu tiếng Trung có chứa từ khóa bắt buộc:</div>
+              <div class="text-xs font-bold uppercase tracking-wider text-stone-400">${q.adv ? `书写 · 看词造句 · 第 ${exam4.idx + 1} 题 · HSK ${w.hsk} (${q.points}分)` : `VIẾT · ĐẶT CÂU · CÂU ${exam4.idx + 1} · HSK ${w.hsk} (${q.points}đ)`}</div>
+              <div class="text-sm font-semibold text-stone-800">${q.adv ? "请用下面的词语写一个完整的句子（至少 8 个字）：" : "Đặt 1 câu tiếng Trung có chứa từ khóa bắt buộc:"}</div>
               <div class="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#faf7f2] border border-stone-200">
                 <span class="font-hanzi text-2xl font-bold text-[#b9382c]">${w.hanzi}</span>
-                <span class="text-sm font-semibold text-stone-700">${w.pinyin} — ${w.meaning}</span>
+                <span class="text-sm font-semibold text-stone-700">${q.adv ? w.pinyin : `${w.pinyin} — ${w.meaning}`}</span>
               </div>
-              <textarea id="ex4ComposeInput" rows="3" placeholder="Viết câu tiếng Trung của anh (tự động lưu vào Phiếu trả lời)..."
+              <textarea id="ex4ComposeInput" rows="3" placeholder="${q.adv ? "请写出你的句子……（自动保存到答题卡）" : "Viết câu tiếng Trung của anh (tự động lưu vào Phiếu trả lời)..."}"
                 class="w-full p-4 rounded-2xl border-2 border-stone-200 text-sm sm:text-base focus:outline-none focus:border-[#b9382c] bg-white">${prevVal}</textarea>
             </div>
           `;
           document.getElementById("ex4ComposeInput").addEventListener("input", (e) => {
             const txt = e.target.value.trim();
             if (!txt) { delete exam4.answers[exam4.idx]; renderExam4NavChrome(); return; }
-            const hasKey = txt.includes(w.hanzi) || normPinyin(txt).includes(normPinyin(w.pinyin));
-            const earned = (hasKey && txt.length >= 6) ? q.points : hasKey ? Math.round(q.points * 0.7) : Math.round(q.points * 0.4);
+            // Từ HSK 3 phải viết bằng chữ Hán, có từ khóa và đủ dài
+            const minLen = q.adv ? 8 : 6;
+            const hanCount = (txt.match(/[一-鿿]/g) || []).length;
+            const hasKey = txt.includes(w.hanzi) || (!q.adv && normPinyin(txt).includes(normPinyin(w.pinyin)));
+            const longEnough = q.adv ? hanCount >= minLen : txt.length >= minLen;
+            const earned = (hasKey && longEnough) ? q.points : hasKey ? Math.round(q.points * 0.6) : hanCount >= minLen ? Math.round(q.points * 0.3) : 0;
             exam4.answers[exam4.idx] = {
-              rawText: e.target.value, earned, ok: hasKey && txt.length >= 6,
+              rawText: e.target.value, earned, ok: hasKey && longEnough,
               promptText: `Từ khóa: ${w.hanzi} (${w.meaning})`, userAns: txt, correctAns: `${w.exCn} — ${w.exVi}`
             };
             renderExam4NavChrome();
@@ -2281,6 +2494,8 @@
         }
       }
 
+      // Tô lại các đoạn người học đã tô màu ở câu này
+      if (typeof hlReapply === "function") hlReapply(stage, exam4.highlights[exam4.idx]);
       if (window.lucide) lucide.createIcons();
     }
 
@@ -2296,7 +2511,12 @@
       document.getElementById("exam4Active").classList.add("hidden");
       document.getElementById("exam4Result").classList.remove("hidden");
 
-      const total = exam4.scores.listen + exam4.scores.speak + exam4.scores.read + exam4.scores.write;
+      // Điểm tối đa từng phần theo số câu thực có; tổng quy về thang 100
+      const maxBySkill = { listen: 0, speak: 0, read: 0, write: 0 };
+      exam4.questions.forEach(q => { maxBySkill[q.skill] += q.points; });
+      const maxAll = Object.values(maxBySkill).reduce((a, b) => a + b, 0) || 1;
+      const raw = exam4.scores.listen + exam4.scores.speak + exam4.scores.read + exam4.scores.write;
+      const total = Math.round((raw / maxAll) * 100);
       document.getElementById("exam4TotalScore").textContent = `${total} / 100`;
       state.badgeStats.examCount = (state.badgeStats.examCount || 0) + 1;
       if (total >= 60) state.badgeStats.examPassCount = (state.badgeStats.examPassCount || 0) + 1;
@@ -2318,15 +2538,14 @@
         { k: "read", name: "📖 阅读 · Đọc hiểu", score: exam4.scores.read, color: "bg-[#1f6f5b]" },
         { k: "write", name: "✍️ 书写 · Viết & Dịch", score: exam4.scores.write, color: "bg-indigo-600" }
       ];
-      const skills = exam4.scope === "all" ? allSkills : allSkills.filter(s => s.k === exam4.scope);
-      const maxPer = exam4.scope === "all" ? 25 : 100;
+      const skills = allSkills.filter(s => maxBySkill[s.k] > 0);
       document.getElementById("exam4SkillBars").innerHTML = skills.map(s => {
-        const pct = Math.round((s.score / maxPer) * 100);
+        const pct = Math.round((s.score / maxBySkill[s.k]) * 100);
         return `
-          <div class="p-4 rounded-2xl bg-[#faf7f2] border border-stone-200 space-y-2 ${exam4.scope !== 'all' ? 'sm:col-span-2' : ''}">
+          <div class="p-4 rounded-2xl bg-[#faf7f2] border border-stone-200 space-y-2 ${skills.length === 1 ? 'sm:col-span-2' : ''}">
             <div class="flex items-center justify-between text-sm font-bold text-stone-800">
               <span>${s.name}</span>
-              <span>${s.score} / ${maxPer}</span>
+              <span>${pct} / 100 <span class="text-xs font-semibold text-stone-500">(${Math.round(s.score / 10)}/${maxBySkill[s.k] / 10} câu đạt)</span></span>
             </div>
             <div class="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden">
               <div class="h-full ${s.color} transition-all duration-500" style="width:${pct}%"></div>
@@ -2342,8 +2561,9 @@
           const a = exam4.answers[i];
           const ok = a && a.ok;
           const pts = a ? a.earned : 0;
-          const refPrompt = q.skill === "listen" ? q.item.cn : q.skill === "read" ? q.passage.title : q.word.exCn;
-          const refAns = q.skill === "listen" ? `${q.item.vi} (${q.item.py})` : q.skill === "read" ? q.passage.clauses.map(c => c.vi).join(" ") : `${q.word.exVi} (${q.word.exPinyin})`;
+          const ref = ex4Reference(q);
+          const refPrompt = ref.prompt;
+          const refAns = ref.answer;
           return `
             <div class="p-3.5 rounded-2xl border ${ok ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/40'} text-xs space-y-1">
               <div class="flex items-center justify-between font-bold">
@@ -4530,7 +4750,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -5616,12 +5836,28 @@
     const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong" };
     const SITE_TITLE = "Hán Ngữ Master · Học Tiếng Trung HSK 1–5";
     let navFromHistory = false;
+    // Trang từ vựng theo cấp/chủ đề (vd: hsk-1/giao-tiep/) do build.ps1 tạo sẵn, có thẻ <meta name="hnm-landing">
+    // và khối danh sách từ đầy đủ (#seoLandingHead, #seoLandingList) để Google đọc được.
+    const LANDING = (() => {
+      const m = document.querySelector('meta[name="hnm-landing"]');
+      if (!m) return null;
+      try { return JSON.parse(m.getAttribute("content")); } catch (e) { return null; }
+    })();
+    let landingActive = !!LANDING;
+    // Người học đổi trình độ/chủ đề hoặc sang mục khác → bỏ khối danh sách tĩnh, trở về mục Từ vựng bình thường
+    function endLanding() {
+      if (!landingActive) return;
+      landingActive = false;
+      ["seoLandingHead", "seoLandingList"].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+    }
     function routeSlug(tab) {
+      if (tab === "vocab" && landingActive) return LANDING.path;
       if (tab === "home") return "";
       if (tab === "skills") return state.selectedHsk === "all" ? "tat-ca" : `hsk-${state.selectedHsk}`;
       return TAB_SLUGS[tab] || "";
     }
     function routeTitle(tab) {
+      if (tab === "vocab" && landingActive) return LANDING.title;
       if (tab === "home") return SITE_TITLE;
       if (tab === "skills") return `${state.selectedHsk === "all" ? "HSK 1–5" : "HSK " + state.selectedHsk} · Chọn kỹ năng · Hán Ngữ Master`;
       return `${TAB_LABELS[tab] || ""} · Hán Ngữ Master`;
@@ -5629,7 +5865,9 @@
     function routeFromLocation() {
       const root = new URL(document.baseURI).pathname;
       let rel = location.pathname.startsWith(root) ? location.pathname.slice(root.length) : "";
-      rel = rel.replace(/index\.html$/, "").replace(/\/+$/, "").split("/")[0];
+      rel = decodeURIComponent(rel).replace(/index\.html$/, "").replace(/\/+$/, "");
+      if (LANDING && rel === LANDING.path) return { tab: "vocab", level: LANDING.level, topic: LANDING.topic, landing: true };
+      rel = rel.split("/")[0];
       const m = rel.match(/^hsk-([1-5])$/);
       if (m) return { tab: "skills", level: Number(m[1]) };
       if (rel === "tat-ca") return { tab: "skills", level: "all" };
@@ -5697,7 +5935,8 @@
       if (state.activeTab === "home") renderHome();
       if (state.activeTab === "skills") renderSkillsPage();
       if (state.activeTab === "lessons") renderLessonsView();
-      if (state.activeTab === "skills" && appBooted) syncUrl("skills", true);
+      if (appBooted && !navFromHistory) endLanding();
+      if ((state.activeTab === "skills" || state.activeTab === "vocab") && appBooted && !navFromHistory) syncUrl(state.activeTab, true);
       try { scheduleCloudSync(); } catch (e) {}
     }
 
@@ -5860,6 +6099,278 @@
       }
     }
 
+    // ---------- Bôi đen chữ: Dịch AI · Tra từ · Lưu thẻ nhớ · Ghi chú · Tô màu ----------
+    // Hoạt động trong bài kiểm tra (#exam4Stage), mục Đọc hiểu (#view-sentences) và chỗ nào có [data-hl-zone]
+    const TT_ZONES = "#exam4Stage, #view-sentences, [data-hl-zone]";
+    const NOTES_KEY = "han_ngu_notes_v1";
+    let ttRange = null, ttText = "", ttSelTimer = null;
+    const ttEsc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    function ttZoneOf(node) {
+      const el = node && (node.nodeType === 1 ? node : node.parentElement);
+      return el ? el.closest(TT_ZONES) : null;
+    }
+    // Các từ trong kho có mặt trong đoạn bôi đen (ưu tiên từ dài, không chồng nhau, theo thứ tự xuất hiện)
+    function ttFindWords(text) {
+      const used = new Array(text.length).fill(false);
+      const found = [];
+      VOCAB.filter(w => w.hanzi && text.includes(w.hanzi)).sort((a, b) => b.hanzi.length - a.hanzi.length).forEach(w => {
+        let pos = text.indexOf(w.hanzi);
+        while (pos >= 0) {
+          let free = true;
+          for (let i = pos; i < pos + w.hanzi.length; i++) if (used[i]) { free = false; break; }
+          if (free) {
+            for (let i = pos; i < pos + w.hanzi.length; i++) used[i] = true;
+            if (!found.some(f => f.w.hanzi === w.hanzi)) found.push({ w, pos });
+          }
+          pos = text.indexOf(w.hanzi, pos + 1);
+        }
+      });
+      return found.sort((a, b) => a.pos - b.pos).map(f => f.w);
+    }
+    // Bản dịch có sẵn trong kho (dùng khi không gọi được AI)
+    function ttLocalTranslate(text) {
+      const t = text.replace(/\s/g, "");
+      const near = (cn) => cn && (cn === t || (t.length >= 6 && (cn.includes(t) || t.includes(cn))));
+      for (const s of LONG_SENTENCES) for (const c of s.clauses) if (near(c.cn)) return `${ttEsc(c.cn)}<br><span class="tt-py">${ttEsc(c.py)}</span><br>${ttEsc(c.vi)}`;
+      const ex = VOCAB.find(w => near(w.exCn));
+      return ex ? `${ttEsc(ex.exCn)}<br><span class="tt-py">${ttEsc(ex.exPinyin)}</span><br>${ttEsc(ex.exVi)}` : "";
+    }
+    function ttWordList(ws) {
+      return ws.slice(0, 10).map(w => `
+        <div class="tt-word">
+          <b class="tt-hz">${ttEsc(w.hanzi)}</b> <span class="tt-py">${ttEsc(w.pinyin)}</span> <span class="tt-hv">${ttEsc(w.hanviet)}</span>
+          <div>${ttEsc(w.meaning)} <span class="tt-muted">· ${ttEsc(w.pos)} · HSK ${w.hsk}</span></div>
+          <button type="button" data-tt-speak="${ttEsc(w.hanzi)}" title="Nghe phát âm">🔊</button>
+        </div>`).join("");
+    }
+    function ttHideBar() { const b = document.getElementById("ttBar"); if (b) b.classList.add("tt-hide"); }
+    function ttHidePanel() { const p = document.getElementById("ttPanel"); if (p) p.classList.add("tt-hide"); }
+    function ttPanel(title, html) {
+      const bar = document.getElementById("ttBar");
+      const p = document.getElementById("ttPanel");
+      p.innerHTML = `<div class="tt-h"><span>${title}</span><button type="button" data-tt-close aria-label="Đóng">✕</button></div><div class="tt-q">${ttEsc(ttText)}</div><div class="tt-body">${html}</div>`;
+      p.classList.remove("tt-hide");
+      const br = bar.classList.contains("tt-hide") && ttRange ? ttRange.getBoundingClientRect() : bar.getBoundingClientRect();
+      const pw = p.offsetWidth, ph = p.offsetHeight;
+      let left = Math.max(8, Math.min(br.left + br.width / 2 - pw / 2, innerWidth - pw - 8));
+      let top = br.bottom + 8;
+      if (top + ph > innerHeight - 8) top = Math.max(8, br.top - ph - 8);
+      p.style.left = left + "px"; p.style.top = top + "px";
+    }
+    function ttShowBar() {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      const text = range.toString().trim();
+      if (!text || text.length > 400) return;
+      const anc = range.commonAncestorContainer;
+      if (!ttZoneOf(anc)) return;
+      const ancEl = anc.nodeType === 1 ? anc : anc.parentElement;
+      if (ancEl && ancEl.closest("input, textarea")) return;
+      ttRange = range.cloneRange();
+      ttText = text;
+      const r = range.getBoundingClientRect();
+      const bar = document.getElementById("ttBar");
+      bar.classList.remove("tt-hide");
+      const bw = bar.offsetWidth, bh = bar.offsetHeight;
+      const left = Math.max(8, Math.min(r.left + r.width / 2 - bw / 2, innerWidth - bw - 8));
+      // Điện thoại: đặt thanh bên dưới để không đè menu Sao chép của máy
+      const touch = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+      let top = touch ? r.bottom + 12 : r.top - bh - 10;
+      if (top < 8) top = r.bottom + 12;
+      if (top + bh > innerHeight - 8) top = Math.max(8, r.top - bh - 10);
+      bar.style.left = left + "px"; bar.style.top = top + "px";
+      ttHidePanel();
+    }
+    function ttWrap(range, color) {
+      const mark = document.createElement("mark");
+      mark.className = `tt-mark tt-${color}`;
+      try { range.surroundContents(mark); }
+      catch (e) { const frag = range.extractContents(); mark.appendChild(frag); range.insertNode(mark); }
+      return mark;
+    }
+    function ttInExam() { return ttRange && ttZoneOf(ttRange.commonAncestorContainer) && ttZoneOf(ttRange.commonAncestorContainer).id === "exam4Stage"; }
+    // Tô lại các đoạn đã tô khi vẽ lại câu hỏi
+    function hlReapply(root, list) {
+      if (!root || !Array.isArray(list)) return;
+      list.forEach(h => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let n;
+        while ((n = walker.nextNode())) {
+          if (n.parentElement && n.parentElement.closest(".tt-mark, input, textarea")) continue;
+          const pos = n.nodeValue.indexOf(h.text);
+          if (pos >= 0) {
+            const r = document.createRange();
+            r.setStart(n, pos); r.setEnd(n, pos + h.text.length);
+            ttWrap(r, h.color);
+            break;
+          }
+        }
+      });
+    }
+    function ttColor(color) {
+      if (!ttRange) return;
+      const inExam = ttInExam();
+      ttWrap(ttRange, color);
+      if (inExam) {
+        const list = (exam4.highlights[exam4.idx] || []).filter(h => h.text !== ttText);
+        list.push({ text: ttText, color });
+        exam4.highlights[exam4.idx] = list;
+      }
+      window.getSelection().removeAllRanges();
+      ttHideBar(); ttHidePanel();
+    }
+    function ttErase() {
+      if (!ttRange) return;
+      const inExam = ttInExam();
+      const removed = [];
+      document.querySelectorAll(".tt-mark").forEach(m => {
+        if (ttRange.intersectsNode(m)) {
+          removed.push(m.textContent);
+          const parent = m.parentNode;
+          while (m.firstChild) parent.insertBefore(m.firstChild, m);
+          parent.removeChild(m);
+          parent.normalize();
+        }
+      });
+      if (inExam && exam4.highlights[exam4.idx]) {
+        exam4.highlights[exam4.idx] = exam4.highlights[exam4.idx].filter(h => !removed.some(t => t === h.text || t.includes(h.text) || h.text.includes(t)));
+      }
+      window.getSelection().removeAllRanges();
+      ttHideBar(); ttHidePanel();
+      if (!removed.length) showToast("Đoạn này chưa được tô màu");
+    }
+    function ttLookup() {
+      const ws = ttFindWords(ttText);
+      ttPanel("🔍 Tra từ", ws.length
+        ? ttWordList(ws)
+        : `<div class="tt-note">Không thấy từ nào trong kho 1.450 từ.</div><button type="button" class="tt-btn" data-tt-act="ai">🤖 Dịch bằng AI</button>`);
+    }
+    function ttCard() {
+      const ws = ttFindWords(ttText);
+      if (!ws.length) { showToast("Không thấy từ nào trong kho để lưu vào thẻ nhớ"); return; }
+      ws.forEach(w => state.bookmarked.add(w.id));
+      saveProgress();
+      try { scheduleCloudSync(); } catch (e) {}
+      showToast(`Đã lưu ${ws.length} từ vào Thẻ nhớ (mục ⭐ Đã lưu): ${ws.slice(0, 4).map(w => w.hanzi).join(", ")}${ws.length > 4 ? "…" : ""}`);
+      ttHideBar();
+    }
+    function ttNotes() { try { return JSON.parse(localStorage.getItem(NOTES_KEY) || "[]"); } catch (e) { return []; } }
+    function ttNote() {
+      const old = ttNotes().filter(n => n.text === ttText);
+      ttPanel("📝 Ghi chú", `
+        ${old.map(n => `<div class="tt-oldnote">${ttEsc(n.note)} <span class="tt-muted">· ${new Date(n.ts).toLocaleDateString("vi-VN")}</span></div>`).join("")}
+        <textarea id="ttNoteInput" rows="3" placeholder="Ghi chú của anh cho đoạn này..."></textarea>
+        <button type="button" class="tt-btn" data-tt-act="saveNote">Lưu ghi chú</button>`);
+      setTimeout(() => { const i = document.getElementById("ttNoteInput"); if (i) i.focus(); }, 50);
+    }
+    function ttSaveNote() {
+      const inp = document.getElementById("ttNoteInput");
+      const note = inp ? inp.value.trim() : "";
+      if (!note) { showToast("Anh chưa nhập ghi chú"); return; }
+      const all = ttNotes();
+      all.unshift({ text: ttText, note, ts: Date.now() });
+      try { localStorage.setItem(NOTES_KEY, JSON.stringify(all.slice(0, 300))); } catch (e) {}
+      if (ttRange && !(ttRange.commonAncestorContainer.parentElement || {}).closest?.(".tt-mark")) ttColor("blue");
+      ttHidePanel();
+      showToast("Đã lưu ghi chú. Bôi đen lại đoạn này rồi bấm Ghi chú để xem.");
+    }
+    async function ttAi() {
+      const text = ttText;
+      ttPanel("🤖 Dịch AI", `<div class="tt-note">Đang dịch…</div>`);
+      let html = "";
+      try {
+        const data = await backendCall("chat", {
+          system: "Bạn là từ điển Trung–Việt cho người Việt học tiếng Trung. Người dùng gửi một đoạn tiếng Trung (một từ, cụm từ hoặc câu). Trả lời ngắn gọn bằng tiếng Việt: dòng 1 là pinyin có dấu; dòng 2 là bản dịch tiếng Việt sát nghĩa, tự nhiên; nếu là từ hoặc cụm ngắn thì thêm âm Hán-Việt và một ví dụ ngắn. Không chào hỏi, không quá 70 từ, chỉ dùng **in đậm** và xuống dòng.",
+          messages: [{ role: "user", text }]
+        });
+        if (data && data.ok && data.reply) html = formatAiReply(data.reply);
+      } catch (e) {}
+      if (!html) {
+        const local = ttLocalTranslate(text);
+        if (local) html = `<div class="tt-note">Chưa kết nối được AI${isGuest() ? " (cần đăng nhập)" : ""}, đây là bản dịch có sẵn trong kho:</div>${local}`;
+      }
+      if (!html) {
+        const ws = ttFindWords(text);
+        html = ws.length
+          ? `<div class="tt-note">Chưa kết nối được AI${isGuest() ? " (cần đăng nhập)" : ""}. Nghĩa từng từ:</div>${ttWordList(ws)}`
+          : `<div class="tt-note">Chưa kết nối được AI${isGuest() ? " — anh đăng nhập để dùng Dịch AI" : ", anh thử lại sau nhé"}.</div>`;
+      }
+      if (ttText === text) ttPanel("🤖 Dịch AI", html);
+    }
+    function initTextTools() {
+      if (document.getElementById("ttBar")) return;
+      const bar = document.createElement("div");
+      bar.id = "ttBar";
+      bar.className = "tt-bar tt-hide";
+      bar.setAttribute("role", "toolbar");
+      bar.innerHTML = `
+        <button type="button" data-tt-act="ai" title="Dịch bằng AI">🤖<span>Dịch AI</span></button>
+        <button type="button" data-tt-act="lookup" title="Tra từ trong kho">🔍<span>Tra từ</span></button>
+        <button type="button" data-tt-act="card" title="Lưu từ vào thẻ nhớ">🃏<span>Thẻ nhớ</span></button>
+        <button type="button" data-tt-act="note" title="Ghi chú">📝<span>Ghi chú</span></button>
+        <span class="tt-sep"></span>
+        <button type="button" class="tt-dot tt-yellow" data-tt-color="yellow" title="Tô vàng"></button>
+        <button type="button" class="tt-dot tt-pink" data-tt-color="pink" title="Tô hồng"></button>
+        <button type="button" class="tt-dot tt-green" data-tt-color="green" title="Tô xanh lá"></button>
+        <button type="button" class="tt-dot tt-blue" data-tt-color="blue" title="Tô xanh dương"></button>
+        <button type="button" data-tt-act="erase" title="Xóa màu tô">🗑️<span>Xóa tô</span></button>`;
+      const panel = document.createElement("div");
+      panel.id = "ttPanel";
+      panel.className = "tt-panel tt-hide";
+      document.body.appendChild(bar);
+      document.body.appendChild(panel);
+      // Giữ nguyên vùng bôi đen khi bấm nút trên thanh công cụ
+      bar.addEventListener("mousedown", e => e.preventDefault());
+      const onAct = e => {
+        const c = e.target.closest("[data-tt-color]");
+        if (c) { ttColor(c.getAttribute("data-tt-color")); return; }
+        const a = e.target.closest("[data-tt-act]");
+        if (a) {
+          const act = a.getAttribute("data-tt-act");
+          if (act === "ai") ttAi();
+          else if (act === "lookup") ttLookup();
+          else if (act === "card") ttCard();
+          else if (act === "note") ttNote();
+          else if (act === "saveNote") ttSaveNote();
+          else if (act === "erase") ttErase();
+          return;
+        }
+        const s = e.target.closest("[data-tt-speak]");
+        if (s) { speakChinese(s.getAttribute("data-tt-speak"), s); return; }
+        if (e.target.closest("[data-tt-close]")) ttHidePanel();
+      };
+      bar.addEventListener("click", onAct);
+      panel.addEventListener("click", onAct);
+      // Hiện thanh công cụ khi bôi đen xong (chuột) hoặc khi chỉnh vùng chọn xong (điện thoại)
+      document.addEventListener("mouseup", e => {
+        if (e.target.closest("#ttBar, #ttPanel")) return;
+        const mark = e.target.closest(".tt-mark");
+        setTimeout(() => {
+          const sel = window.getSelection();
+          if (mark && sel && sel.isCollapsed && ttZoneOf(mark)) {
+            const r = document.createRange(); r.selectNodeContents(mark);
+            sel.removeAllRanges(); sel.addRange(r);
+          }
+          ttShowBar();
+        }, 10);
+      });
+      document.addEventListener("selectionchange", () => {
+        clearTimeout(ttSelTimer);
+        ttSelTimer = setTimeout(() => {
+          const sel = window.getSelection();
+          const panelOpen = !document.getElementById("ttPanel").classList.contains("tt-hide");
+          if (!sel || sel.isCollapsed) { if (!panelOpen) ttHideBar(); return; }
+          if (!panelOpen) ttShowBar();
+        }, 450);
+      });
+      document.addEventListener("mousedown", e => {
+        if (e.target.closest("#ttBar, #ttPanel")) return;
+        ttHideBar(); ttHidePanel();
+      });
+      window.addEventListener("scroll", () => { ttHideBar(); }, { passive: true });
+    }
+
     let appBooted = false;
     // Nạp sẵn phông chữ Hán lúc máy rảnh, để lần đầu mở Từ vựng không bị khựng
     function warmUpHanziFonts() {
@@ -5885,6 +6396,7 @@
       if (state.activeTab === "extras" && tab !== "extras") stopRoleplay();
       const prevTab = appBooted ? state.activeTab : null;
       state.activeTab = tab;
+      if (tab !== "vocab" && appBooted) endLanding();
       // Về đầu trang ngay (không cuộn từ từ) trước khi hiện mục mới, để chỉ còn một hiệu ứng hiện dần
       if (prevTab && prevTab !== tab) window.scrollTo(0, 0);
       ALL_TABS.forEach(t => {
@@ -6046,6 +6558,7 @@
         state.selectedTopic = e.target.value;
         state.vocabPage = 1;
         renderVocabGrid();
+        if (landingActive) { endLanding(); syncUrl("vocab", true); }
       });
       document.getElementById("statusFilter").addEventListener("change", (e) => {
         state.statusFilter = e.target.value;
@@ -6349,9 +6862,17 @@
       document.querySelectorAll(".qsub-btn").forEach(btn => {
         btn.addEventListener("click", () => switchQuizSubTab(btn.getAttribute("data-qsub")));
       });
-      document.querySelectorAll(".ex4-scope-btn").forEach(btn => {
+      document.querySelectorAll(".ex4-part-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          exam4.scope = btn.getAttribute("data-ex4-scope");
+          const k = btn.getAttribute("data-ex4-part");
+          exam4.parts[k] = !exam4.parts[k];
+          renderExam4ScopeButtons();
+        });
+      });
+      document.querySelectorAll(".ex4-preset").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const want = btn.getAttribute("data-ex4-preset").split(",");
+          Object.keys(exam4.parts).forEach(k => { exam4.parts[k] = want.includes(k); });
           renderExam4ScopeButtons();
         });
       });
@@ -6768,6 +7289,11 @@
       // Mở đúng mục theo địa chỉ (vd: .../tu-vung/ → Từ vựng, .../hsk-2/ → HSK 2). Có thể thêm ?hsk=2 để chọn trình độ.
       const startRoute = routeFromLocation();
       const qHsk = new URLSearchParams(location.search).get("hsk");
+      if (startRoute.topic) {
+        state.selectedTopic = startRoute.topic;
+        const tsel = document.getElementById("topicFilter");
+        if (tsel) tsel.value = startRoute.topic;
+      }
       if (startRoute.level !== undefined) setLevel(startRoute.level);
       else if (qHsk && /^(all|[1-5])$/.test(qHsk)) setLevel(qHsk);
       switchTab(startRoute.tab);
@@ -6778,10 +7304,17 @@
         const r = routeFromLocation();
         navFromHistory = true;
         try {
+          if (r.topic && r.topic !== state.selectedTopic) {
+            state.selectedTopic = r.topic;
+            const tsel = document.getElementById("topicFilter");
+            if (tsel) tsel.value = r.topic;
+            renderVocabGrid();
+          }
           if (r.level !== undefined && String(r.level) !== String(state.selectedHsk)) setLevel(r.level);
           switchTab(r.tab);
         } finally { navFromHistory = false; }
       });
+      initTextTools();
       warmUpHanziFonts();
       initAuth();
       initFeatures();

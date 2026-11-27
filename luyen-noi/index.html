@@ -20,9 +20,14 @@
   <meta property="og:title" content="Luyện nói · Hán Ngữ Master" />
   <meta property="og:description" content="Luyện phát âm tiếng Trung: đọc to vào micro, máy chấm điểm phát âm từng chữ." />
   <meta property="og:url" content="https://donghungketoan1-alt.github.io/han-ngu-master/luyen-noi/" />
+  <meta property="og:site_name" content="Hán Ngữ Master" />
+  <meta property="og:image" content="https://donghungketoan1-alt.github.io/han-ngu-master/share/og-home.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/luyen-noi/" />
-  <link rel="stylesheet" href="app.css?v=202611271048" />
-  <script src="icons.js?v=202611271048"></script>
+  <link rel="stylesheet" href="app.css?v=202611271131" />
+  <script src="icons.js?v=202611271131"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -274,6 +279,70 @@
     /* Chuyển trang mượt */
     .view-in { animation: viewIn .45s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    /* Bôi đen chữ: thanh công cụ Dịch AI · Tra từ · Thẻ nhớ · Ghi chú · Tô màu */
+    .tt-hide { display: none !important; }
+    .tt-bar { position: fixed; z-index: 70; display: flex; align-items: center; gap: 2px; padding: 5px; border-radius: 14px; background: #292524; box-shadow: 0 12px 30px -10px rgba(0,0,0,.55); animation: dropIn .15s ease-out both; }
+    .tt-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 7px; border-radius: 10px; color: #f5f5f4; font-size: 15px; line-height: 1; }
+    .tt-bar button span { font-size: 10.5px; font-weight: 600; color: #d6d3d1; white-space: nowrap; }
+    .tt-bar button:hover { background: rgba(255,255,255,.12); }
+    .tt-sep { width: 1px; height: 28px; background: rgba(255,255,255,.18); margin: 0 3px; }
+    .tt-bar .tt-dot { width: 22px; height: 22px; padding: 0; border-radius: 999px; border: 2px solid rgba(255,255,255,.75); margin: 0 2px; }
+    .tt-dot.tt-yellow, mark.tt-yellow { background: #fde68a; }
+    .tt-dot.tt-pink, mark.tt-pink { background: #fbcfe8; }
+    .tt-dot.tt-green, mark.tt-green { background: #bbf7d0; }
+    .tt-dot.tt-blue, mark.tt-blue { background: #bfdbfe; }
+    mark.tt-mark { border-radius: 3px; padding: 0 1px; color: inherit; cursor: pointer; }
+    body.dark-mode mark.tt-mark { color: #1c1917; }
+    @media (max-width: 420px) { .tt-bar button { padding: 5px 5px; } .tt-bar button span { font-size: 9.5px; } .tt-bar .tt-dot { width: 20px; height: 20px; margin: 0 1px; } }
+    .tt-panel { position: fixed; z-index: 70; width: min(340px, calc(100vw - 16px)); max-height: min(60vh, 420px); overflow: auto; background: #fff; border: 1px solid #e7e5e4; border-radius: 16px; box-shadow: 0 18px 40px -14px rgba(28,25,23,.45); padding: 12px 14px; font-size: 14px; line-height: 1.55; color: #292524; animation: popIn .2s ease-out both; }
+    .tt-panel .tt-h { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; color: #b9382c; margin-bottom: 6px; }
+    .tt-panel .tt-h button { color: #78716c; font-size: 14px; padding: 2px 6px; }
+    .tt-panel .tt-q { font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 15px; background: #faf7f2; border-radius: 10px; padding: 6px 8px; margin-bottom: 8px; }
+    .tt-panel .tt-py { color: #b9382c; font-weight: 600; }
+    .tt-panel .tt-hv { display: inline-block; background: #fffbeb; color: #92400e; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+    .tt-panel .tt-muted { color: #a8a29e; font-size: 12px; }
+    .tt-panel .tt-word { position: relative; padding: 8px 34px 8px 0; border-bottom: 1px solid #f5f5f4; }
+    .tt-panel .tt-word:last-child { border-bottom: 0; }
+    .tt-panel .tt-hz { font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', 'Microsoft YaHei', serif; font-size: 20px; }
+    .tt-panel .tt-word button { position: absolute; right: 0; top: 8px; font-size: 16px; }
+    .tt-panel .tt-note { font-size: 12px; color: #78716c; margin-bottom: 4px; }
+    .tt-panel .tt-oldnote { font-size: 13px; background: #eff6ff; border-radius: 10px; padding: 6px 8px; margin-bottom: 6px; }
+    .tt-panel textarea { width: 100%; border: 1px solid #e7e5e4; border-radius: 10px; padding: 8px; font-size: 14px; background: #fff; color: inherit; }
+    .tt-panel .tt-btn { margin-top: 6px; padding: 6px 12px; border-radius: 10px; background: #b9382c; color: #fff; font-weight: 700; font-size: 13px; }
+    body.dark-mode .tt-panel { background: #1b1f27; border-color: #323846; color: #e7e5e4; }
+    body.dark-mode .tt-panel .tt-q, body.dark-mode .tt-panel textarea { background: #222733; border-color: #323846; }
+    body.dark-mode .tt-panel .tt-oldnote { background: rgba(59,130,246,.15); }
+    body.dark-mode .tt-panel .tt-word { border-color: #323846; }
+    @media print { .tt-bar, .tt-panel { display: none !important; } }
+    /* Trang từ vựng theo cấp/chủ đề (build.ps1 chèn sẵn nội dung để Google đọc) */
+    .seo-h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .seo-landing { background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; padding: 18px 18px 14px; }
+    .seo-landing .seo-kicker { font-size: 12px; font-weight: 700; color: #b9382c; text-transform: uppercase; letter-spacing: .04em; }
+    .seo-landing h1 { font-size: 24px; line-height: 1.25; font-weight: 800; color: #1c1917; margin-top: 4px; }
+    .seo-landing h2 { font-size: 18px; font-weight: 800; color: #1c1917; }
+    .seo-landing .seo-lead { color: #57534e; font-size: 14px; line-height: 1.6; margin-top: 6px; }
+    .seo-words { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    .seo-words th { text-align: left; font-size: 12px; color: #78716c; font-weight: 600; padding: 8px; border-bottom: 1px solid #e7e5e4; }
+    .seo-words td { padding: 10px 8px; border-bottom: 1px solid #f5f5f4; vertical-align: top; }
+    .seo-words .hz { font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'PingFang SC', 'Microsoft YaHei', serif; font-size: 22px; font-weight: 700; color: #1c1917; white-space: nowrap; }
+    .seo-words .py { color: #b9382c; font-weight: 600; white-space: nowrap; }
+    .seo-words .hv { display: inline-block; background: #fffbeb; color: #92400e; padding: 1px 6px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+    .seo-words .pos { color: #a8a29e; font-size: 12px; }
+    .seo-words .ex { color: #57534e; font-size: 13px; line-height: 1.5; }
+    .seo-words .ex b { font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-weight: 500; color: #1c1917; }
+    .seo-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .seo-links a { padding: 5px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; border: 1px solid #e7e5e4; color: #57534e; background: #fff; }
+    .seo-links a:hover, .seo-links a.is-active { border-color: #b9382c; color: #b9382c; }
+    @media (max-width: 640px) {
+      .seo-words thead { display: none; }
+      .seo-words tr { display: block; padding: 10px 0; border-bottom: 1px solid #f5f5f4; }
+      .seo-words td { display: block; border: 0; padding: 2px 0; }
+    }
+    body.dark-mode .seo-landing, body.dark-mode .seo-links a { background: #1b1f27; border-color: #323846; }
+    body.dark-mode .seo-landing h1, body.dark-mode .seo-landing h2, body.dark-mode .seo-words .hz, body.dark-mode .seo-words .ex b { color: #f5f5f4; }
+    body.dark-mode .seo-landing .seo-lead, body.dark-mode .seo-words .ex, body.dark-mode .seo-links a { color: #d6d3d1; }
+    body.dark-mode .seo-words td, body.dark-mode .seo-words th { border-color: #323846; }
+    body.dark-mode .seo-words .hv { background: rgba(251, 191, 36, .15); color: #fcd34d; }
     /* Menu và cửa sổ nổi: hiện ra mượt thay vì bật đột ngột */
     #mobileNav:not(.hidden) { animation: sheetUp .28s cubic-bezier(.2,.8,.2,1) both; }
     #practiceMenu:not(.hidden) { animation: dropIn .18s cubic-bezier(.2,.8,.2,1) both; transform-origin: top left; }
@@ -392,6 +461,7 @@
       box-shadow: 0 6px 18px -6px rgba(185, 56, 44, 0.22);
     }
   </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Trang chủ","item":"https://donghungketoan1-alt.github.io/han-ngu-master/"},{"@type":"ListItem","position":2,"name":"Luyện nói","item":"https://donghungketoan1-alt.github.io/han-ngu-master/luyen-noi/"}]}</script>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -515,7 +585,7 @@
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p id="homeHello" class="text-sm font-semibold text-[#b9382c]">Xin chào!</p>
-          <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Hôm nay mình học gì?</h1>
+          <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Hôm nay mình học gì?</h2>
           <p class="text-sm text-stone-600 mt-1">Chọn trình độ, rồi chọn kỹ năng muốn luyện. Tiến độ tự lưu vào tài khoản.</p>
         </div>
       </div>
@@ -588,7 +658,7 @@
       <div id="lsListWrap" class="space-y-5">
         <div>
           <p class="text-sm font-semibold text-[#b9382c]">Học theo lộ trình</p>
-          <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Bài học từng bước · <span id="lsLevelLabel" class="text-[#b9382c]">HSK 1</span></h1>
+          <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Bài học từng bước · <span id="lsLevelLabel" class="text-[#b9382c]">HSK 1</span></h2>
           <p class="text-sm text-stone-600 mt-1">Mỗi bài khoảng 10 từ, 5–7 phút: làm quen, lật thẻ, ghép thẻ, trắc nghiệm rồi nói thử. Từ sai sẽ được đưa vào phần ôn lại.</p>
         </div>
         <div id="lsHero" class="grid gap-3 sm:grid-cols-2"></div>
@@ -602,7 +672,7 @@
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p class="text-sm font-semibold text-[#b9382c]">Bước 2</p>
-          <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Chọn kỹ năng · <span id="homeSkillLevel" class="text-[#b9382c]">HSK 1–5</span></h1>
+          <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Chọn kỹ năng · <span id="homeSkillLevel" class="text-[#b9382c]">HSK 1–5</span></h2>
           <p id="skillsSub" class="text-sm text-stone-600 mt-1"></p>
         </div>
         <button type="button" id="skillsBackBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-xs sm:text-sm font-semibold transition"><i data-lucide="chevron-left" class="w-4 h-4"></i>Đổi trình độ</button>
@@ -700,6 +770,7 @@
 
     <!-- VIEW: LUYỆN NÓI (từ ngẫu nhiên + micro chấm phát âm) -->
     <section id="view-speak" class="hidden pb-20 sm:pb-6">
+      <h1 class="seo-h1">Luyện nói và chấm phát âm tiếng Trung</h1>
       <div class="max-w-2xl mx-auto space-y-4">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -1268,39 +1339,41 @@
             <div class="w-12 h-12 rounded-2xl bg-[#1f6f5b]/10 text-[#1f6f5b] flex items-center justify-center mx-auto">
               <i data-lucide="clipboard-check" class="w-6 h-6"></i>
             </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-stone-900">Đề Kiểm Tra 4 Kỹ Năng HSK 1–5</h2>
-            <p class="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto">Đề thi chấm điểm trực tiếp cả 4 kỹ năng <strong>Nghe · Nói · Đọc · Viết</strong>. Từ <strong>HSK 3 đến HSK 5</strong>, toàn bộ đề chuyển sang <strong>tiếng Trung → dịch ra tiếng Việt (中译越)</strong>.</p>
+            <h2 class="text-xl sm:text-2xl font-bold text-stone-900">Đề Kiểm Tra HSK 1–5</h2>
+            <p class="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto">Chọn các phần muốn làm, web gộp lại thành <strong>một bài</strong> và chấm theo thang 100. Từ <strong>HSK 3</strong>, đề và đáp án <strong>hoàn toàn bằng tiếng Trung</strong>. Bôi đen chữ trong đề để <strong>dịch bằng AI, tra từ, tô màu, ghi chú</strong>.</p>
           </div>
 
-          <div class="space-y-2.5">
-            <div class="text-xs font-semibold text-stone-600 uppercase tracking-wider text-center">Chọn hình thức đề thi (Tổng hợp hoặc tách riêng từng kỹ năng)</div>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center">
-              <button type="button" data-ex4-scope="all" class="ex4-scope-btn p-3 rounded-2xl border-2 transition text-center">
-                <div class="text-xl mb-1">🏆</div>
-                <div class="font-bold text-xs text-stone-900">Cả 4 kỹ năng</div>
-                <div class="text-[11px] text-stone-500">12 câu · 100đ</div>
-              </button>
-              <button type="button" data-ex4-scope="listen" class="ex4-scope-btn p-3 rounded-2xl border-2 transition text-center">
+          <div class="space-y-3">
+            <div class="text-xs font-semibold text-stone-600 uppercase tracking-wider text-center">Chọn phần muốn kiểm tra (bấm để bật / tắt, chọn được nhiều phần)</div>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <span class="text-[11px] text-stone-500">Chọn nhanh:</span>
+              <button type="button" data-ex4-preset="read,write" class="ex4-preset lvl-pill">📖✍️ Đọc + Viết</button>
+              <button type="button" data-ex4-preset="listen,read" class="ex4-preset lvl-pill">🎧📖 Nghe + Đọc</button>
+              <button type="button" data-ex4-preset="listen,speak,read,write" class="ex4-preset lvl-pill">🏆 Cả 4 kỹ năng</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+              <button type="button" data-ex4-part="listen" class="ex4-part-btn p-3 rounded-2xl border-2 transition text-center">
                 <div class="text-xl mb-1">🎧</div>
-                <div class="font-bold text-xs text-stone-900">Đề Nghe</div>
-                <div class="text-[11px] text-stone-500">10 câu · 100đ</div>
+                <div class="font-bold text-xs text-stone-900">Nghe · 听力</div>
+                <div class="text-[11px] text-stone-500"><span class="ex4-part-tick"></span>10 câu</div>
               </button>
-              <button type="button" data-ex4-scope="speak" class="ex4-scope-btn p-3 rounded-2xl border-2 transition text-center">
+              <button type="button" data-ex4-part="speak" class="ex4-part-btn p-3 rounded-2xl border-2 transition text-center">
                 <div class="text-xl mb-1">🎙️</div>
-                <div class="font-bold text-xs text-stone-900">Đề Nói</div>
-                <div class="text-[11px] text-stone-500">10 câu · 100đ</div>
+                <div class="font-bold text-xs text-stone-900">Nói · 口语</div>
+                <div class="text-[11px] text-stone-500"><span class="ex4-part-tick"></span>10 câu</div>
               </button>
-              <button type="button" data-ex4-scope="read" class="ex4-scope-btn p-3 rounded-2xl border-2 transition text-center">
+              <button type="button" data-ex4-part="read" class="ex4-part-btn p-3 rounded-2xl border-2 transition text-center">
                 <div class="text-xl mb-1">📖</div>
-                <div class="font-bold text-xs text-stone-900">Đề Đọc</div>
-                <div class="text-[11px] text-stone-500">10 câu · 100đ</div>
+                <div class="font-bold text-xs text-stone-900">Đọc · 阅读</div>
+                <div class="text-[11px] text-stone-500"><span class="ex4-part-tick"></span>15 câu</div>
               </button>
-              <button type="button" data-ex4-scope="write" class="ex4-scope-btn p-3 rounded-2xl border-2 transition text-center">
+              <button type="button" data-ex4-part="write" class="ex4-part-btn p-3 rounded-2xl border-2 transition text-center">
                 <div class="text-xl mb-1">✍️</div>
-                <div class="font-bold text-xs text-stone-900">Đề Viết</div>
-                <div class="text-[11px] text-stone-500">10 câu · 100đ</div>
+                <div class="font-bold text-xs text-stone-900">Viết · 书写</div>
+                <div class="text-[11px] text-stone-500"><span class="ex4-part-tick"></span>15 câu</div>
               </button>
             </div>
+            <div id="ex4Summary" class="text-center text-xs font-semibold text-stone-600"></div>
           </div>
 
           <div class="max-w-md mx-auto space-y-3">
@@ -1316,7 +1389,7 @@
               </select>
             </div>
             <button id="startExam4Btn" class="w-full py-3 rounded-xl bg-[#1f6f5b] hover:bg-[#165445] text-white font-bold text-sm sm:text-base shadow-sm transition">
-              Bắt đầu làm đề 4 kỹ năng
+              Bắt đầu làm bài
             </button>
           </div>
         </div>
@@ -1383,7 +1456,7 @@
         <div id="exam4Result" class="hidden bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
           <div class="text-center space-y-2">
             <div id="exam4ResEmoji" class="text-5xl">🏆</div>
-            <h3 class="text-2xl font-bold text-stone-900">Bảng Điểm 4 Kỹ Năng HSK</h3>
+            <h3 class="text-2xl font-bold text-stone-900">Bảng Điểm Bài Kiểm Tra HSK</h3>
             <div id="exam4TotalScore" class="text-4xl font-extrabold text-[#1f6f5b]">0 / 100</div>
             <p id="exam4PassBadge" class="inline-block px-3.5 py-1 rounded-full text-xs font-bold"></p>
           </div>
@@ -2359,7 +2432,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271048"></script>
-  <script src="app.js?v=202611271048"></script>
+  <script src="data.js?v=202611271131"></script>
+  <script src="app.js?v=202611271131"></script>
 </body>
 </html>
