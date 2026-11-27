@@ -18,8 +18,8 @@
   <meta property="og:locale" content="vi_VN" />
   <meta property="og:title" content="Hán Ngữ Master · Học Tiếng Trung HSK 1–5" />
   <meta property="og:description" content="1.450 từ vựng, 125 bài đọc hiểu, 15 video bài giảng HSK 1–5 có Pinyin, Hán-Việt và phát âm bản xứ." />
-  <link rel="stylesheet" href="app.css?v=202611271021" />
-  <script src="icons.js?v=202611271021"></script>
+  <link rel="stylesheet" href="app.css?v=202611271027" />
+  <script src="icons.js?v=202611271027"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -250,7 +250,7 @@
     .lvl-card:hover .lvl-media::after { left: 120%; }
     .lvl-num { position: absolute; z-index: 3; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.95); color: #1c1917; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px -4px rgba(0,0,0,.3); }
     .lvl-num i { width: 8px; height: 8px; border-radius: 999px; background: var(--c); }
-    .lvl-count { position: absolute; z-index: 3; top: 12px; right: 12px; padding: 4px 9px; border-radius: 10px; background: rgba(12,10,9,.55); backdrop-filter: blur(4px); color: #fff; font-size: 11.5px; font-weight: 700; }
+    .lvl-count { position: absolute; z-index: 3; top: 12px; right: 12px; padding: 4px 9px; border-radius: 10px; background: rgba(12,10,9,.62); color: #fff; font-size: 11.5px; font-weight: 700; }
     .lvl-title { position: absolute; z-index: 3; left: 16px; right: 16px; bottom: 12px; color: #fff; }
     .lvl-title b { display: block; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; text-shadow: 0 2px 10px rgba(0,0,0,.35); }
     .lvl-title span { display: block; font-size: 12.5px; opacity: .88; margin-top: 2px; }
@@ -271,6 +271,30 @@
     /* Chuyển trang mượt */
     .view-in { animation: viewIn .45s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    /* Menu và cửa sổ nổi: hiện ra mượt thay vì bật đột ngột */
+    #mobileNav:not(.hidden) { animation: sheetUp .28s cubic-bezier(.2,.8,.2,1) both; }
+    #practiceMenu:not(.hidden) { animation: dropIn .18s cubic-bezier(.2,.8,.2,1) both; transform-origin: top left; }
+    #mobileNavBackdrop:not(.hidden), #wordModal:not(.hidden), #globalSearchModal:not(.hidden), #accountModal:not(.hidden) { animation: fadeIn .2s ease-out both; }
+    #wordModal:not(.hidden) > div, #globalSearchModal:not(.hidden) > div, #accountModal:not(.hidden) > div { animation: popIn .28s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes sheetUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+    @keyframes dropIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+    /* Đổi Sáng/Tối: chuyển màu dần (lớp này chỉ bật 0,4 giây lúc bấm nút) */
+    html.theme-anim body, html.theme-anim body * { transition: background-color .3s ease, border-color .3s ease, color .3s ease, fill .3s ease, stroke .3s ease !important; }
+    /* Thẻ từ vựng: trình duyệt chỉ vẽ thẻ đang nằm trong màn hình */
+    #vocabGrid > article { content-visibility: auto; contain-intrinsic-size: auto 280px; }
+    /* Điện thoại, máy tính bảng: bỏ làm mờ nền ở thanh trên và thanh dưới cho cuộn nhẹ hơn */
+    @media (max-width: 1023px) {
+      header.sticky, #bottomNav { -webkit-backdrop-filter: none; backdrop-filter: none; }
+      header.sticky { background-color: #faf7f2; }
+      #bottomNav { background-color: #fff; }
+      body.dark-mode header.sticky { background-color: #111318 !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #mobileNav, #practiceMenu, #mobileNavBackdrop, #wordModal, #globalSearchModal, #accountModal, #wordModal > div, #globalSearchModal > div, #accountModal > div { animation: none !important; }
+      html.theme-anim body, html.theme-anim body * { transition: none !important; }
+    }
     /* Bài học từng bước */
     .ls-card { border-radius: 20px; border: 1px solid #e7e5e4; }
     .ls-topic-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; text-align: left; }
@@ -2332,7 +2356,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271021"></script>
+  <script src="data.js?v=202611271027"></script>
   <script>
     // =========================================================
     // 1. HSK LEVEL METADATA & ILLUSTRATION IMAGES (BASE64 INLINED)
@@ -2531,6 +2555,11 @@
       if (btn) {
         btn.addEventListener("click", () => {
           const next = !document.body.classList.contains("dark-mode");
+          // Bật hiệu ứng chuyển màu trong 0,4 giây rồi tắt, để không làm chậm các hiệu ứng khác
+          const root = document.documentElement;
+          root.classList.add("theme-anim");
+          clearTimeout(window.__themeAnimT);
+          window.__themeAnimT = setTimeout(() => root.classList.remove("theme-anim"), 400);
           applyDarkMode(next);
         });
       }
@@ -8153,6 +8182,23 @@
     }
 
     let appBooted = false;
+    // Nạp sẵn phông chữ Hán lúc máy rảnh, để lần đầu mở Từ vựng không bị khựng
+    function warmUpHanziFonts() {
+      const run = () => {
+        try {
+          const chars = Array.from(new Set(VOCAB.slice(0, 300).map(w => w.hanzi).join(""))).join("");
+          const box = document.createElement("div");
+          box.setAttribute("aria-hidden", "true");
+          box.style.cssText = "position:absolute;left:-9999px;top:0;width:640px;visibility:hidden;pointer-events:none;contain:strict;height:1px;overflow:hidden";
+          box.innerHTML = `<div class="font-hanzi" style="font-size:26px;font-weight:700">${chars}</div><div class="font-hanzi-sans" style="font-size:14px">${chars}</div>`;
+          document.body.appendChild(box);
+          void box.offsetHeight;
+          setTimeout(() => box.remove(), 4000);
+        } catch (e) {}
+      };
+      if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 3000 });
+      else setTimeout(run, 1500);
+    }
     function switchTab(tab) {
       if (state.activeTab === "videos" && tab !== "videos") stopAnimVideo();
       if (state.activeTab === "quiz" && tab !== "quiz") stopExam4Timer();
@@ -8160,6 +8206,8 @@
       if (state.activeTab === "extras" && tab !== "extras") stopRoleplay();
       const prevTab = appBooted ? state.activeTab : null;
       state.activeTab = tab;
+      // Về đầu trang ngay (không cuộn từ từ) trước khi hiện mục mới, để chỉ còn một hiệu ứng hiện dần
+      if (prevTab && prevTab !== tab) window.scrollTo(0, 0);
       ALL_TABS.forEach(t => {
         const v = document.getElementById(`view-${t}`);
         if (v) v.classList.toggle("hidden", t !== tab);
@@ -8210,9 +8258,6 @@
       };
       // Trên điện thoại không bật bong bóng mỗi lần đổi mục để khỏi che nội dung
       if (tabLines[tab] && prevTab && window.innerWidth >= 768) aiReact(pickLine(tabLines[tab]), "🐉");
-      if (prevTab && prevTab !== tab) {
-        try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); }
-      }
       if (window.lucide) lucide.createIcons();
     }
 
@@ -9040,6 +9085,7 @@
       renderSrsAndBadges();
       switchTab("home");
       appBooted = true;
+      warmUpHanziFonts();
       initAuth();
       initFeatures();
       // Chào một lần mỗi phiên, hiện sau khi người học đã kịp nhìn trang
