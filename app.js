@@ -687,6 +687,7 @@
     }
 
     function openWordModal(id) {
+      if (!guestUse("vocab")) return;
       state.modalWordId = id;
       renderWordModalContent();
       document.getElementById("wordModal").classList.remove("hidden");
@@ -1474,6 +1475,7 @@
     }
 
     function startQuiz() {
+      if (!guestUse("quiz")) return;
       state.quizHsk = document.getElementById("quizHskSelect").value;
       state.quizCount = Number(document.getElementById("quizCountSelect").value);
 
@@ -1908,6 +1910,7 @@
     }
 
     function startExam4() {
+      if (!guestUse("quiz")) return;
       stopExam4Timer();
       exam4.hsk = document.getElementById("exam4HskSelect").value;
       const lvlNum = exam4.hsk === "all" ? null : Number(exam4.hsk);
@@ -2747,6 +2750,7 @@
 
     // ---- GAME 1: FLIP CARDS -> UNLOCK TYPING BOX ----
     function startMemoryGame() {
+      if (!guestUse("games")) return;
       if (gameState.memTimer) { clearInterval(gameState.memTimer); gameState.memTimer = null; }
       gameState.memPairs = Number(document.getElementById("memPairsSelect").value);
       gameState.memMatchStyle = document.getElementById("memMatchStyleSelect").value;
@@ -2947,6 +2951,7 @@
     }
 
     function startTypingRush() {
+      if (!guestUse("games")) return;
       stopAllGameTimers();
       gameState.typeDir = document.getElementById("typeDirSelect").value;
       gameState.typePlaying = true;
@@ -4765,9 +4770,51 @@
       el.textContent = reason || "Tạo tài khoản miễn phí (chỉ 20 giây) để dùng tính năng này nhé! 🐉";
       el.className = "mt-3 text-xs font-semibold rounded-xl px-3 py-2 bg-amber-50 text-amber-800";
     }
+    // ---------- Học thử cho khách: mỗi phần được dùng vài lượt, hết lượt mới mời tạo tài khoản ----------
+    const GUEST_TRIAL = {
+      lessons:   { max: 2,  unit: "bài học" },
+      dictation: { max: 5,  unit: "câu nghe chép" },
+      speak:     { max: 5,  unit: "lượt chấm phát âm" },
+      vocab:     { max: 15, unit: "lượt xem chi tiết từ" },
+      quiz:      { max: 1,  unit: "đề kiểm tra" },
+      games:     { max: 2,  unit: "lượt chơi game" }
+    };
+    // Khu vực khách được bấm thoải mái (giới hạn nằm ở lúc bắt đầu bài)
+    const GUEST_TRIAL_AREAS = 'section[id^="view-"], #wordModal, #memUnlockPanel, #animeBannerOverlay';
+    const GUEST_TRIAL_KEY = "han_ngu_guest_trial_v1";
+    function guestTrialData() { try { return JSON.parse(lsGet(GUEST_TRIAL_KEY) || "{}") || {}; } catch (e) { return {}; } }
+    function guestTrialLeft(k) {
+      const t = GUEST_TRIAL[k];
+      return t ? Math.max(0, t.max - (Number(guestTrialData()[k]) || 0)) : Infinity;
+    }
+    // Gọi khi khách bắt đầu một lượt. Trả về false nếu đã hết lượt thử.
+    function guestUse(k) {
+      if (!isGuest()) return true;
+      const t = GUEST_TRIAL[k];
+      if (!t) return true;
+      const left = guestTrialLeft(k);
+      if (left <= 0) {
+        promptSignup(`Bạn đã học thử hết ${t.max} ${t.unit}. Tạo tài khoản miễn phí (20 giây) để học tiếp không giới hạn và lưu tiến độ nhé! 🐉`);
+        return false;
+      }
+      const d = guestTrialData();
+      d[k] = (Number(d[k]) || 0) + 1;
+      lsSet(GUEST_TRIAL_KEY, JSON.stringify(d));
+      if (left === 1) showToast(`Đây là ${t.unit} học thử cuối cùng. Tạo tài khoản miễn phí để học tiếp nhé!`);
+      else if (left <= 3) showToast(`Học thử: còn ${left - 1} ${t.unit}.`);
+      renderGuestTrialNote();
+      return true;
+    }
+    function renderGuestTrialNote() {
+      const el = document.getElementById("guestTrialNote");
+      if (!el) return;
+      el.innerHTML = Object.keys(GUEST_TRIAL).map(k =>
+        `<span class="inline-block mr-2 whitespace-nowrap">${GUEST_TRIAL[k].unit.charAt(0).toUpperCase() + GUEST_TRIAL[k].unit.slice(1)}: <b>${guestTrialLeft(k)}/${GUEST_TRIAL[k].max}</b></span>`).join("");
+    }
     function guestBlocked(target) {
       if (!isGuest() || !target || !target.closest) return false;
       if (target.closest(GUEST_ALLOWED)) return false;
+      if (target.closest(GUEST_TRIAL_AREAS)) return false;
       return !!target.closest(GUEST_INTERACTIVE);
     }
     function initGuestMode() {
@@ -4784,7 +4831,7 @@
       }, true);
       document.addEventListener("keydown", e => {
         if (!isGuest()) return;
-        if (e.target.closest && e.target.closest("#accountModal, #view-dict")) return;
+        if (e.target.closest && e.target.closest("#accountModal, " + GUEST_TRIAL_AREAS)) return;
         if (["Tab", "PageDown", "PageUp", "Home", "End", "ArrowDown", "ArrowUp"].includes(e.key)) return;
         e.stopImmediatePropagation();
         if (e.key === " " || e.key === "/" || (e.ctrlKey && e.key.toLowerCase() === "k")) { e.preventDefault(); promptSignup(); }
@@ -4805,6 +4852,7 @@
       if (b) b.classList.toggle("hidden", !g);
       if (d) d.classList.toggle("hidden", g);
       if (d) d.classList.toggle("flex", !g);
+      if (g) renderGuestTrialNote();
     }
 
     // ---------- Nhận giọng nói & chấm phát âm ----------
@@ -5001,6 +5049,7 @@
       const w = VOCAB.find(x => x.id === state.modalWordId);
       const box = document.getElementById("modalPronResult");
       if (!w || !box) return;
+      if (!guestUse("speak")) return;
       const target = which === "ex" ? w.exCn : w.hanzi;
       box.innerHTML = `<span class="inline-flex items-center gap-2 text-[#b9382c] font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-[#b9382c] animate-ping"></span>Đang nghe... anh đọc: <span class="font-hanzi-sans">${escAi(target)}</span></span>`;
       try {
@@ -5056,6 +5105,7 @@
     }
     async function spkListen() {
       if (spk.busy || !spk.word) return;
+      if (!guestUse("speak")) return;
       spk.busy = true;
       setMicState(true);
       const w = spk.word;
@@ -5626,6 +5676,7 @@
     const LS_BTN2 = "inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-sm font-semibold transition";
 
     function lsBegin(lesson, review) {
+      if (!guestUse("lessons")) return;
       clearTimeout(lp.timer);
       lp.lesson = lesson; lp.review = !!review;
       lp.words = lesson.words.map(lsW).filter(Boolean);
@@ -6385,7 +6436,7 @@
       const inp = document.getElementById("dcInput");
       inp.value = ""; inp.disabled = false;
       dcRender();
-      if (dc.item && appBooted && state.activeTab === "dictation" && !isGuest()) setTimeout(() => dcPlay(false), 250);
+      if (dc.item && appBooted && state.activeTab === "dictation") setTimeout(() => dcPlay(false), 250);
     }
     function dcRenderPlayerHead() {
       const head = document.getElementById("dcPlayerHead");
@@ -6462,7 +6513,7 @@
       const inp = document.getElementById("dcInput");
       inp.value = ""; inp.disabled = false;
       dcRender();
-      if (appBooted && state.activeTab === "dictation" && !isGuest()) setTimeout(() => dcPlay(false), 250);
+      if (appBooted && state.activeTab === "dictation") setTimeout(() => dcPlay(false), 250);
     }
     function dcFinishLesson() {
       const avg = Math.round(dc.scores.reduce((a, b) => a + b, 0) / (dc.scores.length || 1));
@@ -6531,6 +6582,7 @@
       if (!it) return;
       const raw = document.getElementById("dcInput").value.trim();
       if (!raw) { showToast("Bạn gõ câu vừa nghe vào ô trước nhé."); return; }
+      if (!guestUse("dictation")) return;
       const box = document.getElementById("dcResult");
       let score = 0, html = "";
       const userHanzi = hanziOnly(raw);
