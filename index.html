@@ -18,8 +18,8 @@
   <meta property="og:locale" content="vi_VN" />
   <meta property="og:title" content="Hán Ngữ Master · Học Tiếng Trung HSK 1–5" />
   <meta property="og:description" content="1.450 từ vựng, 125 bài đọc hiểu, 15 video bài giảng HSK 1–5 có Pinyin, Hán-Việt và phát âm bản xứ." />
-  <link rel="stylesheet" href="app.css?v=202611271002" />
-  <script src="icons.js?v=202611271002"></script>
+  <link rel="stylesheet" href="app.css?v=202611271021" />
+  <script src="icons.js?v=202611271021"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -271,6 +271,53 @@
     /* Chuyển trang mượt */
     .view-in { animation: viewIn .45s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    /* Bài học từng bước */
+    .ls-card { border-radius: 20px; border: 1px solid #e7e5e4; }
+    .ls-topic-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; text-align: left; }
+    .ls-topic-emoji { width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #faf7f2; flex-shrink: 0; }
+    .ls-chev { transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+    .ls-topic.is-open .ls-chev { transform: rotate(180deg); }
+    .ls-topic-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.2,.8,.2,1); }
+    .ls-topic.is-open .ls-topic-body { grid-template-rows: 1fr; }
+    .ls-topic-body > div { overflow: hidden; }
+    .ls-lessons { display: grid; gap: 10px; padding: 0 16px 16px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .ls-lessons { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .ls-lessons { grid-template-columns: repeat(3, 1fr); } }
+    .ls-lesson { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 16px; border: 1px solid #e7e5e4; text-align: left; transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .2s, box-shadow .25s; }
+    .ls-lesson:hover { transform: translateY(-3px); border-color: #b9382c; box-shadow: 0 12px 24px -16px rgba(28,25,23,.4); }
+    .ls-lesson.is-done { border-color: #a7d7c5; background: linear-gradient(135deg, rgba(31,111,91,.07), transparent 60%); }
+    .ls-lesson.is-next { border-color: #b9382c; box-shadow: 0 0 0 3px rgba(185,56,44,.12); }
+    .ls-mini { height: 5px; border-radius: 999px; background: #f5f5f4; overflow: hidden; }
+    .ls-mini > i { display: block; height: 100%; border-radius: 999px; background: #1f6f5b; transition: width .6s ease; }
+    .ls-steps { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; position: relative; }
+    .ls-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #a8a29e; text-align: center; position: relative; }
+    .ls-step::before { content: ""; position: absolute; top: 17px; left: calc(-50% + 20px); right: calc(50% + 20px); height: 2px; background: #e7e5e4; transition: background .4s; }
+    .ls-step:first-child::before { display: none; }
+    .ls-step .dot { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f5f5f4; color: #a8a29e; transition: all .35s cubic-bezier(.2,.8,.2,1); position: relative; z-index: 1; }
+    .ls-step.is-cur { color: #b9382c; }
+    .ls-step.is-cur .dot { background: #b9382c; color: #fff; transform: scale(1.1); box-shadow: 0 8px 18px -8px rgba(185,56,44,.7); }
+    .ls-step.is-done { color: #1f6f5b; }
+    .ls-step.is-done .dot { background: #1f6f5b; color: #fff; }
+    .ls-step.is-done::before, .ls-step.is-cur::before { background: #1f6f5b; }
+    .ls-stage { animation: viewIn .45s cubic-bezier(.2,.8,.2,1) both; }
+    .ls-word { display: flex; gap: 12px; padding: 14px; border-radius: 16px; border: 1px solid #e7e5e4; animation: lvlIn .5s cubic-bezier(.2,.8,.2,1) backwards; animation-delay: calc(var(--i, 0) * 50ms); }
+    .ls-flip { perspective: 1200px; cursor: pointer; }
+    .ls-flip-in { position: relative; min-height: 260px; transition: transform .6s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+    .ls-flip.is-flipped .ls-flip-in { transform: rotateY(180deg); }
+    .ls-face { position: absolute; inset: 0; border-radius: 24px; border: 1px solid #e7e5e4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px; backface-visibility: hidden; -webkit-backface-visibility: hidden; text-align: center; }
+    .ls-face.back { transform: rotateY(180deg); }
+    .ls-opt { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid #e7e5e4; text-align: left; font-weight: 600; transition: border-color .2s, background .2s, transform .15s; }
+    .ls-opt:hover:not(:disabled) { border-color: #b9382c; transform: translateY(-1px); }
+    .ls-opt.is-sel { border-color: #2563eb; background: rgba(37,99,235,.07); }
+    .ls-opt.is-ok { border-color: #1f6f5b; background: rgba(31,111,91,.1); color: #14532d; }
+    .ls-opt.is-bad { border-color: #dc2626; background: rgba(220,38,38,.08); color: #991b1b; animation: lsShake .4s; }
+    .ls-opt.is-gone { opacity: .4; transform: scale(.97); pointer-events: none; transition: opacity .35s .15s, transform .35s .15s; }
+    .ls-burst { animation: lsPop .6s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes lsShake { 0%,100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    @keyframes lsPop { 0% { opacity: 0; transform: scale(.6); } 60% { transform: scale(1.08); } 100% { opacity: 1; transform: none; } }
+    body.dark-mode .ls-card, body.dark-mode .ls-lesson, body.dark-mode .ls-word, body.dark-mode .ls-face, body.dark-mode .ls-opt { border-color: rgba(255,255,255,.12); }
+    body.dark-mode .ls-topic-emoji, body.dark-mode .ls-step .dot, body.dark-mode .ls-mini { background: rgba(255,255,255,.08); }
+    @media (prefers-reduced-motion: reduce) { .ls-word, .ls-stage, .ls-burst { animation: none !important; } .ls-flip-in { transition: none !important; } }
     body.dark-mode .lvl-card, body.dark-mode .lvl-all { border-color: rgba(255,255,255,.12); }
     body.dark-mode .lvl-desc { color: #d6d3d1; }
     body.dark-mode .lvl-bar { background: rgba(255,255,255,.1); }
@@ -336,6 +383,7 @@
       <!-- Desktop Navigation Tabs -->
       <nav class="hidden lg:flex items-center gap-0.5 xl:gap-1" aria-label="Chế độ học">
         <button data-tab="home" class="nav-tab">Trang chủ</button>
+        <button data-tab="lessons" class="nav-tab">Bài học</button>
         <button data-tab="vocab" class="nav-tab">Từ vựng</button>
         <button data-tab="sentences" class="nav-tab">Đọc hiểu</button>
         <div class="relative" id="practiceMenuWrap">
@@ -401,6 +449,7 @@
       <button data-tab="videos" class="nav-tab-mobile"><i data-lucide="play-circle" class="w-4 h-4"></i>Video bài giảng</button>
       <button data-tab="extras" class="nav-tab-mobile"><i data-lucide="sparkles" class="w-4 h-4"></i>Mở rộng</button>
       <button data-tab="vocab" class="nav-tab-mobile"><i data-lucide="book-open" class="w-4 h-4"></i>Từ vựng</button>
+      <button data-tab="lessons" class="nav-tab-mobile"><i data-lucide="graduation-cap" class="w-4 h-4"></i>Bài học từng bước</button>
     </div>
     <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mt-4 mb-2">Luyện tập</div>
     <div class="grid grid-cols-2 gap-2">
@@ -505,6 +554,20 @@
       </button>
     </section>
 
+    </section>
+
+    <!-- VIEW: BÀI HỌC TỪNG BƯỚC (mỗi bài ~10 từ: Làm quen → Thẻ nhớ → Ghép thẻ → Trắc nghiệm → Nói thử) -->
+    <section id="view-lessons" class="hidden">
+      <div id="lsListWrap" class="space-y-5">
+        <div>
+          <p class="text-sm font-semibold text-[#b9382c]">Học theo lộ trình</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Bài học từng bước · <span id="lsLevelLabel" class="text-[#b9382c]">HSK 1</span></h1>
+          <p class="text-sm text-stone-600 mt-1">Mỗi bài khoảng 10 từ, 5–7 phút: làm quen, lật thẻ, ghép thẻ, trắc nghiệm rồi nói thử. Từ sai sẽ được đưa vào phần ôn lại.</p>
+        </div>
+        <div id="lsHero" class="grid gap-3 sm:grid-cols-2"></div>
+        <div id="lsTopics" class="space-y-3"></div>
+      </div>
+      <div id="lsPlayer" class="hidden max-w-3xl mx-auto"></div>
     </section>
 
     <!-- VIEW: CHỌN KỸ NĂNG (sau khi chọn trình độ ở trang chủ) -->
@@ -2269,7 +2332,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271002"></script>
+  <script src="data.js?v=202611271021"></script>
   <script>
     // =========================================================
     // 1. HSK LEVEL METADATA & ILLUSTRATION IMAGES (BASE64 INLINED)
@@ -6797,7 +6860,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -7162,6 +7225,422 @@
       spk.word = spkPickWord();
     }
 
+    // ---------- Bài học từng bước: dữ liệu & danh sách bài ----------
+    const LESSON_KEY = "han_ngu_lessons_v1";
+    PROGRESS_KEYS.push(LESSON_KEY);
+    const LESSON_SIZE = 10;
+    const lsCache = {};
+    function lsStore() {
+      let s = {};
+      try { s = JSON.parse(lsGet(LESSON_KEY) || "{}"); } catch (e) {}
+      if (!s.done || typeof s.done !== "object") s.done = {};
+      if (!Array.isArray(s.weak)) s.weak = [];
+      return s;
+    }
+    function lsSave(s) { lsSet(LESSON_KEY, JSON.stringify(s)); try { scheduleCloudSync(); } catch (e) {} }
+
+    // Chia từ của một cấp thành bài ~10 từ theo chủ đề (phần lẻ ≤ 4 từ gộp vào bài trước)
+    function lessonsForLevel(lvl) {
+      if (lsCache[lvl]) return lsCache[lvl];
+      const words = VOCAB.filter(v => v.hsk === lvl);
+      const topics = [];
+      const byTopic = {};
+      words.forEach(w => { if (!byTopic[w.topic]) { byTopic[w.topic] = []; topics.push(w.topic); } byTopic[w.topic].push(w); });
+      // Chủ đề quá ít từ (< 5) gộp chung thành "Tổng hợp" để bài nào cũng đủ dài
+      const MIX = "Tổng hợp";
+      const small = topics.filter(t => byTopic[t].length < 5);
+      if (small.length && small.length < topics.length) {
+        const pooled = small.flatMap(t => byTopic[t]);
+        small.forEach(t => { delete byTopic[t]; topics.splice(topics.indexOf(t), 1); });
+        // Gộp lại vẫn dưới 5 từ thì nhập vào chủ đề cuối cùng
+        if (pooled.length >= 5) { byTopic[MIX] = pooled; topics.push(MIX); }
+        else byTopic[topics[topics.length - 1]] = byTopic[topics[topics.length - 1]].concat(pooled);
+      }
+      const out = topics.map((topic, ti) => {
+        const list = byTopic[topic];
+        const chunks = [];
+        for (let i = 0; i < list.length; i += LESSON_SIZE) chunks.push(list.slice(i, i + LESSON_SIZE));
+        if (chunks.length > 1 && chunks[chunks.length - 1].length <= 4) { const tail = chunks.pop(); chunks[chunks.length - 1] = chunks[chunks.length - 1].concat(tail); }
+        return {
+          topic, emoji: topic === MIX ? "🧩" : list[0].emoji, hsk: lvl,
+          lessons: chunks.map((c, k) => ({ id: `${lvl}-${ti}-${k}`, hsk: lvl, topic, no: k + 1, total: chunks.length, words: c.map(w => w.id) }))
+        };
+      });
+      lsCache[lvl] = out;
+      return out;
+    }
+    function lsAllLessons(lvl) { return lessonsForLevel(lvl).flatMap(t => t.lessons); }
+    function lsLessonById(id) { const lvl = Number(String(id).split("-")[0]); return lsAllLessons(lvl).find(l => l.id === id) || null; }
+    function lsMasteredCount(l) { return l.words.filter(id => state.mastered.has(id)).length; }
+    function lsIsDone(l, store) { return !!store.done[l.id] || lsMasteredCount(l) === l.words.length; }
+    function lsNextLesson(levels, store) {
+      for (const lv of levels) { const l = lsAllLessons(lv).find(x => !lsIsDone(x, store)); if (l) return l; }
+      return null;
+    }
+
+    const lsUi = { open: {} };
+    function renderLessonsView() {
+      const sel = state.selectedHsk;
+      const levels = sel === "all" ? [1, 2, 3, 4, 5] : [Number(sel)];
+      const store = lsStore();
+      document.getElementById("lsLevelLabel").textContent = levelLabel(sel);
+      document.getElementById("lsListWrap").classList.remove("hidden");
+      document.getElementById("lsPlayer").classList.add("hidden");
+
+      // Thẻ "Học tiếp" + "Ôn lại"
+      const next = lsNextLesson(levels, store);
+      const weak = store.weak.filter(id => VOCAB.some(v => v.id === id));
+      const nextHtml = next
+        ? `<button type="button" data-ls-start="${next.id}" class="ls-card bg-white p-4 flex items-center gap-3 text-left hover:border-[#b9382c] transition">
+            <span class="skill-ico" style="background:#b9382c14;color:#b9382c"><i data-lucide="graduation-cap" class="w-5 h-5"></i></span>
+            <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-[#b9382c]">Học tiếp</span>
+              <span class="block font-bold text-stone-900 truncate">${next.topic} · Bài ${next.no}</span>
+              <span class="block text-xs text-stone-500">HSK ${next.hsk} · ${next.words.length} từ · khoảng 6 phút</span></span>
+            <span class="lvl-go" style="--c:#b9382c">Bắt đầu<i data-lucide="chevron-right"></i></span>
+          </button>`
+        : `<div class="ls-card bg-white p-4 flex items-center gap-3"><span class="text-3xl">🏆</span><div><div class="font-bold text-stone-900">Đã học hết các bài của ${levelLabel(sel)}!</div><div class="text-xs text-stone-500">Chọn cấp khác ở thanh phía trên để học tiếp.</div></div></div>`;
+      const weakHtml = weak.length
+        ? `<button type="button" id="lsReviewBtn" class="ls-card bg-white p-4 flex items-center gap-3 text-left hover:border-[#b9382c] transition">
+            <span class="skill-ico" style="background:#c8963e1f;color:#b45309"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></span>
+            <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-amber-700">Ôn lại</span>
+              <span class="block font-bold text-stone-900">${weak.length} từ còn nhầm</span>
+              <span class="block text-xs text-stone-500">Trắc nghiệm nhanh, đúng là tính đã thuộc</span></span>
+            <span class="lvl-go" style="--c:#b45309">Ôn ngay<i data-lucide="chevron-right"></i></span>
+          </button>`
+        : `<div class="ls-card bg-white p-4 flex items-center gap-3"><span class="skill-ico" style="background:#1f6f5b14;color:#1f6f5b"><i data-lucide="check-circle-2" class="w-5 h-5"></i></span><div><div class="font-bold text-stone-900">Chưa có từ cần ôn</div><div class="text-xs text-stone-500">Từ trả lời sai trong bài sẽ hiện ở đây.</div></div></div>`;
+      document.getElementById("lsHero").innerHTML = nextHtml + weakHtml;
+
+      // Danh sách chủ đề → bài
+      let html = "";
+      levels.forEach(lv => {
+        if (levels.length > 1) html += `<h2 class="text-lg font-bold text-stone-900 pt-2">HSK ${lv}</h2>`;
+        lessonsForLevel(lv).forEach(t => {
+          const doneN = t.lessons.filter(l => lsIsDone(l, store)).length;
+          const key = `${lv}|${t.topic}`;
+          const isOpen = lsUi.open[key] !== undefined ? lsUi.open[key] : !!(next && next.hsk === lv && next.topic === t.topic);
+          html += `<div class="ls-topic ls-card bg-white ${isOpen ? "is-open" : ""}" data-ls-topic="${key}">
+            <button type="button" class="ls-topic-head" data-ls-toggle="${key}">
+              <span class="ls-topic-emoji">${t.emoji}</span>
+              <span class="min-w-0 flex-1"><span class="block font-bold text-stone-900">${t.topic}</span>
+                <span class="block text-xs text-stone-500">${t.lessons.length} bài · ${t.lessons.reduce((a, l) => a + l.words.length, 0)} từ</span></span>
+              <span class="text-xs font-semibold ${doneN === t.lessons.length ? "text-emerald-700" : "text-stone-500"} shrink-0">${doneN}/${t.lessons.length}</span>
+              <i data-lucide="chevron-down" class="ls-chev w-4 h-4 text-stone-400 shrink-0"></i>
+            </button>
+            <div class="ls-topic-body"><div><div class="ls-lessons">${t.lessons.map(l => {
+              const m = lsMasteredCount(l), done = lsIsDone(l, store), isNext = next && next.id === l.id;
+              const preview = l.words.slice(0, 4).map(id => VOCAB[id - 1].hanzi).join(" · ");
+              return `<button type="button" data-ls-start="${l.id}" class="ls-lesson bg-white ${done ? "is-done" : ""} ${isNext ? "is-next" : ""}">
+                <span class="flex items-center justify-between gap-2"><span class="font-bold text-stone-900">Bài ${l.no}</span>
+                  <span class="text-[11px] font-semibold ${done ? "text-emerald-700" : isNext ? "text-[#b9382c]" : "text-stone-400"}">${done ? "✓ Hoàn thành" : isNext ? "Học tiếp" : `${l.words.length} từ`}</span></span>
+                <span class="font-hanzi-sans text-sm text-stone-600 truncate">${preview}${l.words.length > 4 ? " …" : ""}</span>
+                <span class="ls-mini"><i style="width:${Math.round(m / l.words.length * 100)}%"></i></span>
+                <span class="text-[11px] text-stone-500">Đã thuộc ${m}/${l.words.length}</span>
+              </button>`;
+            }).join("")}</div></div></div>
+          </div>`;
+        });
+      });
+      document.getElementById("lsTopics").innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ---------- Bài học từng bước: phần học ----------
+    const LS_STEPS = {
+      intro: { label: "Làm quen", icon: "book-open" },
+      flash: { label: "Thẻ nhớ", icon: "layers" },
+      match: { label: "Ghép thẻ", icon: "link" },
+      quiz: { label: "Trắc nghiệm", icon: "check-circle-2" },
+      speak: { label: "Nói thử", icon: "mic" }
+    };
+    const lp = { lesson: null, words: [], steps: [], step: 0, errors: new Set(), review: false, flashQ: [], match: null, quiz: null, spk: 0, timer: null, finished: false };
+    const lsShuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const lsW = id => VOCAB[id - 1];
+    const LS_BTN = "inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold transition";
+    const LS_BTN2 = "inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-sm font-semibold transition";
+
+    function lsBegin(lesson, review) {
+      clearTimeout(lp.timer);
+      lp.lesson = lesson; lp.review = !!review;
+      lp.words = lesson.words.map(lsW).filter(Boolean);
+      lp.steps = review ? ["quiz"] : ["intro", "flash", "match", "quiz"].concat(SpeechRec ? ["speak"] : []);
+      lp.step = 0; lp.errors = new Set(); lp.finished = false;
+      lsEnterStep();
+      document.getElementById("lsListWrap").classList.add("hidden");
+      document.getElementById("lsPlayer").classList.remove("hidden");
+      lsRenderPlayer();
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+    }
+    function lsStart(id) { const l = lsLessonById(id); if (l) lsBegin(l, false); }
+    function lsStartReview(ids) {
+      const store = lsStore();
+      const list = (ids && ids.length ? ids : store.weak).filter(id => lsW(id)).slice(0, LESSON_SIZE);
+      if (!list.length) return;
+      lsBegin({ id: "review", hsk: lsW(list[0]).hsk, topic: "Ôn từ còn nhầm", no: 0, words: list }, true);
+    }
+    // Chuẩn bị dữ liệu cho bước hiện tại
+    function lsEnterStep() {
+      const k = lp.steps[lp.step];
+      const ids = lp.words.map(w => w.id);
+      if (k === "flash") lp.flashQ = lsShuffle(ids);
+      if (k === "match") lp.match = { left: lsShuffle(ids), right: lsShuffle(ids), sel: null, done: 0 };
+      if (k === "quiz") lp.quiz = { qs: lsShuffle(ids).map((id, i) => ({ id, type: lp.review ? (i % 2 ? 2 : 0) : i % 3 })), i: 0, answered: false };
+      if (k === "speak") lp.spk = 0;
+    }
+    function lsNextStep() {
+      clearTimeout(lp.timer);
+      if (lp.step < lp.steps.length - 1) { lp.step++; lsEnterStep(); lsRenderPlayer(); }
+      else lsFinish();
+    }
+
+    function lsRenderPlayer() {
+      const l = lp.lesson;
+      const stepsHtml = lp.steps.map((k, i) => `<div class="ls-step ${lp.finished || i < lp.step ? "is-done" : i === lp.step ? "is-cur" : ""}">
+          <span class="dot"><i data-lucide="${lp.finished || i < lp.step ? "check" : LS_STEPS[k].icon}" class="w-4 h-4"></i></span><span class="hidden sm:block">${LS_STEPS[k].label}</span></div>`).join("");
+      document.getElementById("lsPlayer").innerHTML = `
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <button type="button" data-ls-act="back" class="${LS_BTN2} py-2"><i data-lucide="chevron-left" class="w-4 h-4"></i>Danh sách bài</button>
+          <div class="min-w-0" style="text-align:right">
+            <div class="text-xs text-stone-500 truncate">${lp.review ? "Ôn tập" : `HSK ${l.hsk} · ${l.topic}`}</div>
+            <div class="font-bold text-stone-900">${lp.review ? `${lp.words.length} từ cần ôn` : `Bài ${l.no}/${l.total} · ${lp.words.length} từ`}</div>
+          </div>
+        </div>
+        ${lp.steps.length > 1 ? `<div class="ls-card bg-white p-4 mb-4"><div class="ls-steps">${stepsHtml}</div></div>` : ""}
+        <div id="lsStage" class="ls-stage"></div>`;
+      lsRenderStage();
+    }
+    function lsRenderStage() {
+      const box = document.getElementById("lsStage");
+      if (!box) return;
+      box.classList.remove("ls-stage"); void box.offsetWidth; box.classList.add("ls-stage");
+      const k = lp.finished ? "done" : lp.steps[lp.step];
+      box.innerHTML = ({ intro: lsIntroHtml, flash: lsFlashHtml, match: lsMatchHtml, quiz: lsQuizHtml, speak: lsSpeakHtml, done: lsDoneHtml })[k]();
+      if (window.lucide) lucide.createIcons();
+      if (k === "quiz") { const q = lp.quiz.qs[lp.quiz.i]; if (q && q.type === 1) setTimeout(() => speakChinese(lsW(q.id).hanzi, null), 250); }
+    }
+
+    // Bước 1: Làm quen
+    function lsIntroHtml() {
+      return `<p class="text-sm text-stone-600 mb-3">Đọc qua từng từ, bấm loa để nghe phát âm. Xem xong thì sang bước lật thẻ.</p>
+        <div class="grid gap-3 sm:grid-cols-2">${lp.words.map((w, i) => `
+          <div class="ls-word bg-white" style="--i:${i}">
+            <div class="text-center shrink-0" style="min-width:84px">
+              <div class="font-hanzi text-3xl font-bold text-stone-900 leading-tight">${w.hanzi}</div>
+              <div class="text-xs font-semibold text-[#b9382c] mt-1">${w.pinyin}</div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold text-stone-900 leading-snug">${w.meaning}</div>
+              <div class="text-[11px] text-stone-500">Hán-Việt: ${w.hanviet} · ${w.pos}</div>
+              <div class="font-hanzi-sans text-sm text-stone-700 mt-1.5 leading-snug">${w.exCn}</div>
+              <div class="text-[11px] text-stone-500 leading-snug">${w.exVi}</div>
+            </div>
+            <button type="button" data-ls-act="say" data-id="${w.id}" class="w-9 h-9 shrink-0 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-600 flex items-center justify-center" title="Nghe"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+          </div>`).join("")}</div>
+        <div class="flex justify-end mt-5"><button type="button" data-ls-act="next" class="${LS_BTN}">Sang bước Thẻ nhớ<i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>`;
+    }
+
+    // Bước 2: Thẻ nhớ (lật thẻ, chưa nhớ thì thẻ quay lại cuối hàng)
+    function lsFlashHtml() {
+      const id = lp.flashQ[0];
+      if (!id) return "";
+      const w = lsW(id);
+      return `<p class="text-center text-sm text-stone-600 mb-3">Còn <b>${lp.flashQ.length}</b> thẻ · Bấm vào thẻ để lật</p>
+        <div class="ls-flip max-w-md mx-auto" data-ls-act="flip">
+          <div class="ls-flip-in">
+            <div class="ls-face bg-white">
+              <div class="font-hanzi text-6xl font-bold text-stone-900">${w.hanzi}</div>
+              <div class="text-xs text-stone-400 mt-2">Nhớ nghĩa rồi bấm để kiểm tra</div>
+            </div>
+            <div class="ls-face back bg-white">
+              <div class="font-hanzi text-4xl font-bold text-stone-900">${w.hanzi}</div>
+              <div class="text-base font-semibold text-[#b9382c]">${w.pinyin}</div>
+              <div class="text-lg font-bold text-stone-900">${w.meaning}</div>
+              <div class="text-xs text-stone-500">Hán-Việt: ${w.hanviet}</div>
+              <div class="font-hanzi-sans text-sm text-stone-700 mt-1">${w.exCn}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center gap-3 mt-5">
+          <button type="button" data-ls-act="flash-no" class="${LS_BTN2}"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Chưa nhớ</button>
+          <button type="button" data-ls-act="flash-yes" class="${LS_BTN}" style="background:#1f6f5b"><i data-lucide="check" class="w-4 h-4"></i>Đã nhớ</button>
+        </div>`;
+    }
+
+    // Bước 3: Ghép chữ Hán với nghĩa
+    function lsMatchHtml() {
+      const m = lp.match;
+      return `<p class="text-sm text-stone-600 mb-3">Chọn một chữ Hán bên trái rồi chọn nghĩa đúng bên phải.</p>
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div class="space-y-2.5">${m.left.map(id => `<button type="button" data-ls-act="m" data-side="L" data-id="${id}" class="ls-opt bg-white text-center font-hanzi text-xl">${lsW(id).hanzi}</button>`).join("")}</div>
+          <div class="space-y-2.5">${m.right.map(id => `<button type="button" data-ls-act="m" data-side="R" data-id="${id}" class="ls-opt bg-white text-sm leading-snug">${lsW(id).meaning}</button>`).join("")}</div>
+        </div>`;
+    }
+    function lsMatchClick(btn) {
+      const m = lp.match;
+      const side = btn.dataset.side, id = Number(btn.dataset.id);
+      if (btn.classList.contains("is-ok")) return;
+      if (!m.sel || m.sel.side === side) {
+        if (m.sel) m.sel.el.classList.remove("is-sel");
+        m.sel = { side, id, el: btn }; btn.classList.add("is-sel");
+        if (side === "L") speakChinese(lsW(id).hanzi, null);
+        return;
+      }
+      const a = m.sel, b = { side, id, el: btn };
+      a.el.classList.remove("is-sel"); m.sel = null;
+      if (a.id === b.id) {
+        [a.el, b.el].forEach(el => { el.classList.add("is-ok"); el.disabled = true; setTimeout(() => el.classList.add("is-gone"), 250); });
+        m.done++;
+        if (m.done >= lp.words.length) lp.timer = setTimeout(lsNextStep, 900);
+      } else {
+        lp.errors.add(a.side === "L" ? a.id : b.id);
+        [a.el, b.el].forEach(el => { el.classList.add("is-bad"); setTimeout(() => el.classList.remove("is-bad"), 450); });
+      }
+    }
+
+    // Bước 4: Trắc nghiệm (xem chữ chọn nghĩa · nghe chọn chữ · xem nghĩa chọn chữ)
+    function lsQuizOptions(id, field) {
+      const w = lsW(id);
+      const pool = lsShuffle(lp.words.filter(x => x.id !== id).concat(lsShuffle(VOCAB.filter(x => x.hsk === w.hsk && x.id !== id)).slice(0, 12)));
+      const opts = [w];
+      for (const x of pool) { if (opts.length >= 4) break; if (!opts.some(o => o[field] === x[field])) opts.push(x); }
+      return lsShuffle(opts);
+    }
+    function lsQuizHtml() {
+      const qz = lp.quiz, q = qz.qs[qz.i], w = lsW(q.id);
+      const field = q.type === 0 ? "meaning" : "hanzi";
+      if (!q.opts) q.opts = lsQuizOptions(q.id, field);
+      const prompt = q.type === 0
+        ? `<div class="text-xs font-semibold text-stone-500">Từ này nghĩa là gì?</div><div class="font-hanzi text-5xl font-bold text-stone-900 mt-2">${w.hanzi}</div>`
+        : q.type === 1
+          ? `<div class="text-xs font-semibold text-stone-500">Nghe rồi chọn chữ đúng</div><button type="button" data-ls-act="say" data-id="${w.id}" class="mt-3 w-16 h-16 rounded-full bg-[#b9382c] hover:bg-[#932a20] text-white inline-flex items-center justify-center shadow-lg"><i data-lucide="volume-2" class="w-7 h-7"></i></button>`
+          : `<div class="text-xs font-semibold text-stone-500">Chữ Hán nào có nghĩa là</div><div class="text-2xl font-bold text-stone-900 mt-2">${w.meaning}</div>`;
+      return `<div class="flex items-center justify-between text-xs text-stone-500 mb-2"><span>Câu ${qz.i + 1}/${qz.qs.length}</span><span>${lp.errors.size ? `Sai ${lp.errors.size} từ` : "Chưa sai câu nào"}</span></div>
+        <div class="ls-mini mb-4"><i style="width:${Math.round(qz.i / qz.qs.length * 100)}%"></i></div>
+        <div class="ls-card bg-white p-5 sm:p-6 text-center">${prompt}</div>
+        <div class="grid gap-2.5 sm:grid-cols-2 mt-4">${q.opts.map(o => `<button type="button" data-ls-act="q" data-id="${o.id}" class="ls-opt bg-white ${field === "hanzi" ? "font-hanzi text-xl text-center" : "text-sm"}">${o[field]}</button>`).join("")}</div>
+        <div id="lsQuizFb" class="mt-4"></div>`;
+    }
+    function lsQuizAnswer(btn) {
+      const qz = lp.quiz;
+      if (qz.answered) return;
+      qz.answered = true;
+      const q = qz.qs[qz.i], w = lsW(q.id), pick = Number(btn.dataset.id);
+      document.querySelectorAll('#lsStage [data-ls-act="q"]').forEach(b => { b.disabled = true; if (Number(b.dataset.id) === q.id) b.classList.add("is-ok"); });
+      const go = () => { qz.i++; qz.answered = false; if (qz.i >= qz.qs.length) lsNextStep(); else lsRenderStage(); };
+      if (pick === q.id) {
+        speakChinese(w.hanzi, null);
+        lp.timer = setTimeout(go, 900);
+      } else {
+        btn.classList.add("is-bad");
+        lp.errors.add(q.id);
+        document.getElementById("lsQuizFb").innerHTML = `<div class="ls-card bg-white p-4 flex items-center gap-3">
+          <div class="font-hanzi text-3xl font-bold text-stone-900">${w.hanzi}</div>
+          <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-[#b9382c]">${w.pinyin}</div><div class="text-sm text-stone-800">${w.meaning}</div></div>
+          <button type="button" data-ls-act="q-next" class="${LS_BTN}">Tiếp<i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>`;
+        if (window.lucide) lucide.createIcons();
+        lp.quizGo = go;
+      }
+    }
+
+    // Bước 5: Nói thử (dùng micro, có thể bỏ qua)
+    function lsSpeakHtml() {
+      const w = lp.words[lp.spk];
+      return `<div class="flex items-center justify-between text-xs text-stone-500 mb-2"><span>Từ ${lp.spk + 1}/${lp.words.length}</span><button type="button" data-ls-act="finish" class="font-semibold hover:text-[#b9382c]">Kết thúc bài →</button></div>
+        <div class="ls-card bg-white p-6 text-center">
+          <div class="font-hanzi text-6xl font-bold text-stone-900">${w.hanzi}</div>
+          <div class="text-base font-semibold text-[#b9382c] mt-2">${w.pinyin}</div>
+          <div class="text-sm text-stone-600 mt-1">${w.meaning}</div>
+          <button type="button" data-ls-act="mic" class="mt-5 w-20 h-20 rounded-full bg-[#b9382c] hover:bg-[#932a20] text-white inline-flex items-center justify-center shadow-lg transition"><i data-lucide="mic" class="w-8 h-8"></i></button>
+          <div id="lsSpkRes" class="mt-4 text-sm text-stone-500" style="min-height:3rem">Bấm micro rồi đọc to từ trên</div>
+        </div>
+        <div class="flex justify-center gap-3 mt-4">
+          <button type="button" data-ls-act="say" data-id="${w.id}" class="${LS_BTN2}"><i data-lucide="volume-2" class="w-4 h-4"></i>Nghe mẫu</button>
+          <button type="button" data-ls-act="spk-skip" class="${LS_BTN2}">Bỏ qua<i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+        </div>`;
+    }
+    function lsSpeakNext() { lp.spk++; if (lp.spk >= lp.words.length) lsFinish(); else lsRenderStage(); }
+    async function lsSpeakListen(btn) {
+      if (lp.spkBusy) return;
+      lp.spkBusy = true;
+      const w = lp.words[lp.spk], out = document.getElementById("lsSpkRes");
+      btn.classList.add("animate-pulse");
+      out.innerHTML = `<span class="font-semibold text-[#b9382c]">Đang nghe… đọc to lên nhé!</span>`;
+      try {
+        const heard = await listenChinese(6000, w.hanzi);
+        const res = scorePronunciation(w.hanzi, heard);
+        if (document.getElementById("lsSpkRes") !== out) { lp.spkBusy = false; return; }
+        out.innerHTML = renderPronResult(w.hanzi, res);
+        if (res.score >= 80) { addDailySpoken(1); lp.timer = setTimeout(lsSpeakNext, 1300); }
+      } catch (e) { out.textContent = pronMessage(e); }
+      btn.classList.remove("animate-pulse");
+      lp.spkBusy = false;
+    }
+
+    // Kết thúc bài: từ không sai lần nào → đã thuộc; từ sai → vào danh sách ôn lại
+    function lsFinish() {
+      clearTimeout(lp.timer);
+      if (activeRec) { try { activeRec.abort(); } catch (e) {} }
+      const store = lsStore();
+      const ok = lp.words.filter(w => !lp.errors.has(w.id)).map(w => w.id);
+      const bad = lp.words.filter(w => lp.errors.has(w.id)).map(w => w.id);
+      ok.forEach(id => state.mastered.add(id));
+      store.weak = store.weak.filter(id => !ok.includes(id));
+      bad.forEach(id => { if (!store.weak.includes(id)) store.weak.push(id); state.mastered.delete(id); });
+      if (!lp.review) store.done[lp.lesson.id] = { at: Date.now(), ok: ok.length, n: lp.words.length };
+      lsSave(store);
+      try { saveProgress(); checkAndUnlockBadges(); updateMasteryCounter(); renderHskStrip(); updateDailyGoal(); } catch (e) {}
+      lp.result = { ok, bad };
+      lp.finished = true;
+      lsRenderPlayer();
+      if (ok.length === lp.words.length) aiReact(`Xuất sắc! Thuộc trọn ${ok.length} từ không sai câu nào 🎉`, "🏆", true);
+    }
+    function lsDoneHtml() {
+      const { ok, bad } = lp.result, n = lp.words.length;
+      const pct = Math.round(ok.length / n * 100);
+      const chip = (id, good) => { const w = lsW(id); return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-sm ${good ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}"><b class="font-hanzi">${w.hanzi}</b><span class="text-xs">${w.meaning}</span></span>`; };
+      const nextL = lp.review ? null : lsNextLesson(state.selectedHsk === "all" ? [1, 2, 3, 4, 5] : [Number(state.selectedHsk)], lsStore());
+      return `<div class="ls-card bg-white p-6 sm:p-8 text-center">
+          <div class="ls-burst text-6xl">${pct === 100 ? "🏆" : pct >= 60 ? "🎉" : "💪"}</div>
+          <h2 class="text-2xl font-bold text-stone-900 mt-3">${lp.review ? "Ôn xong!" : "Hoàn thành bài học!"}</h2>
+          <p class="text-sm text-stone-600 mt-1">Thuộc <b class="text-emerald-700">${ok.length}/${n}</b> từ${bad.length ? ` · ${bad.length} từ được đưa vào phần ôn lại` : " · không sai từ nào!"}</p>
+          <div class="lvl-bar max-w-md mx-auto mt-4" style="--c:#1f6f5b"><i style="width:${pct}%"></i></div>
+          <div class="flex flex-wrap justify-center gap-2 mt-5">${bad.map(id => chip(id, false)).join("")}${ok.map(id => chip(id, true)).join("")}</div>
+          <div class="flex flex-wrap justify-center gap-3 mt-5">
+            ${bad.length ? `<button type="button" data-ls-act="redo" class="${LS_BTN}" style="background:#b45309"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Ôn lại ${bad.length} từ sai</button>` : ""}
+            ${nextL ? `<button type="button" data-ls-start="${nextL.id}" class="${LS_BTN}">Bài tiếp theo<i data-lucide="chevron-right" class="w-4 h-4"></i></button>` : ""}
+            <button type="button" data-ls-act="back" class="${LS_BTN2}">Về danh sách bài</button>
+          </div>
+        </div>`;
+    }
+
+    function initLessonsView() {
+      document.getElementById("view-lessons").addEventListener("click", e => {
+        const start = e.target.closest("[data-ls-start]");
+        if (start) { lsStart(start.dataset.lsStart); return; }
+        const tog = e.target.closest("[data-ls-toggle]");
+        if (tog) { const t = tog.closest(".ls-topic"); t.classList.toggle("is-open"); lsUi.open[tog.dataset.lsToggle] = t.classList.contains("is-open"); return; }
+        if (e.target.closest("#lsReviewBtn")) { lsStartReview(); return; }
+        const b = e.target.closest("[data-ls-act]");
+        if (!b) return;
+        const act = b.dataset.lsAct;
+        if (act === "back") { clearTimeout(lp.timer); if (activeRec) { try { activeRec.abort(); } catch (er) {} } renderLessonsView(); }
+        else if (act === "next") lsNextStep();
+        else if (act === "say") speakChinese(lsW(Number(b.dataset.id)).hanzi, b);
+        else if (act === "flip") { const was = b.classList.contains("is-flipped"); b.classList.toggle("is-flipped"); if (!was) speakChinese(lsW(lp.flashQ[0]).hanzi, null); }
+        else if (act === "flash-yes" || act === "flash-no") {
+          const id = lp.flashQ.shift();
+          if (act === "flash-no") lp.flashQ.push(id);
+          if (!lp.flashQ.length) lsNextStep(); else lsRenderStage();
+        }
+        else if (act === "m") lsMatchClick(b);
+        else if (act === "q") lsQuizAnswer(b);
+        else if (act === "q-next" && lp.quizGo) { const g = lp.quizGo; lp.quizGo = null; g(); }
+        else if (act === "mic") lsSpeakListen(b);
+        else if (act === "spk-skip") { clearTimeout(lp.timer); lsSpeakNext(); }
+        else if (act === "finish") lsFinish();
+        else if (act === "redo") lsStartReview(lp.result.bad);
+      });
+    }
+
     // ---------- Nghe chép chính tả ----------
     const DC_KEY = "han_ngu_dictation_v1";
     PROGRESS_KEYS.push(DC_KEY, "han_ngu_level_v1");
@@ -7449,16 +7928,17 @@
       initVoicePicker();
       initGuestMode();
       initSpeakView();
+      initLessonsView();
       initDictation();
       initDailyGoal();
       initPwa();
     }
 
     // ---------- Trang chủ · đường dẫn · chọn trình độ dùng chung ----------
-    const ALL_TABS = ["home", "skills", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak"];
+    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak"];
     const PRACTICE_TABS = ["dictation", "speak", "flashcards", "quiz", "games"];
-    const LEVEL_TABS = ["skills", "vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
-    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng" };
+    const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
+    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng" };
     const LEVEL_KEY = "han_ngu_level_v1";
 
     function levelLabel(lvl) { return lvl === "all" ? "HSK 1–5" : `HSK ${lvl}`; }
@@ -7509,6 +7989,7 @@
       renderCrumb(state.activeTab);
       if (state.activeTab === "home") renderHome();
       if (state.activeTab === "skills") renderSkillsPage();
+      if (state.activeTab === "lessons") renderLessonsView();
       try { scheduleCloudSync(); } catch (e) {}
     }
 
@@ -7530,6 +8011,7 @@
     }
 
     const HOME_SKILLS = [
+      { tab: "lessons", icon: "graduation-cap", color: "#b9382c", title: "Bài học từng bước", desc: "Mỗi bài 10 từ: làm quen, lật thẻ, ghép thẻ, trắc nghiệm, nói thử" },
       { tab: "vocab", icon: "book-open", color: "#b9382c", title: "Từ vựng", desc: "Học từ theo chủ đề, có ví dụ và phát âm" },
       { tab: "sentences", icon: "align-left", color: "#1f6f5b", title: "Đọc hiểu", desc: "Bài đọc câu dài, bật tắt Pinyin và bản dịch" },
       { tab: "dictation", icon: "headphones", color: "#2563eb", title: "Nghe chép", desc: "Nghe câu, gõ lại, chấm từng chữ" },
@@ -7548,6 +8030,11 @@
       if (tab === "flashcards") return `${inLvl(VOCAB).length} thẻ`;
       if (tab === "videos") return `${lvl === "all" ? 15 : 3} video`;
       if (tab === "speak") { const d = (typeof dailyState === "function" && dailyState().spoken) || 0; return d ? `Hôm nay đọc đúng ${d} từ` : (spk.best ? `Kỷ lục ${spk.best} từ liên tiếp` : "Thử đọc từ đầu tiên"); }
+      if (tab === "lessons") {
+        const store = lsStore();
+        const ls = (lvl === "all" ? [1, 2, 3, 4, 5] : [Number(lvl)]).flatMap(l => lsAllLessons(l));
+        return `${ls.filter(l => lsIsDone(l, store)).length}/${ls.length} bài hoàn thành`;
+      }
       if (tab === "quiz") return "Chấm điểm ngay sau khi nộp";
       if (tab === "games") return "Vừa chơi vừa nhớ từ";
       if (tab === "extras") return "Tập viết, ngữ pháp, truyện";
@@ -7698,6 +8185,7 @@
 
       if (tab === "home") renderHome();
       if (tab === "skills") renderSkillsPage();
+      if (tab === "lessons") renderLessonsView();
       if (tab === "dictation" && typeof dcRender === "function") dcRender();
       if (tab === "sentences") renderLongSentences();
       if (tab === "videos") renderVideos();
