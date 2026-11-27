@@ -6371,6 +6371,33 @@
       window.addEventListener("scroll", () => { ttHideBar(); }, { passive: true });
     }
 
+    function isTouchDevice() { return !!(window.matchMedia && matchMedia("(pointer: coarse)").matches); }
+    // Điện thoại: khung chat Tiểu Long chiếm cả màn hình và luôn nằm gọn phía trên bàn phím
+    function initAiMobileLayout() {
+      const drawer = document.getElementById("aiTutorDrawer");
+      if (!drawer) return;
+      const small = () => window.matchMedia("(max-width: 640px)").matches;
+      const sync = () => {
+        const open = !drawer.classList.contains("hidden");
+        document.body.classList.toggle("ai-open", open && small());
+        if (open && small() && window.visualViewport) {
+          drawer.style.top = window.visualViewport.offsetTop + "px";
+          drawer.style.height = window.visualViewport.height + "px";
+          const msgs = document.getElementById("aiMessages");
+          if (msgs) msgs.scrollTop = msgs.scrollHeight;
+        } else {
+          drawer.style.top = "";
+          drawer.style.height = "";
+        }
+      };
+      new MutationObserver(sync).observe(drawer, { attributes: true, attributeFilter: ["class"] });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", sync);
+        window.visualViewport.addEventListener("scroll", sync);
+      }
+      window.addEventListener("resize", sync);
+    }
+
     let appBooted = false;
     // Nạp sẵn phông chữ Hán lúc máy rảnh, để lần đầu mở Từ vựng không bị khựng
     function warmUpHanziFonts() {
@@ -7212,7 +7239,8 @@
         aiState.open = true;
         document.getElementById("aiTutorDrawer").classList.remove("hidden");
         initAiWelcome();
-        setTimeout(() => document.getElementById("aiChatInput").focus(), 60);
+        // Điện thoại: không tự bật bàn phím ngay, để người học đọc lời chào trước
+        if (!isTouchDevice()) setTimeout(() => document.getElementById("aiChatInput").focus(), 60);
         if (window.lucide) lucide.createIcons();
       });
       document.getElementById("aiAutoReactToggle").addEventListener("change", (e) => {
@@ -7226,10 +7254,11 @@
         document.getElementById("aiTutorDrawer").classList.toggle("hidden", !aiState.open);
         if (aiState.open) {
           initAiWelcome();
-          setTimeout(() => document.getElementById("aiChatInput").focus(), 60);
+          if (!isTouchDevice()) setTimeout(() => document.getElementById("aiChatInput").focus(), 60);
           if (window.lucide) lucide.createIcons();
         }
       });
+      initAiMobileLayout();
       document.getElementById("aiCloseBtn").addEventListener("click", () => {
         aiState.open = false;
         document.getElementById("aiTutorDrawer").classList.add("hidden");

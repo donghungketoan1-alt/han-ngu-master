@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/the-nho/" />
-  <link rel="stylesheet" href="app.css?v=202611271131" />
-  <script src="icons.js?v=202611271131"></script>
+  <link rel="stylesheet" href="app.css?v=202611271151" />
+  <script src="icons.js?v=202611271151"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -441,6 +441,16 @@
       #aiTutorFab span { display: none; }
       #aiTutorDrawer { bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; max-height: calc(100dvh - 150px) !important; }
       #toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
+      /* iPhone tự phóng to trang khi bấm vào ô nhập có chữ nhỏ hơn 16px → giữ 16px để không bị lệch khung */
+      input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input:not([type]), textarea, select { font-size: 16px !important; }
+    }
+    /* Điện thoại: khung chat Tiểu Long chiếm cả màn hình, co theo bàn phím (JS đặt top/height theo visualViewport) */
+    @media (max-width: 640px) {
+      body.ai-open { overflow: hidden; }
+      body.ai-open #bottomNav, body.ai-open #aiTutorFab, body.ai-open #aiCompanionBubble { display: none !important; }
+      #aiTutorDrawer { left: 0 !important; right: 0 !important; top: 0; bottom: auto !important; width: 100% !important; height: 100dvh; max-height: none !important; border-radius: 0 !important; border: 0 !important; }
+      #aiTutorDrawer #aiMessages { max-height: none !important; min-height: 0 !important; }
+      #aiChatForm { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
     }
     /* Mobile polish */
     @media (max-width: 400px) {
@@ -2432,7 +2442,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271131"></script>
-  <script src="app.js?v=202611271131"></script>
+  <script src="data.js?v=202611271151"></script>
+  <script src="app.js?v=202611271151"></script>
 </body>
 </html>
