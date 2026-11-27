@@ -18,8 +18,8 @@
   <meta property="og:locale" content="vi_VN" />
   <meta property="og:title" content="Hán Ngữ Master · Học Tiếng Trung HSK 1–5" />
   <meta property="og:description" content="1.450 từ vựng, 125 bài đọc hiểu, 15 video bài giảng HSK 1–5 có Pinyin, Hán-Việt và phát âm bản xứ." />
-  <link rel="stylesheet" href="app.css?v=202611270939" />
-  <script src="icons.js?v=202611270939"></script>
+  <link rel="stylesheet" href="app.css?v=202611271002" />
+  <script src="icons.js?v=202611271002"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -232,6 +232,49 @@
     @media (max-width: 639px) { .skill-tile { flex-direction: column; gap: 8px !important; padding: 12px !important; } }
     .skill-tile { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 18px; background: #fff; border: 1px solid #e7e5e4; text-align: left; transition: border-color .15s, box-shadow .15s, transform .15s; }
     .skill-tile:hover { border-color: #d6d3d1; box-shadow: 0 8px 24px -12px rgba(28, 25, 23, .25); transform: translateY(-1px); }
+    /* Trang chủ: thẻ chọn trình độ (to, có hiệu ứng) */
+    .lvl-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .lvl-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } .lvl-card:last-child { grid-column: 1 / -1; } }
+    @media (min-width: 1024px) { .lvl-grid { grid-template-columns: repeat(6, 1fr); gap: 18px; } .lvl-card { grid-column: span 2; } .lvl-card:nth-child(n+4) { grid-column: span 3; } .lvl-card:last-child { grid-column: span 3; } }
+    .lvl-card { --c: #b9382c; position: relative; display: flex; flex-direction: column; border-radius: 22px; overflow: hidden; text-align: left; border: 1px solid #e7e5e4; box-shadow: 0 1px 2px rgba(28,25,23,.06); transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .25s; animation: lvlIn .7s cubic-bezier(.2,.8,.2,1) backwards; animation-delay: calc(var(--i, 0) * 80ms); will-change: transform; }
+    .lvl-card:hover { transform: translateY(-6px); box-shadow: 0 22px 44px -20px rgba(28,25,23,.45); border-color: color-mix(in srgb, var(--c) 45%, #e7e5e4); }
+    .lvl-card:active { transform: translateY(-2px) scale(.985); transition-duration: .12s; }
+    .lvl-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--c) 55%, transparent); outline-offset: 3px; }
+    .lvl-card.is-active { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent), 0 14px 30px -18px rgba(28,25,23,.4); }
+    .lvl-media { position: relative; height: 170px; overflow: hidden; }
+    @media (min-width: 1024px) { .lvl-media { height: 200px; } .lvl-card:nth-child(n+4) .lvl-media { height: 190px; } }
+    .lvl-media img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+    .lvl-card:hover .lvl-media img { transform: scale(1.09); }
+    .lvl-media::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(12,10,9,.82) 0%, rgba(12,10,9,.35) 45%, rgba(12,10,9,0) 75%); }
+    .lvl-media::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; z-index: 2; background: linear-gradient(100deg, transparent, rgba(255,255,255,.28), transparent); transform: skewX(-18deg); transition: left .9s ease; pointer-events: none; }
+    .lvl-card:hover .lvl-media::after { left: 120%; }
+    .lvl-num { position: absolute; z-index: 3; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.95); color: #1c1917; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px -4px rgba(0,0,0,.3); }
+    .lvl-num i { width: 8px; height: 8px; border-radius: 999px; background: var(--c); }
+    .lvl-count { position: absolute; z-index: 3; top: 12px; right: 12px; padding: 4px 9px; border-radius: 10px; background: rgba(12,10,9,.55); backdrop-filter: blur(4px); color: #fff; font-size: 11.5px; font-weight: 700; }
+    .lvl-title { position: absolute; z-index: 3; left: 16px; right: 16px; bottom: 12px; color: #fff; }
+    .lvl-title b { display: block; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+    .lvl-title span { display: block; font-size: 12.5px; opacity: .88; margin-top: 2px; }
+    .lvl-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .lvl-desc { font-size: 13px; line-height: 1.5; color: #57534e; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .lvl-bar { height: 8px; border-radius: 999px; background: #f5f5f4; overflow: hidden; }
+    .lvl-bar > i { display: block; height: 100%; border-radius: 999px; background: var(--c); transform-origin: left; animation: lvlBar 1.1s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 80ms + 350ms); }
+    .lvl-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: #78716c; }
+    .lvl-go { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 13px; color: var(--c); }
+    .lvl-go svg { width: 16px; height: 16px; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    .lvl-card:hover .lvl-go svg { transform: translateX(5px); }
+    .lvl-all { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px 18px; border-radius: 20px; text-align: left; border: 1px dashed #d6d3d1; transition: border-color .25s, transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; animation: lvlIn .7s cubic-bezier(.2,.8,.2,1) backwards; animation-delay: 450ms; }
+    .lvl-all:hover { border-color: #b9382c; border-style: solid; transform: translateY(-3px); box-shadow: 0 16px 32px -20px rgba(28,25,23,.45); }
+    .lvl-all.is-active { border: 2px solid #b9382c; }
+    .lvl-all:hover .lvl-go svg { transform: translateX(5px); }
+    @keyframes lvlIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes lvlBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    /* Chuyển trang mượt */
+    .view-in { animation: viewIn .45s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    body.dark-mode .lvl-card, body.dark-mode .lvl-all { border-color: rgba(255,255,255,.12); }
+    body.dark-mode .lvl-desc { color: #d6d3d1; }
+    body.dark-mode .lvl-bar { background: rgba(255,255,255,.1); }
+    @media (prefers-reduced-motion: reduce) { .lvl-card, .lvl-all, .lvl-bar > i, .view-in { animation: none !important; } .lvl-card, .lvl-media img, .lvl-media::after { transition: none !important; } }
     .skill-ico { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .lvl-pill { padding: 5px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; border: 1px solid #e7e5e4; background: #fff; color: #57534e; white-space: nowrap; }
     .lvl-pill:hover { border-color: #b9382c; color: #b9382c; }
@@ -441,28 +484,73 @@
 
     <!-- HSK 1-5 Visual Level Strip (Visible in Vocab & Sentences views) -->
     <section id="hskBannerSection">
-      <div class="flex flex-wrap items-end justify-between gap-3 mb-3">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-stone-900"><span class="inline-flex w-6 h-6 mr-1.5 rounded-full bg-stone-900 text-white text-xs items-center justify-center align-[2px]">1</span>Chọn trình độ</h2>
-          <p class="text-xs sm:text-sm text-stone-500 mt-0.5">1.450 từ vựng · 125 bài đọc hiểu · 15 video, có Pinyin, Hán-Việt và phát âm.</p>
-        </div>
-        <button id="selectAllHskBtn" class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold border transition">
-          Tất cả HSK 1–5
-        </button>
+      <div class="mb-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Chọn trình độ để bắt đầu</h2>
+        <p class="text-sm text-stone-500 mt-1">1.450 từ vựng · 125 bài đọc hiểu · 15 video, có Pinyin, Hán-Việt và phát âm.</p>
       </div>
 
-      <!-- 5 Visual HSK Level Cards -->
-      <div id="hskLevelCards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <!-- 5 thẻ trình độ HSK (vẽ bằng JS) -->
+      <div id="hskLevelCards" class="lvl-grid">
         <!-- Rendered by JS -->
       </div>
+
+      <!-- Học tổng hợp cả 5 cấp -->
+      <button type="button" id="selectAllHskBtn" class="lvl-all bg-white mt-4">
+        <span class="skill-ico" style="background:#b9382c14;color:#b9382c"><i data-lucide="layers" class="w-5 h-5"></i></span>
+        <span class="min-w-0 flex-1">
+          <span class="block font-bold text-stone-900 text-base sm:text-lg">Tổng hợp HSK 1–5</span>
+          <span id="lvlAllMeta" class="block text-xs sm:text-sm text-stone-500 mt-0.5">Học trộn tất cả các cấp</span>
+        </span>
+        <span class="lvl-go" style="--c:#b9382c"><span class="hidden sm:inline">Bắt đầu</span><i data-lucide="chevron-right"></i></span>
+      </button>
     </section>
 
+    </section>
+
+    <!-- VIEW: CHỌN KỸ NĂNG (sau khi chọn trình độ ở trang chủ) -->
+    <section id="view-skills" class="hidden space-y-6">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-[#b9382c]">Bước 2</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mt-0.5">Chọn kỹ năng · <span id="homeSkillLevel" class="text-[#b9382c]">HSK 1–5</span></h1>
+          <p id="skillsSub" class="text-sm text-stone-600 mt-1"></p>
+        </div>
+        <button type="button" id="skillsBackBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-xs sm:text-sm font-semibold transition"><i data-lucide="chevron-left" class="w-4 h-4"></i>Đổi trình độ</button>
+      </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
-          <h2 class="text-base sm:text-lg font-bold text-stone-900 mb-3"><span class="inline-flex w-6 h-6 mr-1.5 rounded-full bg-stone-900 text-white text-xs items-center justify-center align-[2px]">2</span>Chọn kỹ năng · <span id="homeSkillLevel" class="text-[#b9382c]">HSK 1–5</span></h2>
+          
           <div id="homeSkills" class="grid grid-cols-2 gap-2.5 sm:gap-3"></div>
         </div>
         <aside class="space-y-3">
+          <!-- Từ của ngày -->
+          <div id="wotdCard" class="rounded-2xl bg-white border border-stone-200 p-4">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h2 class="font-bold text-stone-900 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-[#b9382c]"></i>Từ của ngày</h2>
+              <span id="wotdBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold border">HSK 1</span>
+            </div>
+            <div class="flex items-end gap-3">
+              <div id="wotdHanzi" class="font-hanzi text-4xl font-bold text-stone-900 leading-none"></div>
+              <div class="min-w-0 pb-1">
+                <div id="wotdPinyin" class="text-sm font-semibold text-[#b9382c]"></div>
+                <div id="wotdHv" class="text-[11px] text-stone-500"></div>
+              </div>
+            </div>
+            <div id="wotdMeaning" class="text-sm font-semibold text-stone-800 mt-2"></div>
+            <div class="mt-2 rounded-xl bg-stone-50 px-3 py-2">
+              <div id="wotdEx" class="font-hanzi-sans text-sm text-stone-800 leading-snug"></div>
+              <div id="wotdExVi" class="text-[11px] text-stone-500 mt-0.5 leading-snug"></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button type="button" id="wotdListenBtn" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-xs font-bold transition"><i data-lucide="volume-2" class="w-4 h-4"></i>Nghe</button>
+              <button type="button" id="wotdOpenBtn" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-xs font-semibold transition">Xem chi tiết</button>
+            </div>
+          </div>
+          <!-- Tiến độ theo cấp -->
+          <div class="rounded-2xl bg-white border border-stone-200 p-4">
+            <h2 class="font-bold text-stone-900 flex items-center gap-2 mb-3"><i data-lucide="target" class="w-4 h-4 text-[#1f6f5b]"></i>Tiến độ theo cấp</h2>
+            <div id="homeProgress" class="space-y-2"></div>
+          </div>
           <div class="rounded-2xl bg-white border border-stone-200 p-4">
             <div class="flex items-center justify-between gap-2 mb-3">
               <h2 class="font-bold text-stone-900 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-[#c8963e]"></i>Bảng xếp hạng</h2>
@@ -2181,7 +2269,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611270939"></script>
+  <script src="data.js?v=202611271002"></script>
   <script>
     // =========================================================
     // 1. HSK LEVEL METADATA & ILLUSTRATION IMAGES (BASE64 INLINED)
@@ -2584,35 +2672,40 @@
       const container = document.getElementById("hskLevelCards");
       const allBtn = document.getElementById("selectAllHskBtn");
       const isAll = state.selectedHsk === "all";
-      allBtn.className = isAll
-        ? "px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold border bg-[#b9382c] text-white border-[#b9382c] shadow-sm transition"
-        : "px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold border bg-white text-stone-700 border-stone-200 hover:border-[#b9382c] transition";
+      allBtn.classList.toggle("is-active", isAll);
+      const allMeta = document.getElementById("lvlAllMeta");
+      if (allMeta) {
+        const done = VOCAB.filter(w => state.mastered.has(w.id)).length;
+        allMeta.textContent = `Học trộn cả 5 cấp · ${VOCAB.length.toLocaleString("vi-VN")} từ · đã thuộc ${done}`;
+      }
 
-      container.innerHTML = [1, 2, 3, 4, 5].map(lvl => {
+      const LVL_COLORS = { 1: "#1f6f5b", 2: "#2563eb", 3: "#c8963e", 4: "#b9382c", 5: "#7c3aed" };
+      container.innerHTML = [1, 2, 3, 4, 5].map((lvl, i) => {
         const meta = HSK_LEVELS[lvl];
         const wordsInLvl = VOCAB.filter(w => w.hsk === lvl);
         const masteredInLvl = wordsInLvl.filter(w => state.mastered.has(w.id)).length;
         const pct = Math.round((masteredInLvl / wordsInLvl.length) * 100);
+        const reads = LONG_SENTENCES.filter(p => p.hsk === lvl).length;
         const active = Number(state.selectedHsk) === lvl;
+        // Ảnh to cho máy tính, ảnh nhỏ cho điện thoại
+        const imgAttr = meta.thumb
+          ? `src="${meta.thumb}" srcset="${meta.thumb} 360w, ${meta.img} 720w" sizes="(min-width: 640px) 50vw, 100vw"`
+          : `src="${meta.img}"`;
         return `
-          <button data-hsk-card="${lvl}" class="group relative rounded-2xl overflow-hidden text-left border-2 transition-all bg-white shadow-sm hover:shadow-md ${active ? 'border-[#b9382c] ring-2 ring-[#b9382c]/20' : 'border-stone-200/90 hover:border-stone-300'}">
-            <div class="h-24 sm:h-28 w-full relative overflow-hidden">
-              <img src="${meta.thumb || meta.img}" alt="${meta.name}" width="360" height="201" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/95 text-stone-900 shadow-xs">HSK ${lvl}</span>
-              <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-black/55 text-white">${wordsInLvl.length} từ</span>
-              <div class="absolute bottom-2 left-2.5 right-2.5 text-white">
-                <div class="font-bold text-xs sm:text-sm leading-tight truncate">${meta.short}</div>
-              </div>
+          <button type="button" data-hsk-card="${lvl}" class="lvl-card bg-white ${active ? "is-active" : ""}" style="--c:${LVL_COLORS[lvl]};--i:${i}">
+            <div class="lvl-media">
+              <img ${imgAttr} alt="${meta.name}" width="720" height="402" decoding="async" />
+              <span class="lvl-num"><i></i>HSK ${lvl}</span>
+              <span class="lvl-count">${wordsInLvl.length} từ · ${reads} bài đọc</span>
+              <div class="lvl-title"><b>${meta.short}</b><span>${meta.name}</span></div>
             </div>
-            <div class="p-2.5 space-y-1.5">
-              <div class="flex items-center justify-between text-[11px]">
-                <span class="text-stone-500 font-medium">Đã thuộc</span>
-                <span class="font-bold ${pct === 100 ? 'text-emerald-700' : 'text-stone-800'}">${masteredInLvl}/${wordsInLvl.length}</span>
+            <div class="lvl-body">
+              <p class="lvl-desc">${meta.desc || ""}</p>
+              <div>
+                <div class="lvl-foot mb-1.5"><span>Đã thuộc <b class="text-stone-800">${masteredInLvl}/${wordsInLvl.length}</b></span><span>${pct}%</span></div>
+                <div class="lvl-bar"><i style="width:${Math.max(pct, masteredInLvl ? 2 : 0)}%"></i></div>
               </div>
-              <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#1f6f5b] transition-all duration-300" style="width:${pct}%"></div>
-              </div>
+              <div class="lvl-foot"><span>${active ? "Đang học" : "Bấm để chọn kỹ năng"}</span><span class="lvl-go">Bắt đầu<i data-lucide="chevron-right"></i></span></div>
             </div>
           </button>
         `;
@@ -2622,11 +2715,11 @@
         btn.addEventListener("click", () => {
           const lvl = Number(btn.getAttribute("data-hsk-card"));
           setLevel(lvl);
-          // Điện thoại: cuộn xuống phần chọn kỹ năng
-          const skills = document.getElementById("homeSkills");
-          if (skills && window.innerWidth < 1024) skills.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Chọn trình độ xong → sang trang chọn kỹ năng
+          if (state.activeTab === "home") switchTab("skills");
         });
       });
+      if (window.lucide) lucide.createIcons();
     }
 
     function renderActiveLevelHero() {
@@ -6704,7 +6797,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -7362,10 +7455,10 @@
     }
 
     // ---------- Trang chủ · đường dẫn · chọn trình độ dùng chung ----------
-    const ALL_TABS = ["home", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak"];
+    const ALL_TABS = ["home", "skills", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak"];
     const PRACTICE_TABS = ["dictation", "speak", "flashcards", "quiz", "games"];
-    const LEVEL_TABS = ["vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
-    const TAB_LABELS = { home: "Trang chủ", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng" };
+    const LEVEL_TABS = ["skills", "vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
+    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng" };
     const LEVEL_KEY = "han_ngu_level_v1";
 
     function levelLabel(lvl) { return lvl === "all" ? "HSK 1–5" : `HSK ${lvl}`; }
@@ -7415,6 +7508,7 @@
       if (state.activeTab === "dictation" && typeof dcRender === "function") dcRender();
       renderCrumb(state.activeTab);
       if (state.activeTab === "home") renderHome();
+      if (state.activeTab === "skills") renderSkillsPage();
       try { scheduleCloudSync(); } catch (e) {}
     }
 
@@ -7453,16 +7547,69 @@
       if (tab === "dictation" && typeof dcStats === "function") { const s = dcStats(); return s.done ? `Đã chép ${s.done} câu` : "Bắt đầu câu đầu tiên"; }
       if (tab === "flashcards") return `${inLvl(VOCAB).length} thẻ`;
       if (tab === "videos") return `${lvl === "all" ? 15 : 3} video`;
+      if (tab === "speak") { const d = (typeof dailyState === "function" && dailyState().spoken) || 0; return d ? `Hôm nay đọc đúng ${d} từ` : (spk.best ? `Kỷ lục ${spk.best} từ liên tiếp` : "Thử đọc từ đầu tiên"); }
+      if (tab === "quiz") return "Chấm điểm ngay sau khi nộp";
+      if (tab === "games") return "Vừa chơi vừa nhớ từ";
+      if (tab === "extras") return "Tập viết, ngữ pháp, truyện";
       return "";
+    }
+
+    // Từ của ngày: mỗi ngày một từ cố định theo cấp đang chọn
+    let wotdId = null;
+    function renderWordOfDay(lvl) {
+      const pool = VOCAB.filter(v => lvl === "all" || v.hsk === Number(lvl));
+      if (!pool.length) return;
+      const d = new Date();
+      const seed = d.getFullYear() * 400 + (d.getMonth() + 1) * 32 + d.getDate();
+      const w = pool[(seed * 7919) % pool.length];
+      wotdId = w.id;
+      const badge = document.getElementById("wotdBadge");
+      badge.className = `px-2 py-0.5 rounded-full text-[11px] font-bold border hsk-badge-${w.hsk}`;
+      badge.textContent = `HSK ${w.hsk}`;
+      document.getElementById("wotdHanzi").textContent = w.hanzi;
+      document.getElementById("wotdPinyin").textContent = w.pinyin;
+      document.getElementById("wotdHv").textContent = `Hán-Việt: ${w.hanviet} · ${w.pos}`;
+      document.getElementById("wotdMeaning").textContent = w.meaning;
+      document.getElementById("wotdEx").textContent = w.exCn;
+      document.getElementById("wotdExVi").textContent = w.exVi;
+    }
+
+    // Tiến độ theo cấp: thanh % đã thuộc cho HSK 1–5
+    function renderHomeProgress() {
+      const box = document.getElementById("homeProgress");
+      if (!box) return;
+      const colors = ["#1f6f5b", "#2563eb", "#c8963e", "#b9382c", "#7c3aed"];
+      box.innerHTML = [1, 2, 3, 4, 5].map((l, i) => {
+        const all = VOCAB.filter(v => v.hsk === l);
+        const done = all.filter(v => state.mastered.has(v.id)).length;
+        const pct = all.length ? Math.round(done / all.length * 100) : 0;
+        return `<button type="button" data-home-level="${l}" class="w-full text-left group">
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-stone-700">HSK ${l}</span>
+            <span class="text-stone-500">${done}/${all.length} · ${pct}%</span>
+          </div>
+          <div class="h-2 rounded-full bg-stone-100 overflow-hidden"><div class="h-full rounded-full" style="width:${Math.max(pct, done ? 2 : 0)}%;background:${colors[i]}"></div></div>
+        </button>`;
+      }).join("");
     }
     function renderHome() {
       const lvl = String(state.selectedHsk);
       const name = authState && authState.user ? (authState.user.displayName || authState.user.username) : "";
       document.getElementById("homeHello").textContent = name ? `Xin chào, ${name}!` : "Xin chào!";
+    }
+
+    // Trang chọn kỹ năng (bước 2): ô kỹ năng + từ của ngày + tiến độ + bảng xếp hạng
+    function renderSkillsPage() {
+      const lvl = String(state.selectedHsk);
       document.getElementById("homeSkillLevel").textContent = levelLabel(state.selectedHsk);
-      document.getElementById("homeSkills").innerHTML = HOME_SKILLS.map(s => {
+      const words = VOCAB.filter(v => lvl === "all" || v.hsk === Number(lvl)).length;
+      const reads = LONG_SENTENCES.filter(p => lvl === "all" || p.hsk === Number(lvl)).length;
+      const topic = lvl !== "all" && typeof HSK_LEVELS !== "undefined" && HSK_LEVELS[Number(lvl)] ? (HSK_LEVELS[Number(lvl)].short || "") : "";
+      document.getElementById("skillsSub").textContent = `${topic ? topic + " · " : ""}${words.toLocaleString("vi-VN")} từ vựng · ${reads} bài đọc. Chọn kỹ năng muốn luyện.`;
+      document.getElementById("homeSkills").innerHTML = HOME_SKILLS.map((s, i) => {
         const meta = homeSkillMeta(s.tab, lvl);
-        return `<button type="button" data-home-skill="${s.tab}" class="skill-tile">
+        const wide = HOME_SKILLS.length % 2 === 1 && i === HOME_SKILLS.length - 1; // ô lẻ cuối: trải hết hàng
+        return `<button type="button" data-home-skill="${s.tab}" class="skill-tile"${wide ? ' style="grid-column: 1 / -1"' : ""}>
           <span class="skill-ico" style="background:${s.color}14;color:${s.color}"><i data-lucide="${s.icon}" class="w-5 h-5"></i></span>
           <span class="min-w-0 flex-1">
             <span class="block font-bold text-stone-900">${s.title}</span>
@@ -7472,6 +7619,8 @@
           <i data-lucide="chevron-right" class="hidden sm:block w-4 h-4 text-stone-300 self-center shrink-0"></i>
         </button>`;
       }).join("");
+      renderWordOfDay(lvl);
+      renderHomeProgress();
       if (window.lucide) lucide.createIcons();
       loadLeaderboard(false);
     }
@@ -7528,15 +7677,19 @@
         const v = document.getElementById(`view-${t}`);
         if (v) v.classList.toggle("hidden", t !== tab);
       });
+      // Hiệu ứng hiện trang mới (chạy lại mỗi lần đổi mục)
+      const shown = document.getElementById(`view-${tab}`);
+      if (shown && prevTab && prevTab !== tab) { shown.classList.remove("view-in"); void shown.offsetWidth; shown.classList.add("view-in"); }
 
+      const navTab = tab === "skills" ? "home" : tab; // trang chọn kỹ năng thuộc nhóm Trang chủ
       document.querySelectorAll(".nav-tab").forEach(btn => {
-        const active = btn.dataset.group === "practice" ? PRACTICE_TABS.includes(tab) : btn.dataset.tab === tab;
+        const active = btn.dataset.group === "practice" ? PRACTICE_TABS.includes(navTab) : btn.dataset.tab === navTab;
         btn.classList.toggle("is-active", active);
       });
-      document.querySelectorAll(".nav-drop-item, .nav-tab-mobile").forEach(btn => btn.classList.toggle("is-active", btn.dataset.tab === tab));
+      document.querySelectorAll(".nav-drop-item, .nav-tab-mobile").forEach(btn => btn.classList.toggle("is-active", btn.dataset.tab === navTab));
       const bottomTabs = Array.from(document.querySelectorAll("#bottomNav [data-tab]")).map(b => b.dataset.tab);
       document.querySelectorAll(".bnav-item").forEach(btn => {
-        btn.classList.toggle("is-active", btn.id === "bottomMoreBtn" ? !bottomTabs.includes(tab) : btn.dataset.tab === tab);
+        btn.classList.toggle("is-active", btn.id === "bottomMoreBtn" ? !bottomTabs.includes(navTab) : btn.dataset.tab === navTab);
       });
       closeMobileNav();
       closePracticeMenu();
@@ -7544,6 +7697,7 @@
       renderCrumb(tab);
 
       if (tab === "home") renderHome();
+      if (tab === "skills") renderSkillsPage();
       if (tab === "dictation" && typeof dcRender === "function") dcRender();
       if (tab === "sentences") renderLongSentences();
       if (tab === "videos") renderVideos();
@@ -7610,13 +7764,23 @@
       });
 
       // HSK All Button
-      document.getElementById("selectAllHskBtn").addEventListener("click", () => setLevel("all"));
+      document.getElementById("selectAllHskBtn").addEventListener("click", () => { setLevel("all"); switchTab("skills"); });
+      document.getElementById("skillsBackBtn").addEventListener("click", () => switchTab("home"));
 
       // Trang chủ · đường dẫn · menu Luyện tập · thanh dưới điện thoại
       document.getElementById("homeSkills").addEventListener("click", e => {
         const b = e.target.closest("[data-home-skill]");
         if (b) switchTab(b.dataset.homeSkill);
       });
+      document.getElementById("homeProgress").addEventListener("click", e => {
+        const b = e.target.closest("[data-home-level]");
+        if (b) setLevel(b.dataset.homeLevel);
+      });
+      document.getElementById("wotdListenBtn").addEventListener("click", e => {
+        const w = VOCAB.find(x => x.id === wotdId);
+        if (w) speakChinese(w.hanzi, e.currentTarget);
+      });
+      document.getElementById("wotdOpenBtn").addEventListener("click", () => { if (wotdId) openWordModal(wotdId); });
       document.getElementById("crumbBar").addEventListener("click", e => {
         if (e.target.closest("[data-crumb-home]")) { switchTab("home"); return; }
         const l = e.target.closest("[data-crumb-level]");
