@@ -6,7 +6,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <link rel="icon" type="image/jpeg" href="img/logo.jpg" />
   <title>Hán Ngữ Master · Học Tiếng Trung HSK 1–5</title>
-  <meta name="description" content="Học tiếng Trung HSK 1–5 miễn phí: 1.200 từ vựng trọng tâm, 125 bài câu dài & đọc hiểu, 15 video bài giảng, thẻ nhớ, game và đề kiểm tra — có Pinyin, Hán-Việt và phát âm bản xứ." />
+  <meta name="description" content="Học tiếng Trung HSK 1–5 miễn phí: 1.450 từ vựng trọng tâm, 125 bài câu dài & đọc hiểu, 15 video bài giảng, thẻ nhớ, game và đề kiểm tra — có Pinyin, Hán-Việt và phát âm bản xứ." />
   <meta name="keywords" content="học tiếng Trung, HSK 1, HSK 2, HSK 3, HSK 4, HSK 5, từ vựng HSK, Pinyin, Hán Việt, luyện thi HSK" />
   <meta name="theme-color" content="#b9382c" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -17,9 +17,9 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="vi_VN" />
   <meta property="og:title" content="Hán Ngữ Master · Học Tiếng Trung HSK 1–5" />
-  <meta property="og:description" content="1.200 từ vựng, 125 bài đọc hiểu, 15 video bài giảng HSK 1–5 có Pinyin, Hán-Việt và phát âm bản xứ." />
-  <link rel="stylesheet" href="app.css?v=202611270829" />
-  <script src="icons.js?v=202611270829"></script>
+  <meta property="og:description" content="1.450 từ vựng, 125 bài đọc hiểu, 15 video bài giảng HSK 1–5 có Pinyin, Hán-Việt và phát âm bản xứ." />
+  <link rel="stylesheet" href="app.css?v=202611270939" />
+  <script src="icons.js?v=202611270939"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -333,7 +333,7 @@
         </div>
         <div id="masteryPill" class="hidden sm:flex lg:hidden xl:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2.5 py-1 rounded-lg text-xs font-semibold">
           <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600"></i>
-          <span id="masteryCountText">0/1200</span>
+          <span id="masteryCountText">0/1450</span>
         </div>
         <button id="accountBtn" type="button" class="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 hover:text-[#b9382c] text-xs font-semibold shadow-xs transition" title="Tài khoản">
           <span id="accountAvatar" class="hidden w-6 h-6 -ml-1 rounded-full bg-[#b9382c] text-white text-[11px] font-bold items-center justify-center"></span>
@@ -444,7 +444,7 @@
       <div class="flex flex-wrap items-end justify-between gap-3 mb-3">
         <div>
           <h2 class="text-base sm:text-lg font-bold text-stone-900"><span class="inline-flex w-6 h-6 mr-1.5 rounded-full bg-stone-900 text-white text-xs items-center justify-center align-[2px]">1</span>Chọn trình độ</h2>
-          <p class="text-xs sm:text-sm text-stone-500 mt-0.5">1.200 từ vựng · 125 bài đọc hiểu · 15 video, có Pinyin, Hán-Việt và phát âm.</p>
+          <p class="text-xs sm:text-sm text-stone-500 mt-0.5">1.450 từ vựng · 125 bài đọc hiểu · 15 video, có Pinyin, Hán-Việt và phát âm.</p>
         </div>
         <button id="selectAllHskBtn" class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold border transition">
           Tất cả HSK 1–5
@@ -528,13 +528,16 @@
             <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Luyện nói</h2>
             <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Đọc to từ hiện trên màn hình. Phát âm đúng là tự sang từ mới!</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center justify-end gap-2">
             <select id="spkLevel" class="text-xs sm:text-sm font-semibold bg-white border border-stone-200 rounded-xl px-2.5 py-2 focus:outline-none focus:border-[#b9382c]">
               <option value="all">HSK 1–5</option>
               <option value="1">HSK 1</option><option value="2">HSK 2</option><option value="3">HSK 3</option><option value="4">HSK 4</option><option value="5">HSK 5</option>
             </select>
             <label class="flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-200 rounded-xl px-2.5 py-2 cursor-pointer">
               <input id="spkPinyinToggle" type="checkbox" checked class="accent-[#b9382c]" />Pinyin
+            </label>
+            <label class="flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-200 rounded-xl px-2.5 py-2 cursor-pointer whitespace-nowrap" title="Đọc đúng thì tự sang từ mới và tự bật micro">
+              <input id="spkAutoToggle" type="checkbox" class="accent-[#b9382c]" />Tự nghe từ tiếp
             </label>
           </div>
         </div>
@@ -1261,7 +1264,7 @@
           <div>
             <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1.5">Cấp độ HSK</label>
             <select id="quizHskSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm bg-white font-medium">
-              <option value="all">Tổng hợp HSK 1–5 (1.200 từ)</option>
+              <option value="all">Tổng hợp HSK 1–5 (1.450 từ)</option>
               <option value="1">HSK 1 · Cơ bản</option>
               <option value="2">HSK 2 · Sơ trung cấp</option>
               <option value="3">HSK 3 · Trung cấp</option>
@@ -1959,7 +1962,7 @@
       </div>
       <div id="globalSearchResults" class="p-4 overflow-y-auto space-y-4 text-sm">
         <div class="text-center py-8 text-stone-400 text-xs sm:text-sm">
-          Nhập từ khóa để tra cứu ngay trong 1.200 từ vựng, 125 bài câu dài, ngữ pháp, truyện thành ngữ và sổ từ cá nhân.
+          Nhập từ khóa để tra cứu ngay trong 1.450 từ vựng, 125 bài câu dài, ngữ pháp, truyện thành ngữ và sổ từ cá nhân.
         </div>
       </div>
     </div>
@@ -2178,7 +2181,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611270829"></script>
+  <script src="data.js?v=202611270939"></script>
   <script>
     // =========================================================
     // 1. HSK LEVEL METADATA & ILLUSTRATION IMAGES (BASE64 INLINED)
@@ -2429,7 +2432,7 @@
     }
 
     const BADGE_CATALOG = [
-      { id: "first_word", icon: "🐣", name: "Tân Binh Khởi Hành", type: "win", desc: "Đánh dấu thuộc từ vựng đầu tiên", check: () => state.mastered.size >= 1, toast: "Khởi đầu thuận lợi! Bước đầu tiên trên con đường chinh phục 1.200 từ HSK!" },
+      { id: "first_word", icon: "🐣", name: "Tân Binh Khởi Hành", type: "win", desc: "Đánh dấu thuộc từ vựng đầu tiên", check: () => state.mastered.size >= 1, toast: "Khởi đầu thuận lợi! Bước đầu tiên trên con đường chinh phục 1.450 từ HSK!" },
       { id: "vocab_10", icon: "📚", name: "Thợ Săn 10 Từ", type: "win", desc: "Thuộc từ 10 từ vựng HSK trở lên", check: () => state.mastered.size >= 10, toast: "10 từ đã vô túi! Tốc độ nạp chữ của sư huynh quá ổn áp!" },
       { id: "vocab_50", icon: "🐉", name: "Học Bá 50 Từ", type: "win", desc: "Thuộc từ 50 từ vựng HSK trở lên", check: () => state.mastered.size >= 50, toast: "50 từ rồi! Tiểu Long chính thức phong danh hiệu Học Bá!" },
       { id: "vocab_200", icon: "👑", name: "Huyền Thoại 200 Từ", type: "win", desc: "Thuộc từ 200 từ vựng HSK trở lên", check: () => state.mastered.size >= 200, toast: "200 từ vựng! Quá khủng khiếp, xứng danh Huyền Thoại Hán Ngữ!" },
@@ -5925,7 +5928,7 @@
           const w = hits[0];
           return { html: `“${escAi(shown)}” tiếng Trung là <span class="font-hanzi text-xl font-bold text-[#b9382c]">${w.hanzi}</span> (${w.pinyin}, Hán-Việt: ${w.hanviet}) — từ HSK ${w.hsk} đó!<div class="text-xs text-stone-600 mt-1">Ví dụ: ${w.exCn}<br/><em>${w.exVi}</em></div>${hits.length > 1 ? `<div class="text-xs mt-1">Ngoài ra còn: ${hits.slice(1).map(h => `<strong>${h.hanzi}</strong> (${h.meaning})`).join(", ")}</div>` : ""}<div class="text-xs mt-1">Thử đặt một câu với ${w.hanzi} xem, em chấm cho!</div>`, speak: w.hanzi };
         }
-        return { html: `Từ “${escAi(shown)}” không nằm trong 1.200 từ HSK 1–5 của em rồi 😅 Anh thử hỏi cách khác, hoặc nhờ thầy/cô bật chế độ AI trực tuyến để em dịch được mọi thứ nha!`, speak: "" };
+        return { html: `Từ “${escAi(shown)}” không nằm trong 1.450 từ HSK 1–5 của em rồi 😅 Anh thử hỏi cách khác, hoặc nhờ thầy/cô bật chế độ AI trực tuyến để em dịch được mọi thứ nha!`, speak: "" };
       }
 
       // 4. Chào hỏi
@@ -5937,12 +5940,12 @@
 
       // 5. Hỏi thăm
       if (has(/(khoe khong|the nao roi|on khong|dang lam gi|lam gi do)/) || /(你好吗|怎么样|在干什么|在做什么)/.test(raw)) {
-        return { html: `Em khỏe re, đang ngồi canh 1.200 từ HSK cho ${aiName()} nè 😆 Tiếng Trung đáp là <span class="font-hanzi-sans font-bold">我很好，谢谢！你呢？</span> (Wǒ hěn hǎo, xièxie! Nǐ ne?). Còn ${aiName()} hôm nay sao rồi?`, speak: "我很好，谢谢！你呢？" };
+        return { html: `Em khỏe re, đang ngồi canh 1.450 từ HSK cho ${aiName()} nè 😆 Tiếng Trung đáp là <span class="font-hanzi-sans font-bold">我很好，谢谢！你呢？</span> (Wǒ hěn hǎo, xièxie! Nǐ ne?). Còn ${aiName()} hôm nay sao rồi?`, speak: "我很好，谢谢！你呢？" };
       }
 
       // 6. Hỏi về Tiểu Long
       if (has(/(ban la ai|em la ai|may la ai|ten gi|ban ten|em ten|ai tao ra|la robot|la nguoi)/) || /你是谁|你叫什么/.test(raw)) {
-        return { html: `Em là <strong>Tiểu Long</strong> 🐉 — chú rồng nhỏ sống trong web Hán Ngữ Master, chuyên cùng mọi người học HSK 1–5. Em biết 1.200 từ vựng, ngữ pháp, các cặp từ dễ nhầm, còn biết đố vui và luyện nói nữa! ${aiName() === "anh" ? "Còn anh tên gì nè?" : "Mình học tiếp nha " + aiName() + "?"}`, speak: "我叫小龙。" };
+        return { html: `Em là <strong>Tiểu Long</strong> 🐉 — chú rồng nhỏ sống trong web Hán Ngữ Master, chuyên cùng mọi người học HSK 1–5. Em biết 1.450 từ vựng, ngữ pháp, các cặp từ dễ nhầm, còn biết đố vui và luyện nói nữa! ${aiName() === "anh" ? "Còn anh tên gì nè?" : "Mình học tiếp nha " + aiName() + "?"}`, speak: "我叫小龙。" };
       }
 
       // 7. Cảm ơn / khen
@@ -6190,7 +6193,7 @@
 
       // Default helpful response
       return {
-        html: `<div>Ui cha, từ “<strong>${raw}</strong>” này lạ quá, Tiểu Long lục tung cả 1.200 từ HSK mà chưa thấy dấu vết đâu cả 😅!</div>
+        html: `<div>Ui cha, từ “<strong>${raw}</strong>” này lạ quá, Tiểu Long lục tung cả 1.450 từ HSK mà chưa thấy dấu vết đâu cả 😅!</div>
           <div class="text-xs text-stone-600">Anh có thể thử gõ trực tiếp một từ tiếng Trung/Việt (vd: <strong>坚持</strong>, <strong>效率</strong>, <strong>du lịch</strong>), hỏi <strong>phân biệt từ dễ nhầm</strong>, hoặc bấm biểu tượng ⚙️ phía trên để gắn <strong>Gemini API Key</strong> nếu muốn hỏi đáp tự do mọi câu hỏi nâng cao nhé!</div>`,
         speak: ""
       };
@@ -6765,7 +6768,12 @@
     function hanziOnly(s) { return (String(s).match(/[一-鿿]/g) || []).join(""); }
     function plainPinyin(s) { return stripTone(String(s)).replace(/[^a-z]/g, ""); }
 
-    function listenChinese(maxMs = 7000) {
+    // Đổi số máy nghe ra (1, 2, 10…) thành chữ Hán để chấm đúng
+    function normalizeHeard(s) {
+      const d = "零一二三四五六七八九";
+      return String(s || "").replace(/\d/g, x => d[Number(x)]).trim();
+    }
+    function listenChinese(maxMs = 7000, target = "") {
       return new Promise((resolve, reject) => {
         if (!SpeechRec) { reject(new Error("unsupported")); return; }
         try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
@@ -6773,7 +6781,8 @@
         const rec = new SpeechRec();
         activeRec = rec;
         rec.lang = "zh-CN";
-        rec.interimResults = false;
+        // Nhận cả kết quả tạm thời: nhiều phương án hơn để chấm, và dừng sớm khi đã nghe đúng
+        rec.interimResults = true;
         rec.continuous = false;
         rec.maxAlternatives = 5;
         const heard = [];
@@ -6786,7 +6795,11 @@
         };
         rec.onresult = e => {
           for (let i = 0; i < e.results.length; i++)
-            for (let j = 0; j < e.results[i].length; j++) heard.push(e.results[i][j].transcript);
+            for (let j = 0; j < e.results[i].length; j++) {
+              const tr = normalizeHeard(e.results[i][j].transcript);
+              if (tr && !heard.includes(tr)) heard.push(tr);
+            }
+          if (target && heard.some(h => scorePronunciation(target, [h]).score >= 100)) { try { rec.stop(); } catch (er) {} }
         };
         rec.onerror = e => finish(new Error(e.error || "error"));
         rec.onend = () => finish(null);
@@ -6795,7 +6808,101 @@
       });
     }
 
-    // So khớp chữ Hán (LCS) → điểm + đánh dấu từng chữ đúng/sai
+    // ---------- Bảng chữ Hán → cách đọc (âm + thanh), lấy từ dữ liệu từ vựng và bài đọc ----------
+    const PY_SYLLABLES = new Set(("a ai an ang ao ba bai ban bang bao bei ben beng bi bian biao bie bin bing bo bu " +
+      "pa pai pan pang pao pei pen peng pi pian piao pie pin ping po pou pu ma mai man mang mao me mei men meng mi mian miao mie min ming miu mo mou mu " +
+      "fa fan fang fei fen feng fo fou fu da dai dan dang dao de dei den deng di dia dian diao die ding diu dong dou du duan dui dun duo " +
+      "ta tai tan tang tao te tei teng ti tian tiao tie ting tong tou tu tuan tui tun tuo na nai nan nang nao ne nei nen neng ni nian niang niao nie nin ning niu nong nou nu nuan nuo nue " +
+      "la lai lan lang lao le lei leng li lia lian liang liao lie lin ling liu lo long lou lu luan lun luo lue ga gai gan gang gao ge gei gen geng gong gou gu gua guai guan guang gui gun guo " +
+      "ka kai kan kang kao ke kei ken keng kong kou ku kua kuai kuan kuang kui kun kuo ha hai han hang hao he hei hen heng hong hou hu hua huai huan huang hui hun huo " +
+      "ji jia jian jiang jiao jie jin jing jiong jiu ju juan jue jun qi qia qian qiang qiao qie qin qing qiong qiu qu quan que qun xi xia xian xiang xiao xie xin xing xiong xiu xu xuan xue xun " +
+      "zha zhai zhan zhang zhao zhe zhei zhen zheng zhi zhong zhou zhu zhua zhuai zhuan zhuang zhui zhun zhuo cha chai chan chang chao che chen cheng chi chong chou chu chua chuai chuan chuang chui chun chuo " +
+      "sha shai shan shang shao she shei shen sheng shi shou shu shua shuai shuan shuang shui shun shuo ran rang rao re ren reng ri rong rou ru rua ruan rui run ruo " +
+      "za zai zan zang zao ze zei zen zeng zi zong zou zu zuan zui zun zuo ca cai can cang cao ce cen ceng ci cong cou cu cuan cui cun cuo sa sai san sang sao se sen seng si song sou su suan sui sun suo " +
+      "ya yan yang yao ye yi yin ying yo yong you yu yuan yue yun wa wai wan wang wei wen weng wo wu e ei en eng er o ou").split(" "));
+    const TONE_MARKS = { "̄": 1, "́": 2, "̌": 3, "̀": 4 };
+
+    // Tách một chuỗi pinyin có dấu thành các âm tiết [{ s: "hao", t: 3 }, ...]; trả null nếu không tách được
+    function splitPinyin(py) {
+      const out = [];
+      const chunks = String(py || "").toLowerCase().split(/[^a-zǜ-ͯà-ǜ]+/);
+      for (const chunk of chunks) {
+        if (!chunk) continue;
+        const letters = [], tones = [];
+        for (const ch of chunk.normalize("NFD")) {
+          if (TONE_MARKS[ch]) { if (tones.length) tones[tones.length - 1] = TONE_MARKS[ch]; }
+          else if (/[a-z]/.test(ch)) { letters.push(ch); tones.push(0); }
+        }
+        const s = letters.join(""), n = s.length;
+        // Quy hoạch động: chia thành ít âm tiết nhất
+        const best = new Array(n + 1).fill(null);
+        best[0] = [];
+        for (let i = 0; i < n; i++) {
+          if (!best[i]) continue;
+          for (let k = Math.min(6, n - i); k >= 1; k--) {
+            const sub = s.slice(i, i + k);
+            if (!PY_SYLLABLES.has(sub) && !(sub === "r" && i > 0)) continue;
+            const cand = best[i].concat([[i, i + k]]);
+            if (!best[i + k] || cand.length < best[i + k].length) best[i + k] = cand;
+          }
+        }
+        if (!best[n]) return null;
+        best[n].forEach(([a, b]) => {
+          const syl = s.slice(a, b);
+          if (syl === "r") { out.push({ s: "r", t: 0, er: true }); return; }
+          const t = tones.slice(a, b).find(x => x) || 5;
+          out.push({ s: syl, t });
+        });
+      }
+      return out;
+    }
+
+    let HANZI_READINGS = null;
+    function hanziReadings() {
+      if (HANZI_READINGS) return HANZI_READINGS;
+      const map = new Map();
+      const add = (cn, py) => {
+        const chars = hanziOnly(cn).split("");
+        let syl = splitPinyin(py);
+        if (!chars.length || !syl) return;
+        // "儿" hóa (wánr): nếu chữ có 儿 thì giữ âm "r" thành "er", nếu không thì bỏ
+        if (chars.includes("儿")) syl = syl.map(x => x.er ? { s: "er", t: 5 } : x);
+        else syl = syl.filter(x => !x.er);
+        if (syl.length !== chars.length) return;
+        chars.forEach((c, i) => {
+          if (!map.has(c)) map.set(c, new Set());
+          map.get(c).add(syl[i].s + syl[i].t);
+        });
+      };
+      VOCAB.forEach(v => { add(v.hanzi, v.pinyin); add(v.exCn, v.exPinyin); });
+      if (typeof LONG_SENTENCES !== "undefined") LONG_SENTENCES.forEach(p => (p.clauses || []).forEach(c => add(c.cn, c.py)));
+      // Bỏ cách đọc thanh nhẹ (谢谢 xièxie) nếu chữ đã có cách đọc mang thanh cùng âm, để chấm thanh chặt hơn
+      map.forEach((set, c) => {
+        const keep = [...set].filter(r => !(r.endsWith("5") && [...set].some(o => o !== r && o.slice(0, -1) === r.slice(0, -1))));
+        map.set(c, new Set(keep));
+      });
+      HANZI_READINGS = map;
+      return map;
+    }
+
+    // So sánh âm hai chữ: 1 = cùng chữ hoặc đồng âm cùng thanh, 0.5 = cùng âm khác thanh, 0 = khác
+    function charSoundMatch(a, b) {
+      if (a === b) return 1;
+      const map = hanziReadings();
+      const ra = map.get(a), rb = map.get(b);
+      if (!ra || !rb) return 0;
+      let sameBase = false;
+      for (const x of ra) for (const y of rb) {
+        const bx = x.slice(0, -1), by = y.slice(0, -1), tx = x.slice(-1), ty = y.slice(-1);
+        if (bx !== by) continue;
+        if (tx === ty || tx === "5" || ty === "5") return 1; // thanh nhẹ: không bắt lỗi thanh
+        sameBase = true;
+      }
+      return sameBase ? 0.5 : 0;
+    }
+
+    // So khớp chữ Hán theo âm đọc (LCS có trọng số) → điểm + đánh dấu từng chữ:
+    // true = đúng, "tone" = đúng âm nhưng sai thanh, false = sai
     function scorePronunciation(target, heardList) {
       const t = hanziOnly(target);
       let best = { score: 0, heard: "", marks: t.split("").map(() => false), toneHint: false };
@@ -6804,27 +6911,22 @@
         const h = hanziOnly(raw);
         if (!h) return;
         const n = t.length, m = h.length;
+        const sim = Array.from({ length: n }, (_, i) => Array.from({ length: m }, (_, j) => charSoundMatch(t[i], h[j])));
         const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-        for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++)
-          dp[i][j] = t[i - 1] === h[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+          const s = sim[i - 1][j - 1];
+          dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1], s ? dp[i - 1][j - 1] + s : 0);
+        }
         const marks = new Array(n).fill(false);
         let i = n, j = m;
         while (i > 0 && j > 0) {
-          if (t[i - 1] === h[j - 1]) { marks[i - 1] = true; i--; j--; }
+          const s = sim[i - 1][j - 1];
+          if (s && dp[i][j] === dp[i - 1][j - 1] + s) { marks[i - 1] = s === 1 ? true : "tone"; i--; j--; }
           else if (dp[i - 1][j] >= dp[i][j - 1]) i--; else j--;
         }
-        const score = Math.round((dp[n][m] / n) * 100) - (m > n + 2 ? 10 : 0);
-        if (score > best.score || !best.heard) best = { score: Math.max(0, score), heard: h, marks, toneHint: false };
+        const score = Math.max(0, Math.round((dp[n][m] / n) * 100) - (m > n + 2 ? 10 : 0));
+        if (score > best.score || !best.heard) best = { score, heard: h, marks, toneHint: marks.includes("tone") };
       });
-      // Đồng âm: máy nghe ra chữ khác nhưng cùng phiên âm → phát âm vẫn đúng
-      if (best.score < 100) {
-        const tw = VOCAB.find(v => v.hanzi === t);
-        if (tw) {
-          const tp = plainPinyin(tw.pinyin);
-          const same = heardList.some(raw => { const hv = VOCAB.find(v => v.hanzi === hanziOnly(raw)); return hv && plainPinyin(hv.pinyin) === tp; });
-          if (same) best = { score: 90, heard: best.heard, marks: t.split("").map(() => true), toneHint: true };
-        }
-      }
       return best;
     }
 
@@ -6839,12 +6941,13 @@
 
     function renderPronResult(target, res) {
       const chars = hanziOnly(target).split("").map((c, i) =>
-        `<span class="font-hanzi text-2xl font-bold ${res.marks[i] ? "text-emerald-600" : "text-rose-600 underline decoration-wavy"}">${c}</span>`).join("");
+        `<span class="font-hanzi text-2xl font-bold ${res.marks[i] === "tone" ? "text-amber-500 underline decoration-dotted" : res.marks[i] ? "text-emerald-600" : "text-rose-600 underline decoration-wavy"}"${res.marks[i] === "tone" ? ' title="Đúng âm, sai thanh điệu"' : ""}>${c}</span>`).join("");
       const color = res.score >= 80 ? "text-emerald-700" : res.score >= 50 ? "text-amber-700" : "text-rose-700";
       const verdict = res.score >= 95 ? "Chuẩn như người bản xứ! 🎉" : res.score >= 80 ? "Rất tốt! 👏" : res.score >= 50 ? "Gần đúng rồi, thử lại nhé 💪" : "Chưa đúng lắm, nghe mẫu rồi đọc lại nha 🙂";
       return `<div class="flex items-center justify-center gap-1">${chars}</div>
         <div class="mt-1 font-bold ${color}">${res.score} điểm · ${verdict}</div>
-        <div class="text-xs text-stone-500">Em nghe được: <span class="font-hanzi-sans">${escAi(res.heard || "(không rõ)")}</span>${res.toneHint ? " · đúng âm, chú ý thêm thanh điệu" : ""}</div>`;
+        <div class="text-xs text-stone-500">Em nghe được: <span class="font-hanzi-sans">${escAi(res.heard || "(không rõ)")}</span></div>
+        ${res.toneHint ? `<div class="text-xs font-semibold text-amber-700 mt-0.5">Chữ màu vàng: đúng âm nhưng sai thanh điệu, anh nghe mẫu rồi đọc lại nhé.</div>` : ""}`;
     }
 
     // ---------- Luyện phát âm trong cửa sổ chi tiết từ ----------
@@ -6855,7 +6958,7 @@
       const target = which === "ex" ? w.exCn : w.hanzi;
       box.innerHTML = `<span class="inline-flex items-center gap-2 text-[#b9382c] font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-[#b9382c] animate-ping"></span>Đang nghe... anh đọc: <span class="font-hanzi-sans">${escAi(target)}</span></span>`;
       try {
-        const heard = await listenChinese(which === "ex" ? 12000 : 6000);
+        const heard = await listenChinese(which === "ex" ? 12000 : 6000, target);
         const res = scorePronunciation(target, heard);
         box.innerHTML = renderPronResult(target, res);
         if (res.score >= 80) addDailySpoken(1);
@@ -6914,7 +7017,7 @@
       const out = document.getElementById("spkResult");
       out.innerHTML = "";
       try {
-        const heard = await listenChinese(6000);
+        const heard = await listenChinese(6000, w.hanzi);
         const res = scorePronunciation(w.hanzi, heard);
         out.innerHTML = renderPronResult(w.hanzi, res);
         if (res.score >= 80) {
@@ -6927,7 +7030,13 @@
           document.getElementById("spkToday").textContent = dailyState().spoken || 0;
           state.badgeStats.maxCombo = Math.max(state.badgeStats.maxCombo || 0, spk.streak);
           if (spk.streak > 0 && spk.streak % 5 === 0) aiReact(`Wow, ${spk.streak} từ đúng liên tiếp! Phát âm chuẩn ghê luôn ${aiName()} ơi 🔥`, "🎙️", true);
-          spk.timer = setTimeout(spkNext, 1500);
+          spk.timer = setTimeout(() => {
+            spkNext();
+            // "Tự nghe từ tiếp": sang từ mới rồi tự bật micro (chỉ khi vẫn đang ở mục Luyện nói)
+            const auto = document.getElementById("spkAutoToggle");
+            const view = document.getElementById("view-speak");
+            if (auto && auto.checked && view && view.offsetParent !== null && !document.hidden) spk.timer = setTimeout(spkListen, 700);
+          }, 1500);
         } else {
           spk.streak = 0;
           document.getElementById("spkStreak").textContent = 0;
@@ -6948,6 +7057,11 @@
       document.getElementById("spkHintBtn").addEventListener("click", hear);
       document.getElementById("spkLevel").addEventListener("change", e => { spk.level = e.target.value; spk.recent = []; spkNext(); });
       document.getElementById("spkPinyinToggle").addEventListener("change", spkRender);
+      const autoT = document.getElementById("spkAutoToggle");
+      if (autoT) {
+        autoT.checked = lsGet("han_ngu_speak_auto_v1") === "1";
+        autoT.addEventListener("change", () => lsSet("han_ngu_speak_auto_v1", autoT.checked ? "1" : "0"));
+      }
       const pw = document.getElementById("modalPronWordBtn");
       const pe = document.getElementById("modalPronExBtn");
       if (pw) pw.addEventListener("click", () => modalPronounce("word"));
@@ -7443,7 +7557,7 @@
       if (tab === "speak" && typeof spkRender === "function") spkRender();
       if (state.activeTab !== "speak" && activeRec) { try { activeRec.abort(); } catch (e) {} }
       const tabLines = {
-        vocab: ["Vào kho 1.200 từ vựng nạp chữ mới nào sư huynh! Bấm loa nghe cho chuẩn nhé! 📚", "Luyện từ vựng HSK 1–5 thôi anh ơi, nhớ đánh dấu ✓ mấy từ đã thuộc nha!"],
+        vocab: ["Vào kho 1.450 từ vựng nạp chữ mới nào sư huynh! Bấm loa nghe cho chuẩn nhé! 📚", "Luyện từ vựng HSK 1–5 thôi anh ơi, nhớ đánh dấu ✓ mấy từ đã thuộc nha!"],
         sentences: ["Ối giồi ôi, nay sư huynh cày 125 bài câu dài luôn hả? Đọc xong nói mượt như bản xứ! 😎", "Đọc câu dài nhớ thử tắt dịch Việt xem mình hiểu được bao nhiêu % nha anh!"],
         flashcards: ["Lật thẻ ghi nhớ nào! Bấm phím Space lật nhanh như cao thủ võ lâm! 🃏", "Thẻ nào còn lơ mơ thì bấm sao ⭐ cất kho báu để mai cày tiếp nha anh!"],
         videos: ["Bật loa nghe video hoạt hình đọc chậm lặp 2 lần, cho tiếng Trung ngấm thẳng vô não! 🎧", "Học qua video vừa nhàn vừa nhớ lâu, chỉnh 0.6x–0.7x nghe cực đã luôn anh!"],
