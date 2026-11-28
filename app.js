@@ -4793,7 +4793,7 @@
     const GUEST_ALLOWED = [
       "#accountModal", "#accountBtn", ".nav-tab", ".nav-tab-mobile", "#mobileMenuBtn", "#darkModeBtn",
       "#mobileDarkBtn", "#guestBanner", "#hskLevelCards", "#selectAllHskBtn", "#aiBubbleClose", "#installAppBtn", "#mobileInstallBtn",
-      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links", ".dc-coll:not([data-dc-coll=\"random\"])", "[data-dc-act]", "#view-dict", "#brandHome"
+      "#practiceMenuBtn", ".nav-drop-item", ".bnav-item", "#mobileNavBackdrop", "#homeSkills", "#crumbBar", "#lbRefreshBtn", "#skillsBackBtn", "#homeProgress", "[data-ls-toggle]", ".seo-links", ".dc-coll:not([data-dc-coll=\"random\"])", "[data-dc-act]", "#view-dict", "#brandHome", "#imeBar"
     ].join(",");
     const GUEST_INTERACTIVE = "button, a[href], input, select, textarea, label, summary, canvas, [role=button], [onclick], .cursor-pointer";
     let guestPromptAt = 0;
@@ -4811,6 +4811,8 @@
     // ---------- Học thử cho khách: mỗi phần được dùng vài lượt, hết lượt mới mời tạo tài khoản ----------
     const GUEST_TRIAL = {
       lessons:   { max: 2,  unit: "bài học" },
+      stories:   { max: 1,  unit: "bài truyện/hội thoại" },
+      order:     { max: 10, unit: "câu xếp" },
       dictation: { max: 5,  unit: "câu nghe chép" },
       speak:     { max: 5,  unit: "lượt chấm phát âm" },
       vocab:     { max: 15, unit: "lượt xem chi tiết từ" },
@@ -6322,6 +6324,568 @@
       ] }
     ];
 
+    // ---------- Mục Truyện & Hội thoại: học trọn một bài (nghe cả bài → nghe chép → câu hỏi → đọc to / nhập vai) ----------
+    // Câu hỏi hiểu bài: đáp án đúng luôn đứng đầu, khi hiện sẽ xáo thứ tự
+    const STORY_QS = {
+      "st1-1": [["Nhà Tiểu Minh có mấy người?", ["Ba người", "Hai người", "Bốn người"]], ["Bố Tiểu Minh làm việc ở đâu?", ["Bệnh viện", "Trường học", "Cửa hàng"]], ["Mẹ Tiểu Minh làm nghề gì?", ["Giáo viên", "Bác sĩ", "Học sinh"]]],
+      "st1-2": [["Mấy giờ sáng họ đi cửa hàng?", ["9 giờ", "8 giờ", "10 giờ"]], ["Buổi trưa họ ăn ở đâu?", ["Nhà hàng", "Ở nhà", "Trường học"]], ["Buổi chiều họ làm gì?", ["Xem phim", "Đi bơi", "Đọc sách"]]],
+      "st1-3": [["Tôi đi ăn cùng ai?", ["Cô Vương", "Bố", "Bạn học"]], ["Tôi muốn uống gì?", ["Trà", "Cà phê", "Nước"]], ["Ai trả tiền bữa ăn?", ["Cô Vương", "Tôi", "Hai người chia nhau"]]],
+      "st1-4": [["Bây giờ là tháng mấy?", ["Tháng 12", "Tháng 1", "Tháng 7"]], ["Bạn tôi đang ở đâu?", ["Hà Nội", "Bắc Kinh", "Thượng Hải"]], ["Ngày mai Bắc Kinh thế nào?", ["Không mưa", "Mưa to", "Rất nóng"]]],
+      "st1-5": [["Người bạn Trung Quốc tên là gì?", ["Lý Nguyệt", "Tiểu Minh", "Vương Lan"]], ["Cô ấy bao nhiêu tuổi?", ["20 tuổi", "25 tuổi", "18 tuổi"]], ["Thứ Bảy họ làm gì?", ["Uống trà, đọc sách", "Đi xem phim", "Đi mua sắm"]]],
+      "st1-6": [["Mẹ gọi điện lúc mấy giờ?", ["3 giờ chiều", "5 giờ chiều", "9 giờ sáng"]], ["Lúc đó tôi đang làm gì?", ["Đọc sách ở trường", "Ăn cơm ở nhà", "Xem tivi"]], ["Tôi muốn ăn gì?", ["Cơm", "Mì", "Hoa quả"]]],
+      "st2-1": [["Năm nay tôi bao nhiêu tuổi?", ["25 tuổi", "20 tuổi", "30 tuổi"]], ["Vợ tặng tôi gì?", ["Đồng hồ", "Quần áo", "Điện thoại"]], ["Buổi tối mọi người làm gì?", ["Ăn ở nhà hàng, cùng hát", "Đi xem phim", "Ở nhà ngủ"]]],
+      "st2-2": [["Máy bay bay lúc mấy giờ?", ["8 giờ sáng", "6 giờ sáng", "8 giờ tối"]], ["Đi taxi ra sân bay mất bao lâu?", ["Một tiếng", "Mười phút", "Hai tiếng"]], ["Ai đưa tôi ra sân bay?", ["Anh trai", "Bố", "Bạn"]]],
+      "st2-3": [["Tôi bị ốm khi nào?", ["Tối hôm qua", "Sáng nay", "Tuần trước"]], ["Thuốc uống mấy lần một ngày?", ["Ba lần", "Hai lần", "Một lần"]], ["Vợ nấu gì cho tôi?", ["Mì", "Cơm", "Cháo"]]],
+      "st2-4": [["Sáu giờ sáng tôi làm gì?", ["Chạy bộ", "Đi làm", "Uống sữa"]], ["Tôi đi làm bằng gì?", ["Xe buýt", "Taxi", "Đi bộ"]], ["Mấy giờ tôi đi ngủ?", ["11 giờ", "10 giờ", "12 giờ"]]],
+      "st2-5": [["Chiếc áo đỏ giá bao nhiêu?", ["800 tệ", "80 tệ", "300 tệ"]], ["Vì sao tôi không mua áo đỏ?", ["Đắt quá", "Không đẹp", "Không vừa"]], ["Cuối cùng tôi mua áo màu gì?", ["Trắng", "Đỏ", "Đen"]]],
+      "st2-6": [["Em trai bao nhiêu tuổi?", ["8 tuổi", "10 tuổi", "6 tuổi"]], ["Lúc đầu em trai không biết làm gì?", ["Bơi", "Đá bóng", "Chơi bóng rổ"]], ["Bao lâu sau em biết bơi?", ["Một tháng", "Một tuần", "Một năm"]]],
+      "dl1-1": [["A muốn mua gì?", ["Táo", "Chuối", "Trà"]], ["Một quả giá bao nhiêu?", ["3 tệ", "5 tệ", "15 tệ"]], ["A trả tất cả bao nhiêu tiền?", ["15 tệ", "5 tệ", "30 tệ"]]],
+      "dl1-2": [["A muốn đi đâu?", ["Khách sạn Bắc Kinh", "Trường học", "Sân bay"]], ["A là người nước nào?", ["Việt Nam", "Trung Quốc", "Nhật Bản"]], ["Đi taxi hết bao nhiêu tiền?", ["30 tệ", "13 tệ", "3 tệ"]]],
+      "dl1-3": [["Hai người hẹn làm gì?", ["Xem phim", "Ăn cơm", "Đi mua sắm"]], ["Phim chiếu lúc mấy giờ?", ["3 giờ chiều", "3 giờ sáng", "5 giờ chiều"]], ["Họ gặp nhau ở đâu?", ["Trước cổng trường", "Ở rạp phim", "Ở nhà"]]],
+      "dl1-4": [["Khách có mấy người?", ["Ba người", "Hai người", "Bốn người"]], ["Họ muốn ăn gì?", ["Cơm và món Trung Quốc", "Mì", "Hoa quả"]], ["Họ gọi đồ uống gì?", ["Ba cốc trà", "Ba cốc nước", "Cà phê"]]],
+      "dl1-5": [["A là ai?", ["Giáo viên tiếng Hán", "Học sinh", "Bác sĩ"]], ["B tên là gì?", ["Nguyễn Lan", "Lý Nguyệt", "Tiểu Vương"]], ["B sống ở đâu?", ["Trong trường", "Ở Hà Nội", "Ở khách sạn"]]],
+      "dl1-6": [["Thời tiết hôm nay thế nào?", ["Mưa và lạnh", "Nắng nóng", "Đẹp trời"]], ["A muốn đi đâu?", ["Cửa hàng", "Trường học", "Rạp phim"]], ["Hôm nay họ làm gì?", ["Ở nhà xem tivi", "Đi cửa hàng", "Đi học"]]],
+      "dl2-1": [["A muốn đến đâu?", ["Ga tàu", "Sân bay", "Bệnh viện"]], ["Đi bộ mất bao lâu?", ["10 phút", "20 phút", "1 tiếng"]], ["Khách sạn ở phía nào của ga?", ["Bên trái", "Bên phải", "Phía trước"]]],
+      "dl2-2": [["A muốn ở mấy ngày?", ["Ba ngày", "Hai ngày", "Bốn ngày"]], ["Một ngày giá bao nhiêu?", ["400 tệ", "300 tệ", "308 tệ"]], ["Phòng của A số mấy?", ["308", "380", "408"]]],
+      "dl2-3": [["Sáng nào B cũng làm gì?", ["Chạy bộ", "Bơi", "Đá bóng"]], ["Vì sao tháng này A ít bơi?", ["Công việc bận", "Bị ốm", "Trời lạnh"]], ["Họ hẹn đi bơi khi nào?", ["9 giờ sáng thứ Bảy", "Chiều Chủ nhật", "Tối nay"]]],
+      "dl2-4": [["Ngày mai là sinh nhật ai?", ["Mẹ", "Bố", "Chị gái"]], ["Cuối cùng họ chọn quà gì?", ["Đồng hồ", "Quần áo", "Hoa"]], ["Mẹ thích màu gì nhất?", ["Đỏ", "Trắng", "Đen"]]],
+      "dl2-5": [["Ngày mai B có việc gì?", ["Thi tiếng Hán", "Đi du lịch", "Sinh nhật"]], ["Tối qua B ôn bài đến mấy giờ?", ["12 giờ", "10 giờ", "11 giờ"]], ["A muốn làm gì?", ["Giúp B ôn bài", "Rủ B đi chơi", "Đi ngủ"]]],
+      "dl2-6": [["B đang đợi ai?", ["Bạn học", "Mẹ", "Thầy giáo"]], ["Họ hẹn nhau lúc mấy giờ?", ["2 giờ", "2 giờ 20", "10 giờ"]], ["Vì sao bạn đến muộn?", ["Đường đông xe", "Bị ốm", "Quên giờ hẹn"]]]
+    };
+    const ST_KEY = "han_ngu_stories_v1";
+    PROGRESS_KEYS.push(ST_KEY);
+    const stv = { lesson: null, step: "listen", showPy: true, showVi: true, runId: 0, running: false, role: "A", qs: [], answers: [] };
+    function stAllLessons() {
+      return STORIES.map(s => Object.assign({ type: "story" }, s)).concat(DAILY_DIALOGS.map(d => Object.assign({ type: "dialog" }, d)));
+    }
+    function stStore() { try { return JSON.parse(lsGet(ST_KEY) || "{}") || {}; } catch (e) { return {}; } }
+    function stSaveStore(s) { lsSet(ST_KEY, JSON.stringify(s)); try { scheduleCloudSync(); } catch (e) {} }
+    function stShuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+    // Đọc một câu, xong thì báo (có hẹn giờ dự phòng khi trình duyệt không báo "đọc xong")
+    function stSay(text) {
+      return new Promise(res => {
+        let done = false;
+        const fin = () => { if (!done) { done = true; res(); } };
+        speakChinese(text);
+        const u = window._activeUtter;
+        if (u) { u.onend = fin; u.onerror = fin; }
+        setTimeout(fin, 1800 + hanziOnly(text).length * 450 / (state.speechRate || 0.8));
+      });
+    }
+    function stWait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function stMark(i, cls) {
+      document.querySelectorAll("#view-stories [data-st-line]").forEach(el => el.classList.toggle(cls, Number(el.getAttribute("data-st-line")) === i));
+      const el = document.querySelector(`#view-stories [data-st-line="${i}"]`);
+      if (el && el.scrollIntoView) { try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {} }
+    }
+    function stStop() {
+      stv.runId++; stv.running = false;
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+      document.querySelectorAll("#view-stories .st-cur, #view-stories .st-turn").forEach(el => el.classList.remove("st-cur", "st-turn"));
+      const b = document.getElementById("stRunBtn");
+      if (b) b.innerHTML = b.getAttribute("data-label");
+    }
+    async function stPlayAll() {
+      if (stv.running) { stStop(); return; }
+      const l = stv.lesson; if (!l) return;
+      const id = ++stv.runId; stv.running = true;
+      const b = document.getElementById("stRunBtn");
+      if (b) b.innerHTML = "■ Dừng";
+      for (let i = 0; i < l.lines.length; i++) {
+        if (id !== stv.runId) return;
+        stMark(i, "st-cur");
+        await stSay(l.lines[i].cn);
+        await stWait(450);
+      }
+      if (id === stv.runId) { stStop(); const s = stStore(); s[l.id] = Object.assign({}, s[l.id], { heard: 1, at: Date.now() }); stSaveStore(s); }
+    }
+    async function stScoreLine(i) {
+      const l = stv.lesson; const line = l && l.lines[i]; if (!line) return 0;
+      const box = document.getElementById(`stRes-${i}`);
+      if (box) box.innerHTML = `<span class="inline-flex items-center gap-2 text-[#b9382c] text-sm font-semibold"><span class="w-2 h-2 rounded-full bg-[#b9382c] animate-ping"></span>Đang nghe… đọc to câu này</span>`;
+      try {
+        const heard = await listenChinese(Math.min(14000, 4000 + hanziOnly(line.cn).length * 500), line.cn);
+        const res = scorePronunciation(line.cn, heard);
+        if (box) box.innerHTML = `<div class="mt-2 rounded-xl bg-stone-50 border border-stone-200 p-2 text-center">${renderPronResult(line.cn, res)}</div>`;
+        if (res.score >= 80) addDailySpoken(1);
+        return res.score;
+      } catch (e) {
+        if (box) box.innerHTML = `<span class="text-rose-700 text-xs font-semibold">${pronMessage(e)}</span>`;
+        return -1;
+      }
+    }
+    // Nhập vai: máy đọc lời vai kia, đến lượt mình thì bật micro chấm điểm
+    async function stRoleplay() {
+      if (stv.running) { stStop(); return; }
+      const l = stv.lesson; if (!l) return;
+      const id = ++stv.runId; stv.running = true;
+      const b = document.getElementById("stRunBtn");
+      if (b) b.innerHTML = "■ Dừng nhập vai";
+      const scores = [];
+      for (let i = 0; i < l.lines.length; i++) {
+        if (id !== stv.runId) return;
+        const line = l.lines[i];
+        if (line.who === stv.role) {
+          stMark(i, "st-turn");
+          const sc = await stScoreLine(i);
+          if (id !== stv.runId) return;
+          if (sc < 0) { stStop(); return; }
+          scores.push(sc);
+          await stWait(900);
+        } else {
+          stMark(i, "st-cur");
+          await stSay(line.cn);
+          await stWait(350);
+        }
+      }
+      if (id !== stv.runId) return;
+      stStop();
+      const avg = scores.length ? Math.round(scores.reduce((a, c) => a + c, 0) / scores.length) : 0;
+      showToast(`Xong nhập vai vai ${stv.role}: trung bình ${avg} điểm ${avg >= 80 ? "🎉" : "💪"}`);
+      const s = stStore(); s[l.id] = Object.assign({}, s[l.id], { speak: Math.max(avg, (s[l.id] && s[l.id].speak) || 0), at: Date.now() }); stSaveStore(s);
+    }
+    function stOpen(id) {
+      const l = stAllLessons().find(x => x.id === id);
+      if (!l) return;
+      if (isGuest()) {
+        let seen = [];
+        try { seen = JSON.parse(lsGet("han_ngu_guest_st_v1") || "[]") || []; } catch (e) {}
+        if (!seen.includes(id)) {
+          if (!guestUse("stories")) return;
+          seen.push(id); lsSet("han_ngu_guest_st_v1", JSON.stringify(seen));
+        }
+      }
+      stStop();
+      stv.lesson = l; stv.step = "listen";
+      stv.qs = (STORY_QS[l.id] || []).map(q => ({ q: q[0], right: q[1][0], opts: stShuffle(q[1]) }));
+      stv.answers = [];
+      stRender();
+      try { window.scrollTo(0, 0); } catch (e) {}
+    }
+    function stLineHtml(line, i, mic) {
+      const isDlg = stv.lesson.type === "dialog";
+      const mine = isDlg && stv.step === "speak" && line.who === stv.role;
+      return `<div data-st-line="${i}" class="st-line flex items-start gap-2.5 rounded-2xl px-3 py-2.5 border ${mine ? "border-[#b9382c]/40 bg-rose-50/40" : "border-transparent"}">
+        ${isDlg ? `<span class="shrink-0 mt-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:${line.who === "A" ? "#2563eb" : "#0f766e"}">${line.who}</span>` : `<span class="shrink-0 mt-1.5 text-xs font-bold text-stone-400 w-5 text-right">${i + 1}</span>`}
+        <div class="min-w-0 flex-1">
+          <div class="font-hanzi-sans text-lg sm:text-xl text-stone-900 leading-relaxed">${escAi(line.cn)}</div>
+          ${stv.showPy ? `<div class="text-sm text-[#b9382c]">${escAi(line.py)}</div>` : ""}
+          ${stv.showVi ? `<div class="text-sm text-stone-600">${escAi(line.vi)}</div>` : ""}
+          <div id="stRes-${i}"></div>
+        </div>
+        <div class="shrink-0 flex flex-col gap-1.5">
+          <button type="button" data-st-say="${i}" class="w-9 h-9 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-600 flex items-center justify-center" title="Nghe câu này"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+          ${mic ? `<button type="button" data-st-mic="${i}" class="w-9 h-9 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white flex items-center justify-center" title="Đọc to câu này"><i data-lucide="mic" class="w-4 h-4"></i></button>` : ""}
+        </div>
+      </div>`;
+    }
+    function stRenderList() {
+      const lvl = state.selectedHsk;
+      const store = stStore();
+      const all = stAllLessons();
+      const ls = all.filter(l => lvl === "all" || l.hsk === Number(lvl));
+      const done = ls.filter(l => store[l.id] && store[l.id].score != null).length;
+      const groups = [];
+      ls.forEach(l => { const key = `${l.hsk}|${l.type}`; let g = groups.find(x => x.key === key); if (!g) { g = { key, hsk: l.hsk, type: l.type, list: [] }; groups.push(g); } g.list.push(l); });
+      const levelsHave = [...new Set(all.map(l => l.hsk))];
+      return `
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Truyện & Hội thoại</h1>
+            <p class="text-xs sm:text-sm text-stone-600 mt-0.5 max-w-2xl">Học trọn một bài: nghe cả bài, nghe chép từng câu, trả lời câu hỏi, rồi đọc to hoặc nhập vai với máy.</p>
+          </div>
+          <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5 text-center"><div class="text-base font-bold text-[#1f6f5b]">${done}/${ls.length}</div><div class="text-[10px] text-stone-500">bài đã học</div></div>
+        </div>
+        ${ls.length ? "" : `<div class="ls-card bg-white p-5 text-sm text-stone-600">Bài cho ${levelLabel(lvl)} đang được soạn. Hiện có bài cho HSK ${levelsHave.join(", ")}, anh chọn cấp đó ở thanh trên nhé.</div>`}
+        ${groups.map(g => `
+          <div class="space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-stone-500">HSK ${g.hsk} · ${g.type === "story" ? "Truyện ngắn" : "Hội thoại"}</div>
+            <div class="ls-lessons" style="padding:0">${g.list.map(l => {
+              const st = store[l.id] || {};
+              return `<button type="button" data-st-open="${l.id}" class="ls-lesson bg-white ${st.score != null ? "is-done" : ""}">
+                <span class="flex items-center justify-between gap-2"><span class="font-hanzi-sans font-bold text-stone-900 truncate">${l.type === "story" ? "📖" : "💬"} ${l.title}</span>
+                  <span class="text-[11px] font-semibold shrink-0 ${st.score != null ? "text-emerald-700" : "text-stone-400"}">${st.score != null ? `✓ ${st.score}%` : `${l.lines.length} câu`}</span></span>
+                <span class="text-sm text-stone-600 truncate">${escAi(l.vi)}</span>
+              </button>`;
+            }).join("")}</div>
+          </div>`).join("")}`;
+    }
+    function stRenderLesson() {
+      const l = stv.lesson;
+      const isDlg = l.type === "dialog";
+      const steps = [["listen", "1. Nghe cả bài"], ["dict", "2. Nghe chép"], ["quiz", "3. Câu hỏi"], ["speak", isDlg ? "4. Nhập vai" : "4. Đọc to"]];
+      const toggles = `<div class="flex flex-wrap gap-3 text-sm text-stone-700">
+          <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" data-st-toggle="py" ${stv.showPy ? "checked" : ""} class="accent-[#b9382c]">Pinyin</label>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" data-st-toggle="vi" ${stv.showVi ? "checked" : ""} class="accent-[#b9382c]">Tiếng Việt</label></div>`;
+      let body = "";
+      if (stv.step === "listen") {
+        body = `<div class="flex flex-wrap items-center justify-between gap-3">
+            <button type="button" id="stRunBtn" data-st-act="playall" data-label="▶ Nghe cả bài" class="px-5 py-2.5 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">▶ Nghe cả bài</button>${toggles}</div>
+          <p class="text-xs text-stone-500">Mẹo: lần đầu nghe tắt Pinyin và tiếng Việt xem hiểu được bao nhiêu, rồi bật lên để kiểm tra. Bấm 🔊 để nghe lại từng câu.</p>
+          <div class="space-y-1">${l.lines.map((x, i) => stLineHtml(x, i, false)).join("")}</div>`;
+      } else if (stv.step === "dict") {
+        body = `<div class="rounded-2xl bg-stone-50 border border-stone-200 p-5 text-center space-y-3">
+            <div class="text-4xl">🎧</div>
+            <div class="font-bold text-stone-900">Nghe từng câu rồi gõ lại</div>
+            <p class="text-sm text-stone-600">Máy đọc lần lượt ${l.lines.length} câu của bài, anh gõ lại bằng chữ Hán hoặc Pinyin, máy chấm từng chữ.</p>
+            <button type="button" data-st-act="dictation" class="px-5 py-2.5 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">Bắt đầu nghe chép bài này →</button>
+          </div>`;
+      } else if (stv.step === "quiz") {
+        const answered = stv.answers.filter(a => a != null).length;
+        const right = stv.qs.filter((q, i) => stv.answers[i] === q.right).length;
+        body = `<p class="text-sm text-stone-600">Trả lời theo nội dung bài. Quên thì bấm “1. Nghe cả bài” để nghe lại.</p>
+          ${stv.qs.map((q, qi) => {
+            const a = stv.answers[qi];
+            return `<div class="rounded-2xl bg-white border border-stone-200 p-4 space-y-2">
+              <div class="font-semibold text-stone-900">Câu ${qi + 1}. ${escAi(q.q)}</div>
+              <div class="grid gap-2 sm:grid-cols-3">${q.opts.map(o => {
+                const cls = a == null ? "bg-white border-stone-200 hover:border-[#b9382c]" : o === q.right ? "bg-emerald-50 border-emerald-400 text-emerald-800 font-semibold" : o === a ? "bg-rose-50 border-rose-300 text-rose-700" : "bg-white border-stone-200 opacity-60";
+                return `<button type="button" data-st-ans="${qi}" data-opt="${escAi(o)}" ${a != null ? "disabled" : ""} class="text-left px-3 py-2.5 rounded-xl border text-sm ${cls}">${escAi(o)}</button>`;
+              }).join("")}</div></div>`;
+          }).join("")}
+          ${answered === stv.qs.length && stv.qs.length ? `<div class="rounded-2xl bg-white border border-stone-200 p-5 text-center space-y-2">
+              <div class="text-4xl">${right === stv.qs.length ? "🏆" : right ? "🎉" : "💪"}</div>
+              <div class="text-lg font-extrabold text-stone-900">Đúng ${right}/${stv.qs.length} câu</div>
+              <div class="flex flex-wrap justify-center gap-2 pt-1">
+                <button type="button" data-st-act="retryquiz" class="px-4 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700">Làm lại</button>
+                <button type="button" data-st-step="speak" class="px-5 py-2 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">Sang bước 4 →</button>
+              </div></div>` : ""}`;
+      } else {
+        body = (isDlg ? `<div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2 text-sm"><span class="font-semibold text-stone-700">Anh đóng vai:</span>
+                ${["A", "B"].map(r => `<button type="button" data-st-role="${r}" class="lvl-pill ${stv.role === r ? "is-active" : ""}">Vai ${r}</button>`).join("")}</div>
+              <button type="button" id="stRunBtn" data-st-act="roleplay" data-label="🎭 Bắt đầu nhập vai" class="px-5 py-2.5 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">🎭 Bắt đầu nhập vai</button></div>
+            <p class="text-xs text-stone-500">Máy đọc lời vai kia, đến lượt anh (khung đỏ) thì micro tự bật, anh đọc to câu của mình. Cũng có thể bấm 🎤 để luyện riêng từng câu.</p>`
+          : `<p class="text-sm text-stone-600">Bấm 🎤 rồi đọc to từng câu, máy chấm phát âm từng chữ. Bấm 🔊 để nghe mẫu trước.</p>`) +
+          (typeof SpeechRec !== "undefined" && !SpeechRec ? `<div class="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold px-3 py-2">Trình duyệt này chưa nhận được giọng nói. Anh dùng Chrome (máy tính, Android) hoặc Safari (iPhone, iPad) nhé.</div>` : "") +
+          toggles + `<div class="space-y-1">${l.lines.map((x, i) => stLineHtml(x, i, true)).join("")}</div>`;
+      }
+      return `
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <button type="button" data-st-act="back" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-sm font-semibold"><i data-lucide="chevron-left" class="w-4 h-4"></i>Danh sách bài</button>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border hsk-badge-${l.hsk}">HSK ${l.hsk} · ${isDlg ? "Hội thoại" : "Truyện"}</span>
+        </div>
+        <div>
+          <h1 class="font-hanzi-sans text-2xl sm:text-3xl font-bold text-stone-900">${l.title}</h1>
+          <p class="text-sm text-stone-600">${escAi(l.vi)} · ${l.lines.length} câu</p>
+        </div>
+        <div class="flex gap-1.5 overflow-x-auto pb-1">${steps.map(s => `<button type="button" data-st-step="${s[0]}" class="lvl-pill whitespace-nowrap ${stv.step === s[0] ? "is-active" : ""}">${s[1]}</button>`).join("")}</div>
+        <div class="rounded-3xl bg-white border border-stone-200 shadow-sm p-4 sm:p-5 space-y-3">${body}</div>`;
+    }
+    function stRender() {
+      const box = document.getElementById("stRoot");
+      if (!box) return;
+      box.innerHTML = stv.lesson ? stRenderLesson() : stRenderList();
+      if (window.lucide) lucide.createIcons();
+    }
+    function initStories() {
+      const view = document.getElementById("view-stories");
+      if (!view) return;
+      view.addEventListener("click", e => {
+        const t = e.target.closest("[data-st-open],[data-st-act],[data-st-step],[data-st-say],[data-st-mic],[data-st-ans],[data-st-role]");
+        if (!t) return;
+        if (t.hasAttribute("data-st-open")) { stOpen(t.getAttribute("data-st-open")); return; }
+        if (t.hasAttribute("data-st-step")) { stStop(); stv.step = t.getAttribute("data-st-step"); stRender(); return; }
+        if (t.hasAttribute("data-st-say")) { stStop(); const i = Number(t.getAttribute("data-st-say")); speakChinese(stv.lesson.lines[i].cn, t); return; }
+        if (t.hasAttribute("data-st-mic")) { stStop(); stScoreLine(Number(t.getAttribute("data-st-mic"))); return; }
+        if (t.hasAttribute("data-st-role")) { stStop(); stv.role = t.getAttribute("data-st-role"); stRender(); return; }
+        if (t.hasAttribute("data-st-ans")) {
+          const qi = Number(t.getAttribute("data-st-ans"));
+          if (stv.answers[qi] != null) return;
+          stv.answers[qi] = t.getAttribute("data-opt").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+          if (stv.answers.filter(a => a != null).length === stv.qs.length) {
+            const pct = Math.round(stv.qs.filter((q, i) => stv.answers[i] === q.right).length / stv.qs.length * 100);
+            const s = stStore(); const prev = s[stv.lesson.id] || {};
+            s[stv.lesson.id] = Object.assign({}, prev, { score: Math.max(pct, prev.score || 0), at: Date.now() }); stSaveStore(s);
+          }
+          stRender(); return;
+        }
+        const act = t.getAttribute("data-st-act");
+        if (act === "back") { stStop(); stv.lesson = null; stRender(); try { window.scrollTo(0, 0); } catch (e) {} }
+        else if (act === "playall") stPlayAll();
+        else if (act === "roleplay") stRoleplay();
+        else if (act === "retryquiz") { stv.answers = []; stv.qs = stv.qs.map(q => Object.assign({}, q, { opts: stShuffle(q.opts) })); stRender(); }
+        else if (act === "dictation") {
+          const l = stv.lesson;
+          stStop();
+          switchTab("dictation");
+          dcStartLesson(`${l.type === "story" ? "s" : "l"}-${l.id}`);
+        }
+      });
+      view.addEventListener("change", e => {
+        const t = e.target.closest("[data-st-toggle]");
+        if (!t) return;
+        if (t.getAttribute("data-st-toggle") === "py") stv.showPy = t.checked; else stv.showVi = t.checked;
+        stStop(); stRender();
+      });
+    }
+
+    // ---------- Bộ gõ pinyin trong web: gõ "nihao" → chọn 你好 (kho chữ lấy từ từ vựng HSK 1–5) ----------
+    const IME_KEY = "han_ngu_ime_v1";
+    const ime = { el: null, cands: [], start: 0, raw: "", idx: null, hideTimer: null, inputs: [] };
+    function imeOn() { return lsGet(IME_KEY) !== "0"; }
+    function imeNorm(s) { return plainPinyin(String(s).replace(/[vV]/g, "u")); }
+    function imeIndex() {
+      if (ime.idx) return ime.idx;
+      const map = new Map(); // khóa pinyin không dấu → Map(chữ Hán → hạng, nhỏ = ưu tiên)
+      const put = (k, h, r) => { if (!k || !h) return; let m = map.get(k); if (!m) { m = new Map(); map.set(k, m); } if (!m.has(h) || m.get(h) > r) m.set(h, r); };
+      const freq = new Map();
+      VOCAB.forEach(w => { for (const c of hanziOnly(w.hanzi) + hanziOnly(w.exCn || "")) freq.set(c, (freq.get(c) || 0) + 1); });
+      VOCAB.forEach(w => { const h = hanziOnly(w.hanzi); if (h && h === String(w.hanzi).trim()) put(imeNorm(w.pinyin), h, w.hsk + (h.length > 1 ? 0 : 0.5)); });
+      hanziReadings().forEach((set, c) => set.forEach(r => put(imeNorm(r.replace(/\d$/, "")), c, 6.5 - Math.min(6, Math.log2(freq.get(c) || 1)))));
+      const sorted = new Map();
+      map.forEach((m, k) => sorted.set(k, [...m.entries()].sort((a, b) => a[1] - b[1]).map(x => x[0])));
+      ime.idx = { map: sorted, keys: [...sorted.keys()].sort() };
+      return ime.idx;
+    }
+    function imeCandidates(buf) {
+      const { map, keys } = imeIndex();
+      const out = [], seen = new Set();
+      const add = (h, len) => { if (out.length < 40 && !seen.has(h)) { seen.add(h); out.push({ h, len }); } };
+      (map.get(buf) || []).forEach(h => add(h, buf.length));
+      if (buf.length >= 2) {
+        // Gõ dở (vd "xih" → 喜欢): các từ có pinyin bắt đầu bằng phần đã gõ
+        let lo = 0, hi = keys.length;
+        while (lo < hi) { const mid = (lo + hi) >> 1; if (keys[mid] < buf) lo = mid + 1; else hi = mid; }
+        const ext = [];
+        for (let i = lo; i < keys.length && keys[i].startsWith(buf) && ext.length < 60; i++) if (keys[i] !== buf) map.get(keys[i]).slice(0, 4).forEach(h => ext.push(h));
+        ext.sort((a, b) => a.length - b.length).forEach(h => add(h, buf.length));
+      }
+      // Gõ liền nhiều từ (vd "woxihuan"): đưa ra chữ/từ khớp phần đầu dài nhất, chọn xong phần còn lại gõ tiếp
+      for (let L = buf.length - 1; L >= 1 && out.length < 40; L--) {
+        const k = buf.slice(0, L);
+        if (map.has(k)) { map.get(k).forEach(h => add(h, L)); if (out.length >= 12) break; }
+      }
+      return out;
+    }
+    function imeBar() {
+      let bar = document.getElementById("imeBar");
+      if (bar) return bar;
+      bar = document.createElement("div");
+      bar.id = "imeBar";
+      bar.className = "hidden fixed z-[80] bg-white border border-stone-200 rounded-2xl shadow-xl px-2 py-1.5";
+      bar.addEventListener("pointerdown", e => e.preventDefault()); // giữ con trỏ trong ô gõ
+      bar.addEventListener("click", e => {
+        const b = e.target.closest("[data-ime-pick]");
+        if (b) imePick(Number(b.getAttribute("data-ime-pick")));
+        if (e.target.closest("[data-ime-off]")) imeSet(false);
+      });
+      document.body.appendChild(bar);
+      return bar;
+    }
+    function imeHide() { const bar = document.getElementById("imeBar"); if (bar) bar.classList.add("hidden"); ime.cands = []; }
+    function imeUpdate(el) {
+      if (!imeOn() || document.activeElement !== el) { imeHide(); return; }
+      const pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+      const m = el.value.slice(0, pos).match(/[a-zA-ZüÜ]+$/);
+      if (!m) { imeHide(); return; }
+      ime.el = el; ime.raw = m[0]; ime.start = pos - m[0].length;
+      ime.cands = imeCandidates(imeNorm(m[0]));
+      const bar = imeBar();
+      bar.innerHTML = `<div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-[#b9382c] shrink-0">${escAi(m[0])}</span>
+          <div class="flex gap-1 overflow-x-auto max-w-full" style="scrollbar-width:thin">${ime.cands.length ? ime.cands.map((c, i) =>
+            `<button type="button" data-ime-pick="${i}" class="shrink-0 px-2 py-1 rounded-lg hover:bg-rose-50 font-hanzi-sans text-lg text-stone-900 whitespace-nowrap">${i < 9 ? `<sup class="text-[10px] text-stone-400 mr-0.5">${i + 1}</sup>` : ""}${c.h}</button>`).join("")
+            : `<span class="text-xs text-stone-400 px-1 py-1.5">Không có chữ khớp (kho HSK 1–5)</span>`}</div>
+          <button type="button" data-ime-off class="shrink-0 text-[11px] text-stone-400 hover:text-[#b9382c] px-1" title="Tắt bộ gõ tiếng Trung">Tắt</button></div>`;
+      const r = el.getBoundingClientRect();
+      const vh = window.visualViewport ? window.visualViewport.height + window.visualViewport.offsetTop : window.innerHeight;
+      const w = Math.min(window.innerWidth - 16, Math.max(260, r.width));
+      bar.style.width = w + "px";
+      bar.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + "px";
+      bar.classList.remove("hidden");
+      const h = bar.offsetHeight;
+      bar.style.top = (r.bottom + h + 6 <= vh ? r.bottom + 4 : Math.max(4, r.top - h - 4)) + "px";
+    }
+    function imePick(i) {
+      const el = ime.el, c = ime.cands[i];
+      if (!el || !c) return;
+      const v = el.value;
+      el.value = v.slice(0, ime.start) + c.h + v.slice(ime.start + c.len);
+      const caret = ime.start + c.h.length + (c.len < ime.raw.length ? ime.raw.length - c.len : 0);
+      try { el.setSelectionRange(caret, caret); } catch (e) {}
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      imeUpdate(el);
+    }
+    function imeSet(on) {
+      lsSet(IME_KEY, on ? "1" : "0");
+      ime.inputs.forEach(x => { if (x.tg) x.tg.innerHTML = imeToggleHtml(x.tg.dataset.nospace === "1"); });
+      if (!on) { imeHide(); showToast("Đã tắt bộ gõ tiếng Trung trong web. Bật lại ở dòng ⌨ dưới ô gõ."); }
+      else if (document.activeElement && ime.inputs.some(x => x.el === document.activeElement)) imeUpdate(document.activeElement);
+    }
+    function imeToggleHtml(noSpace) {
+      return imeOn() ? `⌨ Bộ gõ tiếng Trung: <b class="text-[#1f6f5b]">Bật</b> — gõ pinyin (vd: <i>nihao</i>) rồi bấm chữ muốn chọn${noSpace ? " hoặc phím số 1–9" : ", phím cách chọn chữ đầu"} · <u>Tắt</u>`
+        : `⌨ Bộ gõ tiếng Trung: <b>Tắt</b> · <u>Bật</u> để gõ pinyin ra chữ Hán (không cần cài bàn phím)`;
+    }
+    function imeAttach(el, afterEl, opts) {
+      opts = opts || {};
+      if (!el || el.dataset.ime) return;
+      el.dataset.ime = "1";
+      const tg = document.createElement("button");
+      tg.type = "button";
+      tg.className = "ime-toggle block text-left text-[11px] sm:text-xs text-stone-500 hover:text-stone-800 mt-1.5";
+      tg.innerHTML = imeToggleHtml(opts.noSpace);
+      tg.dataset.nospace = opts.noSpace ? "1" : "";
+      tg.addEventListener("click", () => { imeSet(!imeOn()); el.focus(); });
+      (afterEl || el).insertAdjacentElement("afterend", tg);
+      ime.inputs.push({ el, tg });
+      el.addEventListener("input", () => imeUpdate(el));
+      el.addEventListener("click", () => imeUpdate(el));
+      el.addEventListener("focus", () => imeUpdate(el));
+      el.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== el) imeHide(); }, 120));
+      el.addEventListener("keydown", e => {
+        if (!ime.cands.length || ime.el !== el || e.isComposing) return;
+        if (/^[1-9]$/.test(e.key) && ime.cands[Number(e.key) - 1]) { e.preventDefault(); imePick(Number(e.key) - 1); }
+        else if (e.key === " " && !opts.noSpace) { e.preventDefault(); imePick(0); }
+        else if (e.key === "Escape") { e.preventDefault(); imeHide(); }
+        else if (e.key === "ArrowLeft" || e.key === "ArrowRight") setTimeout(() => imeUpdate(el), 0);
+      });
+    }
+    window.addEventListener("scroll", () => { if (ime.cands.length && ime.el) imeUpdate(ime.el); }, { passive: true });
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", () => { if (ime.cands.length && ime.el) imeUpdate(ime.el); });
+
+    // ---------- Mục Xếp câu: câu ví dụ của từ vựng bị tách thành ô chữ, xếp lại cho đúng thứ tự ----------
+    const OR_KEY = "han_ngu_order_v1";
+    PROGRESS_KEYS.push(OR_KEY);
+    const orv = { item: null, bank: [], placed: [], tries: 0, checked: false, ok: false, recent: [], streak: 0 };
+    let orWordSet = null;
+    // Tách câu thành từ bằng kho từ vựng (khớp dài nhất trước), dấu câu dính vào ô trước
+    function orSegment(cn) {
+      if (!orWordSet) { orWordSet = new Set(); VOCAB.forEach(w => { const h = hanziOnly(w.hanzi); if (h.length > 1 && h.length <= 4) orWordSet.add(h); }); }
+      const chars = Array.from(cn.replace(/[。！？!?…]+$/, ""));
+      const out = [];
+      let i = 0;
+      while (i < chars.length) {
+        const ch = chars[i];
+        if (!/[一-鿿]/.test(ch)) { if (out.length) out[out.length - 1] += ch; i++; continue; }
+        let len = 1;
+        for (let L = 4; L > 1; L--) { const s = chars.slice(i, i + L).join(""); if (s.length === L && hanziOnly(s).length === L && orWordSet.has(s)) { len = L; break; } }
+        out.push(chars.slice(i, i + len).join("")); i += len;
+      }
+      // Số đếm viết liền (十二, 一百) gộp thành một ô
+      const isNum = t => /^[一二三四五六七八九十百千万两零几]+$/.test(t);
+      for (let k = out.length - 2; k >= 0; k--) if (isNum(out[k]) && isNum(hanziOnly(out[k + 1]))) out.splice(k, 2, out[k] + out[k + 1]);
+      return out;
+    }
+    function orPool() {
+      const lv = state.selectedHsk === "all" ? null : Number(state.selectedHsk);
+      return VOCAB.filter(w => (!lv || w.hsk === lv) && w.exCn && hanziOnly(w.exCn).length >= 4 && hanziOnly(w.exCn).length <= 20);
+    }
+    function orStats() { try { return JSON.parse(lsGet(OR_KEY) || "{}") || {}; } catch (e) { return {}; } }
+    function orNext() {
+      const pool = orPool();
+      if (!pool.length) { orv.item = null; orRender(); return; }
+      let w = null, tiles = null;
+      for (let k = 0; k < 30; k++) {
+        const c = pool[Math.floor(Math.random() * pool.length)];
+        if (orv.recent.includes(c.id)) continue;
+        const t = orSegment(c.exCn);
+        if (t.length >= 3 && t.length <= 8) { w = c; tiles = t; break; }
+      }
+      if (!w) { w = pool.find(c => { const n = orSegment(c.exCn).length; return n >= 3 && n <= 8; }) || pool[0]; tiles = orSegment(w.exCn); }
+      orv.recent.push(w.id); if (orv.recent.length > 40) orv.recent.shift();
+      orv.item = { w, tiles, end: (w.exCn.match(/[。！？!?…]+$/) || [""])[0] };
+      let bank = tiles.map((t, i) => ({ t, i }));
+      for (let k = 0; k < 6; k++) { bank = stShuffle(bank); if (bank.some((b, j) => b.i !== j)) break; }
+      orv.bank = bank; orv.placed = []; orv.tries = 0; orv.checked = false; orv.ok = false;
+      orRender();
+    }
+    function orRender() {
+      const box = document.getElementById("orRoot");
+      if (!box) return;
+      const s = orStats();
+      const it = orv.item;
+      const head = `<div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Xếp câu</h1>
+            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Bấm các ô chữ theo đúng thứ tự để tạo thành câu có nghĩa như dòng tiếng Việt. Câu lấy từ ví dụ trong kho từ vựng ${levelLabel(state.selectedHsk)}.</p>
+          </div>
+          <div class="flex gap-2 text-center">
+            <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5"><div class="text-base font-bold text-stone-900">${s.right || 0}</div><div class="text-[10px] text-stone-500">câu xếp đúng</div></div>
+            <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5"><div class="text-base font-bold text-[#b9382c]">${orv.streak}</div><div class="text-[10px] text-stone-500">liên tiếp · kỷ lục ${s.best || 0}</div></div>
+          </div></div>`;
+      if (!it) { box.innerHTML = head + `<div class="ls-card bg-white p-5 text-sm text-stone-600">Chưa có câu cho trình độ này.</div>`; return; }
+      const tileCls = "or-tile font-hanzi-sans text-lg sm:text-xl px-3 py-2 rounded-xl border-2 shadow-sm transition";
+      const placedHtml = orv.placed.map((b, j) => {
+        const st = orv.checked ? (orv.item.tiles[j] === b.t ? "border-emerald-400 bg-emerald-50 text-emerald-800" : "border-rose-300 bg-rose-50 text-rose-700") : "border-[#b9382c]/40 bg-white text-stone-900 hover:border-[#b9382c]";
+        return `<button type="button" data-or-back="${j}" class="${tileCls} ${st}" ${orv.ok ? "disabled" : ""}>${escAi(b.t)}</button>`;
+      }).join("");
+      const bankHtml = orv.bank.map((b, j) => b.used ? `<span class="${tileCls} border-dashed border-stone-200 text-transparent select-none">${escAi(b.t)}</span>`
+        : `<button type="button" data-or-pick="${j}" class="${tileCls} border-stone-200 bg-white text-stone-900 hover:border-[#b9382c] hover:-translate-y-0.5">${escAi(b.t)}</button>`).join("");
+      const full = orv.placed.length === orv.item.tiles.length;
+      const w = it.w;
+      box.innerHTML = head + `
+        <div class="rounded-3xl bg-white border border-stone-200 shadow-sm p-4 sm:p-6 space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border hsk-badge-${w.hsk}">HSK ${w.hsk}</span>
+            <span class="text-xs text-stone-500">Câu ví dụ của từ <b class="font-hanzi-sans text-stone-700">${escAi(w.hanzi)}</b></span>
+          </div>
+          <div class="text-base sm:text-lg font-semibold text-stone-800">“${escAi(w.exVi)}”</div>
+          <div class="min-h-[64px] rounded-2xl border-2 border-dashed ${orv.ok ? "border-emerald-300 bg-emerald-50/40" : "border-stone-300 bg-stone-50"} p-2.5 flex flex-wrap items-center gap-2">${placedHtml || `<span class="text-sm text-stone-400 px-1">Bấm ô chữ bên dưới để xếp vào đây…</span>`}${orv.placed.length && full ? `<span class="font-hanzi-sans text-xl text-stone-400">${escAi(it.end)}</span>` : ""}</div>
+          <div class="flex flex-wrap gap-2 justify-center">${bankHtml}</div>
+          <div id="orMsg">${orv.checked ? (orv.ok
+            ? `<div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-center"><div class="font-bold text-emerald-800">Chính xác! 🎉</div><div class="font-hanzi-sans text-xl text-stone-900 mt-1">${escAi(w.exCn)}</div><div class="text-sm text-[#b9382c]">${escAi(w.exPinyin)}</div></div>`
+            : `<div class="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-center text-sm text-rose-800 font-semibold">${orv.tries >= 2 ? `Đáp án: <span class="font-hanzi-sans text-lg">${escAi(w.exCn)}</span><div class="text-[#b9382c] font-normal">${escAi(w.exPinyin)}</div>` : "Chưa đúng — ô đỏ đang sai chỗ. Bấm ô để gỡ ra rồi xếp lại nhé."}</div>`) : ""}</div>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button type="button" data-or-act="hear" class="px-4 py-2.5 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700 inline-flex items-center gap-1.5"><i data-lucide="volume-2" class="w-4 h-4"></i>Nghe câu</button>
+            ${orv.ok || orv.tries >= 2 ? "" : `<button type="button" data-or-act="hint" class="px-4 py-2.5 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700">Gợi ý 1 ô</button>`}
+            ${orv.ok || orv.tries >= 2
+              ? `<button type="button" data-or-act="next" class="px-6 py-2.5 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-sm font-bold">Câu tiếp theo →</button>`
+              : `<button type="button" data-or-act="check" ${full ? "" : "disabled"} class="px-6 py-2.5 rounded-xl text-sm font-bold ${full ? "bg-[#b9382c] hover:bg-[#932a20] text-white" : "bg-stone-200 text-stone-400 cursor-not-allowed"}">Kiểm tra</button>
+                 <button type="button" data-or-act="next" class="px-4 py-2.5 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700">Câu khác</button>`}
+          </div>
+        </div>`;
+      if (window.lucide) lucide.createIcons();
+    }
+    function orCheck() {
+      if (!orv.item || orv.placed.length !== orv.item.tiles.length) return;
+      if (!guestUse("order")) return;
+      orv.tries++; orv.checked = true;
+      orv.ok = orv.placed.map(b => b.t).join("") === orv.item.tiles.join("");
+      const s = orStats();
+      if (orv.tries === 1 || orv.ok) s.done = (s.done || 0) + (orv.tries === 1 ? 1 : 0);
+      if (orv.ok) {
+        if (orv.tries === 1) { orv.streak++; s.right = (s.right || 0) + 1; s.best = Math.max(s.best || 0, orv.streak); }
+        speakChinese(orv.item.w.exCn);
+      } else if (orv.tries >= 2) { orv.streak = 0; speakChinese(orv.item.w.exCn); }
+      lsSet(OR_KEY, JSON.stringify(s)); try { scheduleCloudSync(); } catch (e) {}
+      orRender();
+    }
+    function initOrder() {
+      const view = document.getElementById("view-order");
+      if (!view) return;
+      view.addEventListener("click", e => {
+        const t = e.target.closest("[data-or-pick],[data-or-back],[data-or-act]");
+        if (!t || !orv.item) return;
+        if (t.hasAttribute("data-or-pick")) {
+          const b = orv.bank[Number(t.getAttribute("data-or-pick"))];
+          if (!b || b.used || orv.ok) return;
+          b.used = true; orv.placed.push(b); orv.checked = false; orRender(); return;
+        }
+        if (t.hasAttribute("data-or-back")) {
+          if (orv.ok) return;
+          const j = Number(t.getAttribute("data-or-back"));
+          const b = orv.placed.splice(j, 1)[0];
+          if (b) b.used = false;
+          orv.checked = false; orRender(); return;
+        }
+        const act = t.getAttribute("data-or-act");
+        if (act === "check") orCheck();
+        else if (act === "next") { if (orv.item && !orv.ok && orv.tries === 0 && orv.placed.length) orv.streak = 0; orNext(); }
+        else if (act === "hear") speakChinese(orv.item.w.exCn, t);
+        else if (act === "hint") {
+          // Gỡ các ô đặt sai từ chỗ đầu tiên sai, rồi đặt đúng ô kế tiếp
+          let k = 0;
+          while (k < orv.placed.length && orv.placed[k].t === orv.item.tiles[k]) k++;
+          orv.placed.splice(k).forEach(b => { b.used = false; });
+          const want = orv.item.tiles[k];
+          const b = orv.bank.find(x => !x.used && x.t === want);
+          if (b) { b.used = true; orv.placed.push(b); }
+          orv.checked = false; orv.streak = 0; orRender();
+        }
+      });
+    }
+
     // ---------- Nghe chép: bộ sưu tập → danh sách bài → làm bài theo thứ tự câu ----------
     const DC_LESSON_SIZE = 8;
     let dcCache = null;
@@ -6839,6 +7403,10 @@
       initSpeakView();
       initLessonsView();
       initDictation();
+      initStories();
+      initOrder();
+      imeAttach(document.getElementById("dcInput"));
+      imeAttach(document.getElementById("dictInput"), document.getElementById("dictForm"), { noSpace: true }); // Từ điển: phím cách vẫn là dấu cách (gõ "xin chao")
       initDailyGoal();
       initPwa();
     }
@@ -7221,15 +7789,15 @@
     }
 
     // ---------- Trang chủ · đường dẫn · chọn trình độ dùng chung ----------
-    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak", "dict"];
-    const PRACTICE_TABS = ["dictation", "speak", "flashcards", "quiz", "games"];
-    const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "videos", "flashcards", "speak", "dictation"];
-    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng", dict: "Từ điển" };
+    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "stories", "order", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak", "dict"];
+    const PRACTICE_TABS = ["stories", "order", "dictation", "speak", "flashcards", "quiz", "games"];
+    const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "stories", "order", "videos", "flashcards", "speak", "dictation"];
+    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", stories: "Truyện & Hội thoại", order: "Xếp câu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng", dict: "Từ điển" };
     const LEVEL_KEY = "han_ngu_level_v1";
 
     // ---------- Địa chỉ riêng cho từng mục (vd: .../tu-vung/, .../hsk-2/) ----------
     // build.ps1 tạo sẵn một thư mục cho mỗi địa chỉ (đọc từ _ban-goc/routes.json). Thẻ <base> giữ mọi đường dẫn ảnh/file trỏ về thư mục gốc.
-    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong", dict: "tu-dien" };
+    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", stories: "truyen-hoi-thoai", order: "xep-cau", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong", dict: "tu-dien" };
     const SITE_TITLE = "Hán Ngữ Master · Học Tiếng Trung HSK 1–5";
     let navFromHistory = false;
     // Trang từ vựng theo cấp/chủ đề (vd: hsk-1/giao-tiep/) do build.ps1 tạo sẵn, có thẻ <meta name="hnm-landing">
@@ -7330,6 +7898,8 @@
       renderAllForFilterChange();
       applyLevelToView(state.activeTab);
       if (state.activeTab === "dictation" && typeof dcRender === "function") dcRender();
+      if (state.activeTab === "stories" && !stv.lesson) stRender();
+      if (state.activeTab === "order") orNext();
       renderCrumb(state.activeTab);
       if (state.activeTab === "home") renderHome();
       if (state.activeTab === "skills") renderSkillsPage();
@@ -7360,6 +7930,8 @@
       { tab: "lessons", icon: "graduation-cap", color: "#b9382c", title: "Bài học từng bước", desc: "Mỗi bài 10 từ: làm quen, lật thẻ, ghép thẻ, trắc nghiệm, nói thử" },
       { tab: "vocab", icon: "book-open", color: "#b9382c", title: "Từ vựng", desc: "Học từ theo chủ đề, có ví dụ và phát âm" },
       { tab: "sentences", icon: "align-left", color: "#1f6f5b", title: "Đọc hiểu", desc: "Bài đọc câu dài, bật tắt Pinyin và bản dịch" },
+      { tab: "stories", icon: "messages-square", color: "#7c3aed", title: "Truyện & Hội thoại", desc: "Nghe cả bài, trả lời câu hỏi, nhập vai với máy" },
+      { tab: "order", icon: "shuffle", color: "#0e7490", title: "Xếp câu", desc: "Xếp ô chữ thành câu đúng, luyện ngữ pháp" },
       { tab: "dictation", icon: "headphones", color: "#2563eb", title: "Nghe chép", desc: "Nghe câu, gõ lại, chấm từng chữ" },
       { tab: "speak", icon: "mic", color: "#c8963e", title: "Luyện nói", desc: "Đọc to vào micro, chấm phát âm" },
       { tab: "flashcards", icon: "layers", color: "#7c3aed", title: "Thẻ nhớ", desc: "Lật thẻ ôn từ, đánh dấu từ đã thuộc" },
@@ -7373,6 +7945,8 @@
       const inLvl = arr => arr.filter(x => lvl === "all" || x.hsk === Number(lvl));
       if (tab === "vocab") { const w = inLvl(VOCAB); return `${w.filter(x => state.mastered.has(x.id)).length}/${w.length} từ đã thuộc`; }
       if (tab === "sentences") return `${inLvl(LONG_SENTENCES).length} bài đọc`;
+      if (tab === "order") { const s = orStats(); return s.right ? `Đã xếp đúng ${s.right} câu` : "Thử câu đầu tiên"; }
+      if (tab === "stories") { const ls = inLvl(stAllLessons()); const s = stStore(); return ls.length ? `${ls.filter(l => s[l.id] && s[l.id].score != null).length}/${ls.length} bài đã học` : "Có bài HSK 1–2"; }
       if (tab === "dictation" && typeof dcStats === "function") { const s = dcStats(); return s.done ? `Đã chép ${s.done} câu` : "Bắt đầu câu đầu tiên"; }
       if (tab === "flashcards") return `${inLvl(VOCAB).length} thẻ`;
       if (tab === "videos") return `${lvl === "all" ? 15 : 3} video`;
@@ -7838,6 +8412,7 @@
       if (state.activeTab === "quiz" && tab !== "quiz") stopExam4Timer();
       if (state.activeTab === "games" && tab !== "games") stopAllGameTimers();
       if (state.activeTab === "extras" && tab !== "extras") stopRoleplay();
+      if (state.activeTab === "stories" && tab !== "stories") stStop();
       const prevTab = appBooted ? state.activeTab : null;
       state.activeTab = tab;
       if (tab !== "vocab" && appBooted) endLanding();
@@ -7870,6 +8445,8 @@
       if (tab === "skills") renderSkillsPage();
       if (tab === "lessons") renderLessonsView();
       if (tab === "dictation" && typeof dcRender === "function") dcRender();
+      if (tab === "stories") stRender();
+      if (tab === "order") { if (!orv.item || (state.selectedHsk !== "all" && orv.item.w.hsk !== Number(state.selectedHsk))) orNext(); else orRender(); }
       if (tab === "sentences") renderLongSentences();
       if (tab === "videos") renderVideos();
       if (tab === "flashcards") {

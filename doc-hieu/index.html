@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/doc-hieu/" />
-  <link rel="stylesheet" href="app.css?v=202611271901" />
-  <script src="icons.js?v=202611271901"></script>
+  <link rel="stylesheet" href="app.css?v=202611280921" />
+  <script src="icons.js?v=202611280921"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -450,6 +450,12 @@
     body.dark-mode .lvl-pill.is-active { background: #b9382c; border-color: #b9382c; color: #fff; }
     body.dark-mode .bnav-item.is-active { color: #f87171; }
     body.dark-mode #guestBanner { background: #2a2418 !important; border-color: #6b5a2e !important; }
+    /* Truyện & Hội thoại: câu đang đọc (vàng), lượt mình đọc khi nhập vai (đỏ) */
+    .st-line { transition: background-color .2s, border-color .2s; }
+    .st-line.st-cur { background: #fef3c7; border-color: #fcd34d !important; }
+    .st-line.st-turn { background: #fff1f2; border-color: #b9382c !important; box-shadow: 0 0 0 2px rgba(185,56,44,.15); }
+    body.dark-mode .st-line.st-cur { background: rgba(245,158,11,.18); }
+    body.dark-mode .st-line.st-turn { background: rgba(185,56,44,.2); }
     /* Nghe chép: tô màu chữ đúng / sai */
     .dc-ok { color: #047857; }
     .dc-bad { color: #b91c1c; background: #fee2e2; border-radius: 4px; }
@@ -599,6 +605,8 @@
         <div class="relative" id="practiceMenuWrap">
           <button type="button" id="practiceMenuBtn" data-group="practice" class="nav-tab" aria-haspopup="true" aria-expanded="false">Luyện tập<i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i></button>
           <div id="practiceMenu" class="hidden absolute left-0 top-full mt-2 w-64 bg-white border border-stone-200 rounded-2xl shadow-xl p-1.5 z-50">
+            <button data-tab="stories" class="nav-drop-item"><i data-lucide="messages-square" class="w-4 h-4"></i><span><b>Truyện & Hội thoại</b><small>Nghe cả bài, hỏi đáp, nhập vai</small></span></button>
+            <button data-tab="order" class="nav-drop-item"><i data-lucide="shuffle" class="w-4 h-4"></i><span><b>Xếp câu</b><small>Xếp ô chữ thành câu đúng</small></span></button>
             <button data-tab="dictation" class="nav-drop-item"><i data-lucide="headphones" class="w-4 h-4"></i><span><b>Nghe chép</b><small>Nghe câu, gõ lại cho đúng</small></span></button>
             <button data-tab="speak" class="nav-drop-item"><i data-lucide="mic" class="w-4 h-4"></i><span><b>Luyện nói</b><small>Đọc to, chấm phát âm</small></span></button>
             <button data-tab="flashcards" class="nav-drop-item"><i data-lucide="layers" class="w-4 h-4"></i><span><b>Thẻ nhớ</b><small>Ôn từ theo thẻ lật</small></span></button>
@@ -664,6 +672,8 @@
     </div>
     <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mt-4 mb-2">Luyện tập</div>
     <div class="grid grid-cols-2 gap-2">
+      <button data-tab="stories" class="nav-tab-mobile"><i data-lucide="messages-square" class="w-4 h-4"></i>Truyện & Hội thoại</button>
+      <button data-tab="order" class="nav-tab-mobile"><i data-lucide="shuffle" class="w-4 h-4"></i>Xếp câu</button>
       <button data-tab="dictation" class="nav-tab-mobile"><i data-lucide="headphones" class="w-4 h-4"></i>Nghe chép</button>
       <button data-tab="speak" class="nav-tab-mobile"><i data-lucide="mic" class="w-4 h-4"></i>Luyện nói</button>
       <button data-tab="flashcards" class="nav-tab-mobile"><i data-lucide="layers" class="w-4 h-4"></i>Thẻ nhớ</button>
@@ -860,6 +870,16 @@
           <div id="dictList" class="dict-panel overflow-hidden"></div>
         </div>
       </div>
+    </section>
+
+    <!-- VIEW: TRUYỆN & HỘI THOẠI (JS stRender vẽ danh sách bài / màn học 4 bước) -->
+    <section id="view-stories" class="hidden">
+      <div id="stRoot" class="max-w-4xl mx-auto space-y-4"></div>
+    </section>
+
+    <!-- VIEW: XẾP CÂU (JS orRender) -->
+    <section id="view-order" class="hidden">
+      <div id="orRoot" class="max-w-3xl mx-auto space-y-4"></div>
     </section>
 
     <section id="view-dictation" class="hidden">
@@ -2564,7 +2584,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611271901"></script>
-  <script src="app.js?v=202611271901"></script>
+  <script src="data.js?v=202611280921"></script>
+  <script src="app.js?v=202611280921"></script>
 </body>
 </html>
