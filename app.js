@@ -6947,7 +6947,7 @@
 
     // ---------- Xem & ghi: video ngắn có sẵn trên YouTube (người thật / hoạt hình) — xem rồi ghi lại những gì nghe được ----------
     // s/e: giây bắt đầu/kết thúc (video dài chỉ lấy đoạn đầu cho ngắn). Tất cả đã kiểm tra cho phép xem nhúng (28/11/2026).
-    const WT_TYPES = { interview: "Phỏng vấn", cartoon: "Hoạt hình", film: "Phim & kể chuyện", podcast: "Trò chuyện" };
+    const WT_TYPES = { interview: "Phỏng vấn", cartoon: "Hoạt hình", film: "Phim & kể chuyện", news: "Tin tức", podcast: "Trò chuyện" };
     const WATCH_CLIPS = [
       { id: "w01", vid: "SNG0mQhI-Gc", type: "cartoon", hsk: 1, len: "0:15", title: "Heo Peppa giới thiệu gia đình", ch: "小猪佩奇 (chính thức)" },
       { id: "w02", vid: "Cax0pfFdK2E", type: "cartoon", hsk: 1, len: "2:27", title: "梦 — Giấc mơ (truyện + vè)", ch: "Little Fox Chinese" },
@@ -6975,7 +6975,49 @@
       { id: "w24", vid: "0Z2MR9AVRZM", type: "film", hsk: 3, len: "6:14", title: "Chậm & rõ: Cuộc sống người lao động xa quê", ch: "Slow & Clear Chinese" },
       { id: "w25", vid: "3t0Hj6Bv3jA", type: "film", hsk: 3, len: "7:13", title: "Chậm & rõ: Cuộc sống du học sinh", ch: "Slow & Clear Chinese" },
       { id: "w26", vid: "CXdrgQy4j_0", type: "podcast", hsk: 4, s: 0, e: 300, len: "5:00", title: "Lớn lên trong nghèo khó — chuyện thật (5 phút đầu)", ch: "Lazy Chinese" },
-      { id: "w27", vid: "UgZfe03amUA", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Trước khi lập kế hoạch năm mới, thử cách này (5 phút đầu)", ch: "Chinese at Dawn" }
+      { id: "w27", vid: "UgZfe03amUA", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Trước khi lập kế hoạch năm mới, thử cách này (5 phút đầu)", ch: "Chinese at Dawn" },
+      // Thêm 28/11/2026 (đợt 2)
+      { id: "w28", vid: "T_P5BbJOg3Y", type: "cartoon", hsk: 1, len: "1:05", title: "在学校 — Ở trường (truyện ngắn)", ch: "Little Fox Chinese" },
+      { id: "w29", vid: "FOCMhcDwgpg", type: "cartoon", hsk: 1, len: "2:08", title: "你几岁？— Bạn mấy tuổi?", ch: "Little Chinese Learners" },
+      { id: "w30", vid: "Ebme2W0yF18", type: "film", hsk: 1, len: "2:31", title: "我爱吃披萨 — Tôi thích ăn pizza", ch: "Mandarin Click" },
+      { id: "w31", vid: "XP8KTAl53aU", type: "film", hsk: 1, len: "3:41", title: "我的家 — Nhà của tôi", ch: "Mandarin Click" },
+      { id: "w32", vid: "OBIrTIVxOhU", type: "film", hsk: 1, len: "3:15", title: "猫和狗 — Mèo và chó", ch: "Mandarin Click" },
+      { id: "w33", vid: "o51Dsn7YTjw", type: "film", hsk: 1, len: "3:29", title: "玛丽的生活 — Cuộc sống của Mary", ch: "Mandarin Click" },
+      { id: "w34", vid: "Ho3JZp1plOM", type: "cartoon", hsk: 2, len: "2:53", title: "在学校 — Ở trường (truyện + vè)", ch: "Little Fox Chinese" },
+      { id: "w35", vid: "50ZhX1US1mU", type: "cartoon", hsk: 2, len: "2:57", title: "Trường Ánh Dương 6: 现场学习 — Học ngoài thực tế", ch: "Little Fox Chinese" },
+      { id: "w36", vid: "gRfh614Z004", type: "cartoon", hsk: 2, len: "2:08", title: "动物们喜欢什么？— Các con vật thích gì?", ch: "Little Chinese Learners" },
+      { id: "w37", vid: "u8DfgKaJ0CU", type: "cartoon", hsk: 2, len: "3:45", title: "三只小猪 — Ba chú heo con", ch: "Little Chinese Learners" },
+      { id: "w38", vid: "kbR4aT-Ia_c", type: "cartoon", hsk: 2, s: 0, e: 300, len: "5:00", title: "Heo Peppa — George không thích ăn rau (5 phút đầu)", ch: "小猪佩奇 (chính thức)" },
+      { id: "w39", vid: "8tNjoXAOzjQ", type: "film", hsk: 2, len: "3:07", title: "王先生爱喝茶 — Ông Vương thích uống trà", ch: "Mandarin Click" },
+      { id: "w40", vid: "PcergOJuC1M", type: "film", hsk: 2, len: "5:26", title: "一周的生活 — Một tuần của tôi", ch: "Mandarin Click" },
+      { id: "w41", vid: "5oDtg8n5UoE", type: "interview", hsk: 2, len: "1:08", title: "Phỏng vấn đường phố: Điều gì làm bạn cười?", ch: "Mandarin HQ" },
+      { id: "w42", vid: "udNgkHIiQVA", type: "interview", hsk: 2, len: "2:03", title: "Phỏng vấn đường phố: Kế hoạch đón Tết (bản luyện nghe)", ch: "Mandarin HQ" },
+      { id: "w43", vid: "yKUwsqQkEiA", type: "film", hsk: 2, len: "4:18", title: "Chuyện kể chậm: Học lái xe", ch: "Slow & Clear Chinese" },
+      { id: "w44", vid: "VLwUy4QBOx4", type: "film", hsk: 3, len: "3:43", title: "王先生爱吃 — Ông Vương mê ăn", ch: "Mandarin Click" },
+      { id: "w45", vid: "JXt-W7GlXzw", type: "film", hsk: 3, len: "4:06", title: "夏天 — Mùa hè", ch: "Mandarin Click" },
+      { id: "w46", vid: "FWJEpylgCfo", type: "film", hsk: 3, len: "2:51", title: "夜晚 — Buổi tối", ch: "Mandarin Click" },
+      { id: "w47", vid: "BsVdY2Ftkfc", type: "cartoon", hsk: 3, len: "3:33", title: "井底之蛙 — Ếch ngồi đáy giếng", ch: "Campbell County Public Library" },
+      { id: "w48", vid: "zDSYf8lcpEw", type: "cartoon", hsk: 3, s: 0, e: 300, len: "5:00", title: "不吃肉的大灰狼 — Sói xám không ăn thịt (5 phút đầu)", ch: "Little Chinese Learners" },
+      { id: "w49", vid: "vhsG3GQSPCs", type: "cartoon", hsk: 3, s: 0, e: 300, len: "5:00", title: "西游记 — Tây du ký (5 phút đầu)", ch: "Little Fox Chinese" },
+      { id: "w50", vid: "1RGmFhcavHE", type: "film", hsk: 3, s: 0, e: 300, len: "5:00", title: "Chuyện vui: Phải uống nước nóng! (5 phút đầu)", ch: "Hit Chinese" },
+      { id: "w51", vid: "YFrmNNHka5M", type: "interview", hsk: 3, len: "0:42", title: "Tiếng lóng đời thường: 耍 nghĩa là gì?", ch: "Mandarin HQ" },
+      { id: "w52", vid: "qaK-ajtlAD4", type: "film", hsk: 3, len: "7:22", title: "Chuyện kể chậm: Ông lão", ch: "Slow & Clear Chinese" },
+      { id: "w53", vid: "aTD8OqSwu2w", type: "news", hsk: 4, len: "2:02", title: "Tin tức: Nghỉ lễ Quốc khánh, xếp hàng sạc xe ở trạm dừng", ch: "Easy Mandarin News" },
+      { id: "w54", vid: "_1_tqm3LmDY", type: "news", hsk: 4, len: "2:17", title: "Tin tức: Ngày Giấc ngủ thế giới — bạn ngủ đủ chưa?", ch: "Easy Mandarin News" },
+      { id: "w55", vid: "GZZsvuvjfpc", type: "news", hsk: 4, len: "1:19", title: "Tin tức: Bầu cử giữa kỳ ở Mỹ là gì?", ch: "Easy Mandarin News" },
+      { id: "w56", vid: "qTF-ESAo2nE", type: "news", hsk: 4, s: 0, e: 300, len: "5:00", title: "Tin chậm: Đội nào sẽ vô địch World Cup 2018? (5 phút đầu)", ch: "Everyday Chinese" },
+      { id: "w57", vid: "VGsFLRDC-g8", type: "news", hsk: 4, s: 0, e: 300, len: "5:00", title: "Học qua bản tin 新闻联播 (5 phút đầu)", ch: "SyS Mandarin" },
+      { id: "w58", vid: "RMJ4MYO7JZ4", type: "film", hsk: 4, len: "7:40", title: "聪明的老板 — Ông chủ thông minh", ch: "GoEast Mandarin" },
+      { id: "w59", vid: "yDGglR6xAOI", type: "film", hsk: 4, len: "7:16", title: "Chuyện kể chậm: Quán bi-a", ch: "Slow & Clear Chinese" },
+      { id: "w60", vid: "xAJLBRcGma8", type: "film", hsk: 4, len: "7:17", title: "Chuyện kể chậm: Bác tài xe buýt", ch: "Slow & Clear Chinese" },
+      { id: "w61", vid: "E16OQhFknBk", type: "podcast", hsk: 4, s: 0, e: 300, len: "5:00", title: "Podcast HSK 4: Ở một mình (5 phút đầu)", ch: "SMART Mandarin" },
+      { id: "w62", vid: "tWyyiFq3HnU", type: "film", hsk: 5, len: "7:14", title: "Truyện ngắn có pinyin cho trình độ HSK 4–5", ch: "My Chinese Short Stories" },
+      { id: "w63", vid: "lhYViU0hG_U", type: "interview", hsk: 5, s: 0, e: 300, len: "5:00", title: "Hành vi nào khiến người Trung Quốc khó chịu? (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w64", vid: "obkefyOHKr4", type: "film", hsk: 5, s: 0, e: 300, len: "5:00", title: "Chuyện kể: Dám lên tiếng (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w65", vid: "WNIEhpPsfDk", type: "film", hsk: 5, s: 0, e: 300, len: "5:00", title: "Chuyện kể: Trả đũa (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w66", vid: "cfWfAbVDszg", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Đám cưới kiểu Trung Quốc của bạn thân (5 phút đầu)", ch: "Everyday Chinese" },
+      { id: "w67", vid: "XxBue_cSh5A", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Khác biệt văn hóa: Phật lòng vì câu nói của bạn người Anh (5 phút đầu)", ch: "Everyday Chinese" },
+      { id: "w68", vid: "JFx7pJTVnYo", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Luyện nghĩ bằng tiếng Trung qua chuyện chậm (5 phút đầu)", ch: "Everyday Chinese" }
     ];
     const WT_KEY = "han_ngu_watch_v1";
     PROGRESS_KEYS.push(WT_KEY);
@@ -7028,6 +7070,8 @@
         const n = k === "all" ? inLv.length : inLv.filter(c => c.type === k).length;
         return `<button type="button" data-wt-type="${k}" class="lvl-pill ${wtv.type === k ? "is-active" : ""}">${l} · ${n}</button>`;
       }).join("");
+      const groups = lv ? [[0, list]] : [1, 2, 3, 4, 5].map(l => [l, list.filter(c => c.hsk === l)]).filter(g => g[1].length);
+      const lvPills = ["all", 1, 2, 3, 4, 5].map(l => `<button type="button" data-wt-lv="${l}" class="lvl-pill ${String(state.selectedHsk) === String(l) ? "is-active" : ""}">${l === "all" ? "Tất cả cấp" : "HSK " + l} · ${WATCH_CLIPS.filter(c => l === "all" || c.hsk === l).length}</button>`).join("");
       box.innerHTML = `<div class="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Xem & ghi lại</h1>
@@ -7035,8 +7079,8 @@
           </div>
           <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5 text-center"><div class="text-base font-bold text-stone-900">${nDone}/${WATCH_CLIPS.length}</div><div class="text-[10px] text-stone-500">video đã ghi xong</div></div>
         </div>
-        <div class="flex flex-wrap gap-2">${chips}</div>
-        ${list.length ? `<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">${list.map(c => `
+        <div class="space-y-2"><div class="flex flex-wrap gap-2 items-center"><span class="text-xs font-semibold text-stone-500 w-14">Cấp độ</span>${lvPills}</div><div class="flex flex-wrap gap-2 items-center"><span class="text-xs font-semibold text-stone-500 w-14">Chủ đề</span>${chips}</div></div>
+        ${list.length ? groups.map(([gl, arr]) => `${gl ? `<h2 class="text-base font-bold text-stone-900 pt-2 flex items-center gap-2"><span class="px-2.5 py-0.5 rounded-full text-xs font-bold border hsk-badge-${gl}">HSK ${gl}</span>${arr.length} video</h2>` : ""}<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">${arr.map(c => `
           <button type="button" data-wt-open="${c.id}" class="text-left rounded-2xl bg-white border border-stone-200 hover:border-[#b9382c] hover:shadow-md transition overflow-hidden">
             <div class="relative aspect-video bg-stone-900"><img src="https://img.youtube.com/vi/${c.vid}/mqdefault.jpg" alt="" loading="lazy" class="w-full h-full object-cover">
               <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/75 text-white text-[11px] font-semibold">${c.len}</span>
@@ -7046,7 +7090,7 @@
               <div class="text-sm font-semibold text-stone-900 leading-snug">${escAi(c.title)}</div>
               <div class="text-[11px] text-stone-500">${escAi(c.ch)}</div>
             </div>
-          </button>`).join("")}</div>`
+          </button>`).join("")}</div>`).join("")
         : `<div class="ls-card bg-white p-5 text-sm text-stone-600">Chưa có video loại này cho ${levelLabel(state.selectedHsk)}. Thử chọn "Tất cả" hoặc cấp khác nhé.</div>`}
         <p class="text-[11px] text-stone-400">Video thuộc kênh YouTube gốc, phát nhúng ngay trên web.</p>`;
     }
@@ -7128,8 +7172,9 @@
       const view = document.getElementById("view-watch");
       if (!view) return;
       view.addEventListener("click", e => {
-        const t = e.target.closest("[data-wt-type],[data-wt-open],[data-wt-act],[data-wt-say]");
+        const t = e.target.closest("[data-wt-type],[data-wt-lv],[data-wt-open],[data-wt-act],[data-wt-say]");
         if (!t) return;
+        if (t.hasAttribute("data-wt-lv")) { setLevel(t.getAttribute("data-wt-lv")); wtRenderList(); return; }
         if (t.hasAttribute("data-wt-type")) { wtv.type = t.getAttribute("data-wt-type"); wtRenderList(); return; }
         if (t.hasAttribute("data-wt-open")) { wtOpen(t.getAttribute("data-wt-open")); return; }
         if (t.hasAttribute("data-wt-say")) { speakChinese(t.getAttribute("data-wt-say"), t); return; }
