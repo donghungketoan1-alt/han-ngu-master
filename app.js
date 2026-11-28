@@ -8598,9 +8598,13 @@
       const text = range.toString().trim();
       if (!text || text.length > 400) return;
       const anc = range.commonAncestorContainer;
-      if (!ttZoneOf(anc)) return;
       const ancEl = anc.nodeType === 1 ? anc : anc.parentElement;
-      if (ancEl && ancEl.closest("input, textarea")) return;
+      if (ancEl && ancEl.closest("input, textarea, select, [contenteditable=true]")) return;
+      // Vùng chính (đề thi, Đọc hiểu…) luôn hiện; các mục khác: hiện khi đoạn bôi đen có chữ Hán
+      if (!ttZoneOf(anc)) {
+        if (!/[㐀-鿿]/.test(text)) return;
+        if (!ancEl || ancEl.closest("header, nav, #ttBar, #ttPanel, .bnav-item, #mobileNav")) return;
+      }
       ttRange = range.cloneRange();
       ttText = text;
       const r = range.getBoundingClientRect();
