@@ -441,6 +441,11 @@
         allMeta.textContent = `Học trộn cả 5 cấp · ${VOCAB.length.toLocaleString("vi-VN")} từ · đã thuộc ${done}`;
       }
 
+      const stats = document.getElementById("homeStats");
+      if (stats) {
+        const nVid = (typeof DEFAULT_VIDEOS !== "undefined" ? DEFAULT_VIDEOS.length : 0) + (typeof WATCH_CLIPS !== "undefined" ? WATCH_CLIPS.length : 0);
+        stats.textContent = `${VOCAB.length.toLocaleString("vi-VN")} từ vựng · ${LONG_SENTENCES.length} bài đọc · ${nVid} video, có Pinyin, Hán-Việt và phát âm.`;
+      }
       const LVL_COLORS = { 1: "#1f6f5b", 2: "#2563eb", 3: "#c8963e", 4: "#b9382c", 5: "#7c3aed" };
       container.innerHTML = [1, 2, 3, 4, 5].map((lvl, i) => {
         const meta = HSK_LEVELS[lvl];
@@ -462,12 +467,8 @@
               <div class="lvl-title"><b>${meta.short}</b><span>${meta.name}</span></div>
             </div>
             <div class="lvl-body">
-              <p class="lvl-desc">${meta.desc || ""}</p>
-              <div>
-                <div class="lvl-foot mb-1.5"><span>Đã thuộc <b class="text-stone-800">${masteredInLvl}/${wordsInLvl.length}</b></span><span>${pct}%</span></div>
-                <div class="lvl-bar"><i style="width:${Math.max(pct, masteredInLvl ? 2 : 0)}%"></i></div>
-              </div>
-              <div class="lvl-foot"><span>${active ? "Đang học" : "Bấm để chọn kỹ năng"}</span><span class="lvl-go">Bắt đầu<i data-lucide="chevron-right"></i></span></div>
+              <div class="lvl-foot"><span>${active ? "Đang học · " : ""}Đã thuộc <b class="text-stone-800">${masteredInLvl}/${wordsInLvl.length}</b></span><span class="lvl-go">Bắt đầu<i data-lucide="chevron-right"></i></span></div>
+              <div class="lvl-bar"><i style="width:${Math.max(pct, masteredInLvl ? 2 : 0)}%"></i></div>
             </div>
           </button>
         `;
@@ -8390,6 +8391,11 @@
       { tab: "extras", icon: "sparkles", color: "#57534e", title: "Mở rộng", desc: "Tập viết chữ Hán, ngữ pháp, đóng vai, truyện" },
       { tab: "dict", icon: "languages", color: "#0e7490", title: "Từ điển", desc: "Tra chữ Hán, pinyin, Hán-Việt, nghĩa và câu ví dụ" }
     ];
+    const SKILL_GROUPS = [
+      { title: "Học từ", tabs: ["lessons", "vocab", "flashcards", "dict"] },
+      { title: "Nghe & Đọc", tabs: ["sentences", "stories", "watch", "dictation", "videos"] },
+      { title: "Luyện & Kiểm tra", tabs: ["speak", "order", "quiz", "games", "extras"] }
+    ];
     function homeSkillMeta(tab, lvl) {
       const inLvl = arr => arr.filter(x => lvl === "all" || x.hsk === Number(lvl));
       if (tab === "vocab") { const w = inLvl(VOCAB); return `${w.filter(x => state.mastered.has(x.id)).length}/${w.length} từ đã thuộc`; }
@@ -8465,18 +8471,21 @@
       const reads = LONG_SENTENCES.filter(p => lvl === "all" || p.hsk === Number(lvl)).length;
       const topic = lvl !== "all" && typeof HSK_LEVELS !== "undefined" && HSK_LEVELS[Number(lvl)] ? (HSK_LEVELS[Number(lvl)].short || "") : "";
       document.getElementById("skillsSub").textContent = `${topic ? topic + " · " : ""}${words.toLocaleString("vi-VN")} từ vựng · ${reads} bài đọc. Chọn kỹ năng muốn luyện.`;
-      document.getElementById("homeSkills").innerHTML = HOME_SKILLS.map((s, i) => {
+      // 3 nhóm kỹ năng, mỗi ô chỉ còn tên + tiến độ (mô tả dài để trong title khi rê chuột)
+      const byTab = Object.fromEntries(HOME_SKILLS.map(s => [s.tab, s]));
+      const tile = (s, oddLast) => {
         const meta = homeSkillMeta(s.tab, lvl);
-        const wide = HOME_SKILLS.length % 2 === 1 && i === HOME_SKILLS.length - 1; // ô lẻ cuối: trải hết hàng
-        return `<button type="button" data-home-skill="${s.tab}" class="skill-tile"${wide ? ' style="grid-column: 1 / -1"' : ""}>
+        return `<button type="button" data-home-skill="${s.tab}" title="${s.desc}" class="skill-tile${oddLast ? " odd-last" : ""}">
           <span class="skill-ico" style="background:${s.color}14;color:${s.color}"><i data-lucide="${s.icon}" class="w-5 h-5"></i></span>
           <span class="min-w-0 flex-1">
             <span class="block font-bold text-stone-900">${s.title}</span>
-            <span class="hidden sm:block text-xs text-stone-500 mt-0.5 leading-snug">${s.desc}</span>
-            ${meta ? `<span class="block text-[11px] font-semibold text-stone-400 mt-1 sm:mt-1.5 leading-snug">${meta}</span>` : ""}
+            ${meta ? `<span class="block text-[11px] font-semibold text-stone-400 mt-1 leading-snug">${meta}</span>` : ""}
           </span>
-          <i data-lucide="chevron-right" class="hidden sm:block w-4 h-4 text-stone-300 self-center shrink-0"></i>
         </button>`;
+      };
+      document.getElementById("homeSkills").innerHTML = SKILL_GROUPS.map(g => {
+        const items = g.tabs.map(t => byTab[t]).filter(Boolean);
+        return `<section class="skill-group"><h2>${g.title}</h2><div class="skill-group-grid">${items.map((s, i) => tile(s, items.length % 2 === 1 && i === items.length - 1)).join("")}</div></section>`;
       }).join("");
       renderWordOfDay(lvl);
       renderHomeProgress();

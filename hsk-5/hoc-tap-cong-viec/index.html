@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/hsk-5/hoc-tap-cong-viec/" />
-  <link rel="stylesheet" href="app.css?v=202611281343" />
-  <script src="icons.js?v=202611281343"></script>
+  <link rel="stylesheet" href="app.css?v=202611281542" />
+  <script src="icons.js?v=202611281542"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -238,6 +238,12 @@
     #bottomNav { padding-bottom: env(safe-area-inset-bottom, 0); height: calc(64px + env(safe-area-inset-bottom, 0px)); }
     /* Trang chủ: ô kỹ năng */
     @media (max-width: 639px) { .skill-tile { flex-direction: column; gap: 8px !important; padding: 12px !important; } }
+    .skill-group + .skill-group { margin-top: 18px; }
+    .skill-group h2 { font-size: 13px; font-weight: 700; color: #78716c; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+    .skill-group-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    @media (min-width: 640px) { .skill-group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
+    @media (max-width: 639px) { .skill-tile.odd-last { grid-column: 1 / -1; } }
+    body.dark-mode .skill-group h2 { color: #a8a29e; }
     .skill-tile { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 18px; background: #fff; border: 1px solid #e7e5e4; text-align: left; transition: border-color .15s, box-shadow .15s, transform .15s; }
     .skill-tile:hover { border-color: #d6d3d1; box-shadow: 0 8px 24px -12px rgba(28, 25, 23, .25); transform: translateY(-1px); }
     /* Trang chủ: thẻ chọn trình độ (to, có hiệu ứng) */
@@ -734,9 +740,9 @@
       <div class="flex items-start gap-2.5 flex-1 min-w-0">
         <span class="text-2xl leading-none">👀</span>
         <div class="text-xs sm:text-sm text-stone-700 leading-relaxed">
-          <strong class="text-stone-900">Bạn đang học thử Hán Ngữ Master.</strong>
-          Cứ học thử từng phần, tạo tài khoản miễn phí để học không giới hạn, trò chuyện với Tiểu Long và lưu tiến độ.
-          <div id="guestTrialNote" class="mt-1 text-[11px] text-stone-500"></div>
+          <strong class="text-stone-900">Bạn đang học thử.</strong>
+          Tạo tài khoản miễn phí để học không giới hạn và lưu tiến độ.
+          <div id="guestTrialNote" class="hidden"></div>
         </div>
       </div>
       <div class="flex gap-2 shrink-0">
@@ -772,7 +778,7 @@
     <section id="hskBannerSection">
       <div class="mb-4">
         <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Chọn trình độ để bắt đầu</h2>
-        <p class="text-sm text-stone-500 mt-1">2.929 từ vựng · 125 bài đọc hiểu · 15 video, có Pinyin, Hán-Việt và phát âm.</p>
+        <p id="homeStats" class="text-sm text-stone-500 mt-1">2.929 từ vựng · 125 bài đọc · có Pinyin, Hán-Việt và phát âm.</p>
       </div>
 
       <!-- 5 thẻ trình độ HSK (vẽ bằng JS) -->
@@ -819,7 +825,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
           
-          <div id="homeSkills" class="grid grid-cols-2 gap-2.5 sm:gap-3"></div>
+          <div id="homeSkills"></div>
         </div>
         <aside class="space-y-3">
           <!-- Từ của ngày -->
@@ -845,8 +851,8 @@
               <button type="button" id="wotdOpenBtn" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-stone-700 text-xs font-semibold transition">Xem chi tiết</button>
             </div>
           </div>
-          <!-- Tiến độ theo cấp -->
-          <div class="rounded-2xl bg-white border border-stone-200 p-4">
+          <!-- Tiến độ theo cấp (ẩn: trùng với thẻ cấp ở trang chủ) -->
+          <div class="hidden rounded-2xl bg-white border border-stone-200 p-4">
             <h2 class="font-bold text-stone-900 flex items-center gap-2 mb-3"><i data-lucide="target" class="w-4 h-4 text-[#1f6f5b]"></i>Tiến độ theo cấp</h2>
             <div id="homeProgress" class="space-y-2"></div>
           </div>
@@ -2607,7 +2613,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611281343"></script>
-  <script src="app.js?v=202611281343"></script>
+  <script src="data.js?v=202611281542"></script>
+  <script src="app.js?v=202611281542"></script>
 </body>
 </html>
