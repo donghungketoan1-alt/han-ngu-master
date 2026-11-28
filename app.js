@@ -65,7 +65,36 @@
       { id: "v12", hsk: 4, videoId: "XkK-ECa7WG0", title: "[HSK 4] Luyện nghe dịch — Nghe thụ động hiểu tự nhiên", channel: "Tiếng Trung Sunny Ruan", duration: "29:17", desc: "Luyện nghe dịch trực tiếp câu dài HSK 4 giúp hình thành tư duy hiểu thẳng tiếng Trung." },
       { id: "v13", hsk: 5, videoId: "P5gCdQ64Rv4", title: "HSK 5 — Luyện nghe các bài đọc tiếng Trung chuẩn", channel: "An Khả Hy", duration: "1:30:20", desc: "Luyện nghe các bài đọc dài chuẩn giáo trình HSK 5 giúp làm quen văn viết và thành ngữ." },
       { id: "v14", hsk: 5, videoId: "mfscLKcv2o0", title: "HSK 5 Listening Practice — Luyện nghe & phản xạ", channel: "Tiếng Trung Thư Mẫn", duration: "1:22:40", desc: "Bài luyện nghe và phản xạ trình độ cao cấp HSK 5 bám sát đề thi và ngữ cảnh thực tế." },
-      { id: "v15", hsk: 5, videoId: "tvLp_n9tCmI", title: "Toàn bộ 1300 từ vựng HSK 5 chuẩn có audio và ví dụ", channel: "Luyện Tiếng Trung", duration: "5:31:03", desc: "Kho ôn tập toàn diện từ vựng HSK 5 kèm phát âm và câu ví dụ dài." }
+      { id: "v15", hsk: 5, videoId: "tvLp_n9tCmI", title: "Toàn bộ 1300 từ vựng HSK 5 chuẩn có audio và ví dụ", channel: "Luyện Tiếng Trung", duration: "5:31:03", desc: "Kho ôn tập toàn diện từ vựng HSK 5 kèm phát âm và câu ví dụ dài." },
+      // Thêm 28/11/2026 (đã kiểm tra đều cho phép xem nhúng)
+      { id: "v16", hsk: 1, videoId: "Kns4tHYy_2Q", title: "Tự học phát âm: cách đọc toàn bộ bảng Pinyin", channel: "Thành Luân", desc: "Thanh mẫu, vận mẫu, thanh điệu và cách ghép âm cho người mới bắt đầu." },
+      { id: "v17", hsk: 1, videoId: "q_d3WrOdpI8", title: "4 thanh điệu cơ bản ˉ ˊ ˇ ˋ", channel: "Weiwei Chinese", desc: "Luyện phát âm chuẩn 4 thanh điệu tiếng Trung." },
+      { id: "v18", hsk: 1, videoId: "wtDtix05YmI", title: "Nắm phát âm thanh điệu trong 10 phút", channel: "Khoai Tây yêu tiếng Trung", desc: "Bài ngắn giúp nghe và đọc đúng thanh điệu." },
+      { id: "v19", hsk: 1, videoId: "MB-cIJBxAtE", title: "Nắm phát âm thanh mẫu trong 15 phút", channel: "Khoai Tây yêu tiếng Trung", desc: "21 thanh mẫu (phụ âm đầu) và cách đặt lưỡi, môi khi đọc." },
+      { id: "v20", hsk: 1, videoId: "f2ah1pvEVsk", title: "21 thanh mẫu và 36 vận mẫu", channel: "Tiếng Trung SOFL", desc: "Tổng quan bảng phiên âm cho người mới học." },
+      { id: "v21", hsk: 1, videoId: "g6zDdGWmuCc", title: "Bảng chữ cái Pinyin — Phần 1", channel: "QChinese", desc: "Làm quen bảng chữ cái Pinyin từ đầu." },
+      { id: "v22", hsk: 1, videoId: "lMibgJNa1kc", title: "Phát âm tiếng Trung (Pinyin) #2 — Thanh điệu", channel: "Giao tiếp tiếng Trung cùng Ly", desc: "Luyện thanh điệu qua ví dụ dễ hiểu." },
+      { id: "v23", hsk: 1, videoId: "EpSs4cdSML0", title: "Bài 1 Giáo trình chuẩn HSK 1", channel: "Thành Luân", desc: "Tự học bài 1 giáo trình chuẩn HSK 1: 你好." },
+      { id: "v24", hsk: 1, videoId: "eaW307TB9xI", title: "Bài 1 Giáo trình Hán ngữ 1", channel: "Thành Luân", desc: "Tự học bài 1 Giáo trình Hán ngữ quyển 1." },
+      { id: "v25", hsk: 1, videoId: "gHz5L_JanCs", title: "Bài 1 Giáo trình Hán ngữ 1 — phiên bản 3 (HSK 3.0)", channel: "Thành Luân", desc: "Bài 1 theo giáo trình Hán ngữ phiên bản mới." },
+      { id: "v26", hsk: 1, videoId: "JkRWp2ubEkI", title: "Giáo trình HSK 1 — Bài 1: Xin chào", channel: "Ngoại ngữ Amanda", desc: "Bài học xin chào theo giáo trình chuẩn HSK 1." },
+      { id: "v27", hsk: 1, videoId: "uG4H0bzk4_k", title: "Bài 1 HSK 1 Giáo trình chuẩn HSK", channel: "Tiếng Trung Mimy", desc: "Thanh mẫu, vận mẫu, thanh điệu và âm tiết trong bài 1." },
+      { id: "v28", hsk: 1, videoId: "EBdph1xysAM", title: "Luyện nghe tiếng Trung HSK 1 — Bài 1", channel: "Hà Chinese", desc: "Luyện nghe câu cơ bản trình độ HSK 1." },
+      { id: "v29", hsk: 2, videoId: "rb82tJ0wZTI", title: "Hội thoại ngắn HSK 2 theo giáo trình chuẩn", channel: "An Khả Hy", desc: "Nghe thụ động hội thoại HSK 2, phù hợp nghe trước khi ngủ." },
+      { id: "v30", hsk: 2, videoId: "BMjJ_991Erk", title: "Đối thoại luyện nghe nói HSK 2 — Phần 2", channel: "Đất Việt ABC", desc: "Các đoạn đối thoại HSK 2 để nghe và nói theo." },
+      { id: "v31", hsk: 2, videoId: "F2hC8twvJ5s", title: "Đối thoại luyện nghe nói HSK 2 — Phần 3", channel: "Đất Việt ABC", desc: "Tiếp tục luyện đối thoại HSK 2." },
+      { id: "v32", hsk: 3, videoId: "2cWaVlAWDK8", title: "Bài khóa Giáo trình chuẩn HSK 3 — Bài 1 (pinyin và dịch)", channel: "Chinese4Free", desc: "File nghe bài khóa có pinyin và bản dịch." },
+      { id: "v33", hsk: 3, videoId: "zmO8ciMpKPk", title: "Luyện nghe trọn bộ Giáo trình chuẩn HSK 3 (có phụ đề)", channel: "Hua Yi Guan", desc: "Toàn bộ audio sách HSK 3 kèm phụ đề." },
+      { id: "v34", hsk: 3, videoId: "BLv8Vro2IEU", title: "Giáo trình chuẩn HSK 3 — Bài 2", channel: "Tiếng Trung Mimy", desc: "Bài giảng luyện đủ nghe, nói, đọc, viết, dịch." },
+      { id: "v35", hsk: 3, videoId: "f0Q6BPKdkVU", title: "Luyện nghe HSK 3 có đáp án — Bài 11", channel: "Tiếng Trung THL", desc: "Giải bài tập nghe giáo trình chuẩn HSK 3." },
+      { id: "v36", hsk: 3, videoId: "-7sMo0pIoK8", title: "Hội thoại: Bác sĩ và bệnh nhân", channel: "Học tiếng Trung dễ lắm", desc: "Luyện nghe hội thoại thực tế trình độ HSK 3–4." },
+      { id: "v37", hsk: 4, videoId: "EDnoRFXashw", title: "Trọn bộ 1000 từ vựng HSK 4 — luyện nghe phản xạ", channel: "Luyện Tiếng Trung 2", desc: "Ôn toàn bộ từ vựng HSK 4, nghe trước khi ngủ." },
+      { id: "v38", hsk: 4, videoId: "19Jb6vhbNJs", title: "Nằm nghe nhớ từ vựng HSK 4 — Tập 1", channel: "Hà Chinese", desc: "Nghe thụ động từ vựng HSK 4." },
+      { id: "v39", hsk: 5, videoId: "whqbnHnDUBI", title: "Trọn bộ 1071 từ vựng HSK 5 — luyện nghe phản xạ", channel: "Luyện Tiếng Trung 2", desc: "Ôn toàn bộ từ vựng HSK 5 theo chuẩn mới." },
+      { id: "v40", hsk: 5, videoId: "DRkt0SocyIc", title: "1300 từ vựng HSK 5 — Phần 1", channel: "ChinesePoster", desc: "Từ vựng HSK 5 kèm phát âm." },
+      { id: "v41", hsk: 5, videoId: "UefrEVEJAp0", title: "Luyện nghe, nói và đọc HSK 5", channel: "Tiếng Trung Thư Mẫn", desc: "Bài đọc sách HSK 5, đọc chậm rồi đọc thường, có pinyin và nghĩa." },
+      { id: "v42", hsk: 5, videoId: "ah-zHJaZYwM", title: "Luyện nghe HSK 5 — Đề mới 2 (có đáp án)", channel: "Hoa Văn Thế Giới", desc: "Luyện đề nghe HSK 5 kèm đáp án." },
+      { id: "v43", hsk: 5, videoId: "SvjiFg426Ro", title: "Luyện nghe và nói HSK 5 — Buổi 1", channel: "Tiếng Trung 518", desc: "Luyện nghe nói HSK 5 qua giao tiếp thực tế." }
     ];
 
     // =========================================================
@@ -1351,10 +1380,37 @@
       return m2 ? m2[1] : null;
     }
 
+    // Phát video YouTube ngay trên web (thay ảnh bìa bằng khung phát)
+    function ytPlay(videoId) {
+      const box = document.getElementById("ytPlayerBox");
+      const poster = document.getElementById("videoPosterLink");
+      if (!box || !videoId) return;
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+      box.innerHTML = `<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&playsinline=1&modestbranding=1" title="Video YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      box.dataset.vid = videoId;
+      box.classList.remove("hidden");
+      poster.classList.add("hidden");
+    }
+    function ytStop() {
+      const box = document.getElementById("ytPlayerBox");
+      if (!box || box.classList.contains("hidden")) return;
+      box.innerHTML = ""; box.dataset.vid = ""; box.classList.add("hidden");
+      document.getElementById("videoPosterLink").classList.remove("hidden");
+    }
+    document.addEventListener("click", e => {
+      const a = e.target.closest && e.target.closest("#videoPosterLink");
+      if (!a) return;
+      e.preventDefault();
+      const v = getAllVideos().find(x => x.id === state.activeVideoId);
+      if (v) ytPlay(v.videoId);
+    });
+
     function renderYoutubeCatalog() {
       const allVids = getAllVideos();
       const filtered = allVids.filter(v => state.selectedHsk === "all" || v.hsk === Number(state.selectedHsk));
       let active = filtered.find(v => v.id === state.activeVideoId) || filtered[0] || allVids[0];
+      const box = document.getElementById("ytPlayerBox");
+      if (box && box.dataset.vid && (!active || box.dataset.vid !== active.videoId)) ytStop();
       if (active) {
         state.activeVideoId = active.id;
         document.getElementById("videoPosterImg").src = `https://img.youtube.com/vi/${active.videoId}/hqdefault.jpg`;
@@ -1362,7 +1418,7 @@
         const badge = document.getElementById("activeVideoBadge");
         badge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold border hsk-badge-${active.hsk}`;
         badge.textContent = `HSK ${active.hsk}`;
-        document.getElementById("activeVideoDuration").textContent = active.duration ? `Thời lượng: ${active.duration}` : "Video tự thêm";
+        document.getElementById("activeVideoDuration").textContent = active.duration ? `Thời lượng: ${active.duration}` : (/^v\d+$/.test(active.id) ? "" : "Video tự thêm");
         document.getElementById("activeVideoTitle").textContent = active.title;
         document.getElementById("activeVideoChannel").innerHTML = `<i data-lucide="tv" class="w-3.5 h-3.5"></i>${active.channel || "YouTube"}`;
         document.getElementById("activeVideoDesc").textContent = active.desc || "Video bài giảng luyện nghe và học tiếng Trung trên YouTube.";
@@ -1406,6 +1462,8 @@
         btn.addEventListener("click", () => {
           state.activeVideoId = btn.getAttribute("data-play-vid");
           renderYoutubeCatalog();
+          const v = getAllVideos().find(x => x.id === state.activeVideoId);
+          if (v) ytPlay(v.videoId);
           document.getElementById("view-videos").scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
@@ -4813,6 +4871,7 @@
       lessons:   { max: 2,  unit: "bài học" },
       stories:   { max: 1,  unit: "bài truyện/hội thoại" },
       order:     { max: 10, unit: "câu xếp" },
+      watch:     { max: 2,  unit: "video xem & ghi" },
       dictation: { max: 5,  unit: "câu nghe chép" },
       speak:     { max: 5,  unit: "lượt chấm phát âm" },
       vocab:     { max: 15, unit: "lượt xem chi tiết từ" },
@@ -6886,6 +6945,220 @@
       });
     }
 
+    // ---------- Xem & ghi: video ngắn có sẵn trên YouTube (người thật / hoạt hình) — xem rồi ghi lại những gì nghe được ----------
+    // s/e: giây bắt đầu/kết thúc (video dài chỉ lấy đoạn đầu cho ngắn). Tất cả đã kiểm tra cho phép xem nhúng (28/11/2026).
+    const WT_TYPES = { interview: "Phỏng vấn", cartoon: "Hoạt hình", film: "Phim & kể chuyện", podcast: "Trò chuyện" };
+    const WATCH_CLIPS = [
+      { id: "w01", vid: "SNG0mQhI-Gc", type: "cartoon", hsk: 1, len: "0:15", title: "Heo Peppa giới thiệu gia đình", ch: "小猪佩奇 (chính thức)" },
+      { id: "w02", vid: "Cax0pfFdK2E", type: "cartoon", hsk: 1, len: "2:27", title: "梦 — Giấc mơ (truyện + vè)", ch: "Little Fox Chinese" },
+      { id: "w03", vid: "fcAH7a2B7-k", type: "cartoon", hsk: 1, len: "2:09", title: "Nihao Chinese! 1 — Cùng tìm hiểu Trung Quốc", ch: "Little Fox Chinese" },
+      { id: "w04", vid: "YmuvcvHiqi8", type: "cartoon", hsk: 1, s: 0, e: 300, len: "5:00", title: "Heo Peppa — tập đầu của tuyển tập (5 phút đầu)", ch: "小猪佩奇 (chính thức)" },
+      { id: "w05", vid: "Tq3Mq2GkDfw", type: "cartoon", hsk: 2, len: "3:09", title: "Trường Ánh Dương 3: 大计划 — Kế hoạch lớn", ch: "Little Fox Chinese" },
+      { id: "w06", vid: "NtBH4IJIy58", type: "cartoon", hsk: 2, len: "2:57", title: "Trường Ánh Dương 5: 看星星 — Ngắm sao", ch: "Little Fox Chinese" },
+      { id: "w07", vid: "Jp59mU-kV7k", type: "cartoon", hsk: 2, s: 0, e: 300, len: "5:00", title: "Heo Peppa — Đi cắm trại cùng bạn bè (5 phút đầu)", ch: "小猪佩奇 (chính thức)" },
+      { id: "w08", vid: "H47t9kVUqYI", type: "cartoon", hsk: 3, s: 0, e: 300, len: "5:00", title: "Cừu vui vẻ và Sói xám — 初次见面 Lần đầu gặp mặt", ch: "喜羊羊与灰太狼 (chính thức)" },
+      { id: "w09", vid: "ZLolCAP0QkM", type: "cartoon", hsk: 3, s: 0, e: 300, len: "5:00", title: "Cừu vui vẻ và Sói xám — 奇猫国危机", ch: "喜羊羊与灰太狼 (chính thức)" },
+      { id: "w10", vid: "FBI_AcFxn2g", type: "interview", hsk: 2, len: "0:54", title: "Phỏng vấn đường phố: Bạn làm nghề gì?", ch: "Mandarin HQ" },
+      { id: "w11", vid: "wmX9ur-I10w", type: "interview", hsk: 2, len: "1:01", title: "Phỏng vấn đường phố: Tết này bạn định làm gì?", ch: "Mandarin HQ" },
+      { id: "w12", vid: "1W7HgwPYhp4", type: "interview", hsk: 2, len: "1:17", title: "Phỏng vấn đường phố: Thành phố bạn thích nhất?", ch: "Mandarin HQ" },
+      { id: "w13", vid: "p0jFSceGkcE", type: "interview", hsk: 2, len: "1:18", title: "Phỏng vấn đường phố: Có món nào bạn không ăn?", ch: "Mandarin HQ" },
+      { id: "w14", vid: "S2M1VvH88-g", type: "interview", hsk: 3, len: "0:33", title: "Người bản xứ nói chuyện thật thế nào?", ch: "Mandarin HQ" },
+      { id: "w15", vid: "CMEHuw180Ao", type: "interview", hsk: 3, len: "0:48", title: "Phỏng vấn đường phố: tiếng Trung đời thường", ch: "Mandarin HQ" },
+      { id: "w16", vid: "Ao4DU5yfCco", type: "interview", hsk: 4, s: 0, e: 300, len: "5:00", title: "Người Trung Quốc biết gì về thế giới? (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w17", vid: "k0ZGJ1gYScQ", type: "interview", hsk: 4, s: 0, e: 300, len: "5:00", title: "Bạn tự thấy mình đẹp đến đâu? (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w18", vid: "jppHjPIQGis", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Định kiến giữa người các vùng Trung Quốc (5 phút đầu)", ch: "Mandarin Corner" },
+      { id: "w19", vid: "DjHvzFZSARQ", type: "film", hsk: 3, len: "1:53", title: "Kể lại nội dung một bộ phim", ch: "Mandarin HQ" },
+      { id: "w20", vid: "diwbwGXVmwk", type: "film", hsk: 3, len: "3:24", title: "Trích đoạn phim: Serendipity (phụ đề tiếng Trung)", ch: "ePutonghua" },
+      { id: "w21", vid: "ixrNIFO5SCU", type: "film", hsk: 2, len: "5:33", title: "Chuyện kể chậm: Đi làm muộn", ch: "Slow & Clear Chinese" },
+      { id: "w22", vid: "IKXWBno36zc", type: "film", hsk: 2, len: "6:59", title: "Chuyện kể chậm: Ở nhà hàng", ch: "Slow & Clear Chinese" },
+      { id: "w23", vid: "vFYODJyOAIc", type: "film", hsk: 2, len: "6:03", title: "Chuyện kể chậm: Cậu bé mê bóng rổ", ch: "Slow & Clear Chinese" },
+      { id: "w24", vid: "0Z2MR9AVRZM", type: "film", hsk: 3, len: "6:14", title: "Chậm & rõ: Cuộc sống người lao động xa quê", ch: "Slow & Clear Chinese" },
+      { id: "w25", vid: "3t0Hj6Bv3jA", type: "film", hsk: 3, len: "7:13", title: "Chậm & rõ: Cuộc sống du học sinh", ch: "Slow & Clear Chinese" },
+      { id: "w26", vid: "CXdrgQy4j_0", type: "podcast", hsk: 4, s: 0, e: 300, len: "5:00", title: "Lớn lên trong nghèo khó — chuyện thật (5 phút đầu)", ch: "Lazy Chinese" },
+      { id: "w27", vid: "UgZfe03amUA", type: "podcast", hsk: 5, s: 0, e: 300, len: "5:00", title: "Trước khi lập kế hoạch năm mới, thử cách này (5 phút đầu)", ch: "Chinese at Dawn" }
+    ];
+    const WT_KEY = "han_ngu_watch_v1";
+    PROGRESS_KEYS.push(WT_KEY);
+    const wtv = { clip: null, type: "all", cover: true, time: 0, playing: false, rate: 1, saveT: null };
+    function wtStore() { try { const s = JSON.parse(lsGet(WT_KEY) || "{}") || {}; s.notes = s.notes || {}; s.done = s.done || {}; return s; } catch (e) { return { notes: {}, done: {} }; } }
+    function wtSave(s) { lsSet(WT_KEY, JSON.stringify(s)); try { scheduleCloudSync(); } catch (e) {} }
+    function wtFmt(t) { t = Math.max(0, Math.floor(t || 0)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; }
+    function wtCmd(func, args) {
+      const f = document.getElementById("wtFrame");
+      if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "command", func, args: args || [] }), "*");
+    }
+    function wtStop() {
+      const box = document.getElementById("wtPlayer");
+      if (box) box.innerHTML = "";
+      wtv.playing = false;
+    }
+    window.addEventListener("message", e => {
+      if (!/^https:\/\/www\.youtube(-nocookie)?\.com$/.test(e.origin)) return;
+      let d; try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch (err) { return; }
+      if (!d || !d.info) return;
+      if (typeof d.info.currentTime === "number") wtv.time = d.info.currentTime;
+      if (typeof d.info.playerState === "number") wtv.playing = d.info.playerState === 1;
+      if (typeof d.info.playbackRate === "number") wtv.rate = d.info.playbackRate;
+      const tEl = document.getElementById("wtTime"); if (tEl) tEl.textContent = wtFmt(wtv.time);
+      const pEl = document.getElementById("wtPlayLbl"); if (pEl) pEl.textContent = wtv.playing ? "Dừng" : "Phát";
+      const rEl = document.getElementById("wtRateLbl"); if (rEl) rEl.textContent = `${wtv.rate}x`;
+    });
+    // Các từ trong kho (2–4 chữ) xuất hiện trong phần ghi chép
+    function wtFoundWords(text) {
+      const h = hanziOnly(text || "");
+      if (!h) return [];
+      const seen = new Set(), out = [];
+      VOCAB.forEach(w => { const k = hanziOnly(w.hanzi); if (k.length >= 2 && k.length <= 4 && !seen.has(k) && h.includes(k)) { seen.add(k); out.push(w); } });
+      return out.slice(0, 40);
+    }
+    function wtFoundHtml(text) {
+      const ws = wtFoundWords(text);
+      if (!ws.length) return `<span class="text-xs text-stone-400">Gõ pinyin (vd: nihao) rồi chọn chữ Hán — từ nào có trong kho HSK sẽ hiện ở đây.</span>`;
+      return `<div class="text-xs text-stone-500 mb-1.5">Bạn đã ghi được <b class="text-stone-800">${ws.length}</b> từ có trong kho HSK (bấm để nghe):</div><div class="flex flex-wrap gap-1.5">` +
+        ws.map(w => `<button type="button" data-wt-say="${escAi(w.hanzi)}" class="px-2 py-1 rounded-lg bg-stone-50 border border-stone-200 hover:border-[#b9382c] text-sm"><span class="font-hanzi-sans">${escAi(w.hanzi)}</span> <span class="text-[11px] text-stone-500">${escAi(w.meaning || "")}</span></button>`).join("") + `</div>`;
+    }
+    function wtRenderList() {
+      const box = document.getElementById("wtRoot");
+      const s = wtStore();
+      const lv = state.selectedHsk === "all" ? null : Number(state.selectedHsk);
+      const inLv = WATCH_CLIPS.filter(c => !lv || c.hsk === lv);
+      const list = inLv.filter(c => wtv.type === "all" || c.type === wtv.type);
+      const nDone = WATCH_CLIPS.filter(c => s.done[c.id]).length;
+      const chips = [["all", "Tất cả"]].concat(Object.entries(WT_TYPES)).map(([k, l]) => {
+        const n = k === "all" ? inLv.length : inLv.filter(c => c.type === k).length;
+        return `<button type="button" data-wt-type="${k}" class="lvl-pill ${wtv.type === k ? "is-active" : ""}">${l} · ${n}</button>`;
+      }).join("");
+      box.innerHTML = `<div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">Xem & ghi lại</h1>
+            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">Video ngắn có sẵn trên mạng — phỏng vấn người thật, hoạt hình, phim, kể chuyện. Xem rồi ghi lại những gì nghe được, tự lưu trên máy. ${levelLabel(state.selectedHsk)}.</p>
+          </div>
+          <div class="rounded-2xl bg-white border border-stone-200 px-3 py-1.5 text-center"><div class="text-base font-bold text-stone-900">${nDone}/${WATCH_CLIPS.length}</div><div class="text-[10px] text-stone-500">video đã ghi xong</div></div>
+        </div>
+        <div class="flex flex-wrap gap-2">${chips}</div>
+        ${list.length ? `<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">${list.map(c => `
+          <button type="button" data-wt-open="${c.id}" class="text-left rounded-2xl bg-white border border-stone-200 hover:border-[#b9382c] hover:shadow-md transition overflow-hidden">
+            <div class="relative aspect-video bg-stone-900"><img src="https://img.youtube.com/vi/${c.vid}/mqdefault.jpg" alt="" loading="lazy" class="w-full h-full object-cover">
+              <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/75 text-white text-[11px] font-semibold">${c.len}</span>
+              ${s.done[c.id] ? `<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold">✓ Đã ghi</span>` : (s.notes[c.id] ? `<span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-bold">Đang ghi</span>` : "")}</div>
+            <div class="p-3 space-y-1">
+              <div class="flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold border hsk-badge-${c.hsk}">HSK ${c.hsk}</span><span class="text-[11px] font-semibold text-stone-500">${WT_TYPES[c.type]}</span></div>
+              <div class="text-sm font-semibold text-stone-900 leading-snug">${escAi(c.title)}</div>
+              <div class="text-[11px] text-stone-500">${escAi(c.ch)}</div>
+            </div>
+          </button>`).join("")}</div>`
+        : `<div class="ls-card bg-white p-5 text-sm text-stone-600">Chưa có video loại này cho ${levelLabel(state.selectedHsk)}. Thử chọn "Tất cả" hoặc cấp khác nhé.</div>`}
+        <p class="text-[11px] text-stone-400">Video thuộc kênh YouTube gốc, phát nhúng ngay trên web.</p>`;
+    }
+    function wtRenderClip() {
+      const box = document.getElementById("wtRoot");
+      const c = wtv.clip, s = wtStore();
+      const note = s.notes[c.id] || "";
+      const btn = "px-3 py-2 rounded-xl bg-white border border-stone-200 hover:border-[#b9382c] text-sm font-semibold text-stone-700 inline-flex items-center gap-1.5";
+      box.innerHTML = `<div class="flex items-center gap-2">
+          <button type="button" data-wt-act="back" class="${btn} shrink-0 whitespace-nowrap"><i data-lucide="chevron-left" class="w-4 h-4"></i>Danh sách</button>
+          <div class="min-w-0"><div class="text-sm sm:text-base font-bold text-stone-900 truncate">${escAi(c.title)}</div><div class="text-[11px] text-stone-500">${escAi(c.ch)} · ${WT_TYPES[c.type]} · HSK ${c.hsk} · ${c.len}</div></div>
+        </div>
+        <div class="grid lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-7 space-y-2">
+            <div class="relative aspect-video rounded-2xl overflow-hidden bg-stone-950">
+              <div id="wtPlayer" class="absolute inset-0"></div>
+              <div id="wtCover" class="${wtv.cover ? "" : "hidden"} absolute left-0 right-0 pointer-events-none flex items-center justify-center text-[11px] font-semibold" style="color:rgba(255,255,255,.6);bottom:11%;height:19%;background:rgba(12,10,9,.94)">Đang che phụ đề</div>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center">
+              <button type="button" data-wt-act="back5" class="${btn}"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Lùi 5 giây</button>
+              <button type="button" data-wt-act="play" class="${btn}"><i data-lucide="play" class="w-4 h-4"></i><span id="wtPlayLbl">Phát</span></button>
+              <button type="button" data-wt-act="rate" class="${btn}"><i data-lucide="timer" class="w-4 h-4"></i>Tốc độ <span id="wtRateLbl">${wtv.rate}x</span></button>
+              <button type="button" data-wt-act="cover" class="${btn}">${wtv.cover ? "Mở phụ đề" : "Che phụ đề"}</button>
+              <span class="ml-auto text-xs text-stone-500">Đang ở <b id="wtTime" class="text-stone-800">${wtFmt(wtv.time)}</b></span>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 leading-relaxed">
+              <b>Cách ghi:</b> ① Xem lần 1 (che phụ đề), đoán chủ đề, ghi vài ý bằng tiếng Việt. ② Xem lần 2, dừng từng đoạn, ghi từ/câu tiếng Trung nghe được (gõ pinyin ra chữ Hán), bấm "Chèn mốc giờ" để đánh dấu chỗ khó. ③ Mở phụ đề xem lần 3, sửa lại phần ghi cho đúng.
+            </div>
+          </div>
+          <div class="lg:col-span-5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <label for="wtNotes" class="text-sm font-bold text-stone-800">Những gì bạn nghe được</label>
+              <button type="button" data-wt-act="stamp" class="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 hover:border-[#b9382c] text-xs font-semibold text-stone-700">+ Chèn mốc giờ</button>
+            </div>
+            <textarea id="wtNotes" rows="10" class="w-full rounded-2xl border border-stone-200 bg-white p-3 text-base font-hanzi-sans leading-relaxed focus:outline-none focus:border-[#b9382c]" placeholder="Ví dụ:&#10;[0:12] 你做什么工作？&#10;[0:20] 我是老师 — cô ấy là giáo viên">${escAi(note)}</textarea>
+            <div class="flex items-center justify-between gap-2">
+              <span id="wtSaved" class="text-[11px] text-stone-400">${note ? "Đã lưu trên máy" : "Tự lưu khi gõ"}</span>
+              <button type="button" data-wt-act="done" class="px-4 py-2 rounded-xl text-sm font-bold ${s.done[c.id] ? "bg-emerald-50 border border-emerald-300 text-emerald-800" : "bg-[#b9382c] hover:bg-[#932a20] text-white"}">${s.done[c.id] ? "✓ Đã ghi xong" : "Đánh dấu đã ghi xong"}</button>
+            </div>
+            <div id="wtFound" class="rounded-2xl bg-white border border-stone-200 p-3">${wtFoundHtml(note)}</div>
+          </div>
+        </div>`;
+      const q = new URLSearchParams({ enablejsapi: "1", rel: "0", playsinline: "1", modestbranding: "1", cc_load_policy: "0", origin: location.origin });
+      if (c.s) q.set("start", String(c.s));
+      if (c.e) q.set("end", String(c.e));
+      document.getElementById("wtPlayer").innerHTML = `<iframe id="wtFrame" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(c.vid)}?${q}" title="${escAi(c.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      const f = document.getElementById("wtFrame");
+      f.addEventListener("load", () => { try { f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "wt" }), "*"); } catch (e) {} });
+      const ta = document.getElementById("wtNotes");
+      try { imeAttach(ta); } catch (e) {}
+      ta.addEventListener("input", () => {
+        clearTimeout(wtv.saveT);
+        wtv.saveT = setTimeout(() => {
+          const st = wtStore(); const v = ta.value;
+          if (v.trim()) st.notes[c.id] = v; else delete st.notes[c.id];
+          wtSave(st);
+          const sv = document.getElementById("wtSaved"); if (sv) sv.textContent = "Đã lưu trên máy";
+          const fd = document.getElementById("wtFound"); if (fd) fd.innerHTML = wtFoundHtml(v);
+        }, 500);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+    function wtRender() {
+      const box = document.getElementById("wtRoot");
+      if (!box) return;
+      if (wtv.clip) { if (!document.getElementById("wtFrame")) wtRenderClip(); }
+      else { wtStop(); wtRenderList(); }
+      if (window.lucide) lucide.createIcons();
+    }
+    function wtOpen(id) {
+      const c = WATCH_CLIPS.find(x => x.id === id);
+      if (!c) return;
+      const s = wtStore();
+      if (!s.notes[c.id] && !s.done[c.id] && !guestUse("watch")) return;
+      wtStop(); wtv.clip = c; wtv.time = c.s || 0; wtv.rate = 1; wtv.playing = false;
+      wtRenderClip(); window.scrollTo(0, 0);
+    }
+    function initWatch() {
+      const view = document.getElementById("view-watch");
+      if (!view) return;
+      view.addEventListener("click", e => {
+        const t = e.target.closest("[data-wt-type],[data-wt-open],[data-wt-act],[data-wt-say]");
+        if (!t) return;
+        if (t.hasAttribute("data-wt-type")) { wtv.type = t.getAttribute("data-wt-type"); wtRenderList(); return; }
+        if (t.hasAttribute("data-wt-open")) { wtOpen(t.getAttribute("data-wt-open")); return; }
+        if (t.hasAttribute("data-wt-say")) { speakChinese(t.getAttribute("data-wt-say"), t); return; }
+        const act = t.getAttribute("data-wt-act");
+        if (act === "back") { wtStop(); wtv.clip = null; wtRenderList(); if (window.lucide) lucide.createIcons(); return; }
+        if (!wtv.clip) return;
+        if (act === "back5") wtCmd("seekTo", [Math.max(wtv.clip.s || 0, wtv.time - 5), true]);
+        else if (act === "play") wtCmd(wtv.playing ? "pauseVideo" : "playVideo");
+        else if (act === "rate") { const r = wtv.rate === 1 ? 0.75 : wtv.rate === 0.75 ? 0.5 : 1; wtv.rate = r; wtCmd("setPlaybackRate", [r]); const el = document.getElementById("wtRateLbl"); if (el) el.textContent = `${r}x`; }
+        else if (act === "cover") { wtv.cover = !wtv.cover; document.getElementById("wtCover").classList.toggle("hidden", !wtv.cover); t.textContent = wtv.cover ? "Mở phụ đề" : "Che phụ đề"; }
+        else if (act === "stamp") {
+          const ta = document.getElementById("wtNotes");
+          const ins = `${ta.value && !ta.value.endsWith("\n") ? "\n" : ""}[${wtFmt(wtv.time)}] `;
+          const p = ta.selectionStart != null && document.activeElement === ta ? ta.selectionStart : ta.value.length;
+          ta.value = ta.value.slice(0, p) + ins + ta.value.slice(p);
+          ta.focus(); ta.selectionStart = ta.selectionEnd = p + ins.length;
+          ta.dispatchEvent(new Event("input"));
+        }
+        else if (act === "done") {
+          const st = wtStore();
+          if (st.done[wtv.clip.id]) delete st.done[wtv.clip.id]; else st.done[wtv.clip.id] = Date.now();
+          wtSave(st);
+          t.className = `px-4 py-2 rounded-xl text-sm font-bold ${st.done[wtv.clip.id] ? "bg-emerald-50 border border-emerald-300 text-emerald-800" : "bg-[#b9382c] hover:bg-[#932a20] text-white"}`;
+          t.textContent = st.done[wtv.clip.id] ? "✓ Đã ghi xong" : "Đánh dấu đã ghi xong";
+          if (st.done[wtv.clip.id]) showToast("Đã lưu! Chọn video tiếp theo trong danh sách nhé.");
+        }
+      });
+    }
+
     // ---------- Nghe chép: bộ sưu tập → danh sách bài → làm bài theo thứ tự câu ----------
     const DC_LESSON_SIZE = 8;
     let dcCache = null;
@@ -7405,6 +7678,7 @@
       initDictation();
       initStories();
       initOrder();
+      initWatch();
       imeAttach(document.getElementById("dcInput"));
       imeAttach(document.getElementById("dictInput"), document.getElementById("dictForm"), { noSpace: true }); // Từ điển: phím cách vẫn là dấu cách (gõ "xin chao")
       initDailyGoal();
@@ -7789,15 +8063,15 @@
     }
 
     // ---------- Trang chủ · đường dẫn · chọn trình độ dùng chung ----------
-    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "stories", "order", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak", "dict"];
-    const PRACTICE_TABS = ["stories", "order", "dictation", "speak", "flashcards", "quiz", "games"];
-    const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "stories", "order", "videos", "flashcards", "speak", "dictation"];
-    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", stories: "Truyện & Hội thoại", order: "Xếp câu", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng", dict: "Từ điển" };
+    const ALL_TABS = ["home", "skills", "lessons", "vocab", "sentences", "stories", "order", "watch", "dictation", "flashcards", "videos", "games", "quiz", "extras", "speak", "dict"];
+    const PRACTICE_TABS = ["stories", "order", "watch", "dictation", "speak", "flashcards", "quiz", "games"];
+    const LEVEL_TABS = ["skills", "lessons", "vocab", "sentences", "stories", "order", "watch", "videos", "flashcards", "speak", "dictation"];
+    const TAB_LABELS = { home: "Trang chủ", skills: "Chọn kỹ năng", lessons: "Bài học", vocab: "Từ vựng", sentences: "Đọc hiểu", stories: "Truyện & Hội thoại", order: "Xếp câu", watch: "Xem & ghi", dictation: "Nghe chép", speak: "Luyện nói", flashcards: "Thẻ nhớ", quiz: "Kiểm tra", games: "Game", videos: "Video", extras: "Mở rộng", dict: "Từ điển" };
     const LEVEL_KEY = "han_ngu_level_v1";
 
     // ---------- Địa chỉ riêng cho từng mục (vd: .../tu-vung/, .../hsk-2/) ----------
     // build.ps1 tạo sẵn một thư mục cho mỗi địa chỉ (đọc từ _ban-goc/routes.json). Thẻ <base> giữ mọi đường dẫn ảnh/file trỏ về thư mục gốc.
-    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", stories: "truyen-hoi-thoai", order: "xep-cau", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong", dict: "tu-dien" };
+    const TAB_SLUGS = { lessons: "bai-hoc", vocab: "tu-vung", sentences: "doc-hieu", stories: "truyen-hoi-thoai", order: "xep-cau", watch: "xem-va-ghi", dictation: "nghe-chep", speak: "luyen-noi", flashcards: "the-nho", quiz: "kiem-tra", games: "tro-choi", videos: "video", extras: "mo-rong", dict: "tu-dien" };
     const SITE_TITLE = "Hán Ngữ Master · Học Tiếng Trung HSK 1–5";
     let navFromHistory = false;
     // Trang từ vựng theo cấp/chủ đề (vd: hsk-1/giao-tiep/) do build.ps1 tạo sẵn, có thẻ <meta name="hnm-landing">
@@ -7900,6 +8174,7 @@
       if (state.activeTab === "dictation" && typeof dcRender === "function") dcRender();
       if (state.activeTab === "stories" && !stv.lesson) stRender();
       if (state.activeTab === "order") orNext();
+      if (state.activeTab === "watch" && !wtv.clip) wtRender();
       renderCrumb(state.activeTab);
       if (state.activeTab === "home") renderHome();
       if (state.activeTab === "skills") renderSkillsPage();
@@ -7932,6 +8207,7 @@
       { tab: "sentences", icon: "align-left", color: "#1f6f5b", title: "Đọc hiểu", desc: "Bài đọc câu dài, bật tắt Pinyin và bản dịch" },
       { tab: "stories", icon: "messages-square", color: "#7c3aed", title: "Truyện & Hội thoại", desc: "Nghe cả bài, trả lời câu hỏi, nhập vai với máy" },
       { tab: "order", icon: "shuffle", color: "#0e7490", title: "Xếp câu", desc: "Xếp ô chữ thành câu đúng, luyện ngữ pháp" },
+      { tab: "watch", icon: "clapperboard", color: "#be185d", title: "Xem & ghi", desc: "Xem video ngắn (phỏng vấn, hoạt hình, phim), ghi lại điều nghe được" },
       { tab: "dictation", icon: "headphones", color: "#2563eb", title: "Nghe chép", desc: "Nghe câu, gõ lại, chấm từng chữ" },
       { tab: "speak", icon: "mic", color: "#c8963e", title: "Luyện nói", desc: "Đọc to vào micro, chấm phát âm" },
       { tab: "flashcards", icon: "layers", color: "#7c3aed", title: "Thẻ nhớ", desc: "Lật thẻ ôn từ, đánh dấu từ đã thuộc" },
@@ -7945,11 +8221,12 @@
       const inLvl = arr => arr.filter(x => lvl === "all" || x.hsk === Number(lvl));
       if (tab === "vocab") { const w = inLvl(VOCAB); return `${w.filter(x => state.mastered.has(x.id)).length}/${w.length} từ đã thuộc`; }
       if (tab === "sentences") return `${inLvl(LONG_SENTENCES).length} bài đọc`;
+      if (tab === "watch") { const n = Object.keys(wtStore().done).length; return n ? `Đã ghi xong ${n} video` : `${WATCH_CLIPS.filter(c => lvl === "all" || c.hsk === Number(lvl)).length} video ngắn`; }
       if (tab === "order") { const s = orStats(); return s.right ? `Đã xếp đúng ${s.right} câu` : "Thử câu đầu tiên"; }
       if (tab === "stories") { const ls = inLvl(stAllLessons()); const s = stStore(); return ls.length ? `${ls.filter(l => s[l.id] && s[l.id].score != null).length}/${ls.length} bài đã học` : "Có bài HSK 1–2"; }
       if (tab === "dictation" && typeof dcStats === "function") { const s = dcStats(); return s.done ? `Đã chép ${s.done} câu` : "Bắt đầu câu đầu tiên"; }
       if (tab === "flashcards") return `${inLvl(VOCAB).length} thẻ`;
-      if (tab === "videos") return `${lvl === "all" ? 15 : 3} video`;
+      if (tab === "videos") return `${lvl === "all" ? DEFAULT_VIDEOS.length : DEFAULT_VIDEOS.filter(v => v.hsk === Number(lvl)).length} video`;
       if (tab === "speak") { const d = (typeof dailyState === "function" && dailyState().spoken) || 0; return d ? `Hôm nay đọc đúng ${d} từ` : (spk.best ? `Kỷ lục ${spk.best} từ liên tiếp` : "Thử đọc từ đầu tiên"); }
       if (tab === "lessons") {
         const store = lsStore();
@@ -8408,11 +8685,12 @@
       else setTimeout(run, 1500);
     }
     function switchTab(tab) {
-      if (state.activeTab === "videos" && tab !== "videos") stopAnimVideo();
+      if (state.activeTab === "videos" && tab !== "videos") { stopAnimVideo(); ytStop(); }
       if (state.activeTab === "quiz" && tab !== "quiz") stopExam4Timer();
       if (state.activeTab === "games" && tab !== "games") stopAllGameTimers();
       if (state.activeTab === "extras" && tab !== "extras") stopRoleplay();
       if (state.activeTab === "stories" && tab !== "stories") stStop();
+      if (state.activeTab === "watch" && tab !== "watch") { wtStop(); wtv.clip = null; }
       const prevTab = appBooted ? state.activeTab : null;
       state.activeTab = tab;
       if (tab !== "vocab" && appBooted) endLanding();
@@ -8446,6 +8724,7 @@
       if (tab === "lessons") renderLessonsView();
       if (tab === "dictation" && typeof dcRender === "function") dcRender();
       if (tab === "stories") stRender();
+      if (tab === "watch") wtRender();
       if (tab === "order") { if (!orv.item || (state.selectedHsk !== "all" && orv.item.w.hsk !== Number(state.selectedHsk))) orNext(); else orRender(); }
       if (tab === "sentences") renderLongSentences();
       if (tab === "videos") renderVideos();

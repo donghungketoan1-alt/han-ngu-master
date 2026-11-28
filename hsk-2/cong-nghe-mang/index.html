@@ -26,8 +26,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://donghungketoan1-alt.github.io/han-ngu-master/hsk-2/cong-nghe-mang/" />
-  <link rel="stylesheet" href="app.css?v=202611280948" />
-  <script src="icons.js?v=202611280948"></script>
+  <link rel="stylesheet" href="app.css?v=202611281013" />
+  <script src="icons.js?v=202611281013"></script>
   <style>
     :root {
       --bg-paper: #faf7f2;
@@ -620,6 +620,7 @@
           <div id="practiceMenu" class="hidden absolute left-0 top-full mt-2 w-64 bg-white border border-stone-200 rounded-2xl shadow-xl p-1.5 z-50">
             <button data-tab="stories" class="nav-drop-item"><i data-lucide="messages-square" class="w-4 h-4"></i><span><b>Truyện & Hội thoại</b><small>Nghe cả bài, hỏi đáp, nhập vai</small></span></button>
             <button data-tab="order" class="nav-drop-item"><i data-lucide="shuffle" class="w-4 h-4"></i><span><b>Xếp câu</b><small>Xếp ô chữ thành câu đúng</small></span></button>
+            <button data-tab="watch" class="nav-drop-item"><i data-lucide="clapperboard" class="w-4 h-4"></i><span><b>Xem & ghi</b><small>Xem video ngắn, ghi lại điều nghe được</small></span></button>
             <button data-tab="dictation" class="nav-drop-item"><i data-lucide="headphones" class="w-4 h-4"></i><span><b>Nghe chép</b><small>Nghe câu, gõ lại cho đúng</small></span></button>
             <button data-tab="speak" class="nav-drop-item"><i data-lucide="mic" class="w-4 h-4"></i><span><b>Luyện nói</b><small>Đọc to, chấm phát âm</small></span></button>
             <button data-tab="flashcards" class="nav-drop-item"><i data-lucide="layers" class="w-4 h-4"></i><span><b>Thẻ nhớ</b><small>Ôn từ theo thẻ lật</small></span></button>
@@ -687,6 +688,7 @@
     <div class="grid grid-cols-2 gap-2">
       <button data-tab="stories" class="nav-tab-mobile"><i data-lucide="messages-square" class="w-4 h-4"></i>Truyện & Hội thoại</button>
       <button data-tab="order" class="nav-tab-mobile"><i data-lucide="shuffle" class="w-4 h-4"></i>Xếp câu</button>
+      <button data-tab="watch" class="nav-tab-mobile"><i data-lucide="clapperboard" class="w-4 h-4"></i>Xem & ghi</button>
       <button data-tab="dictation" class="nav-tab-mobile"><i data-lucide="headphones" class="w-4 h-4"></i>Nghe chép</button>
       <button data-tab="speak" class="nav-tab-mobile"><i data-lucide="mic" class="w-4 h-4"></i>Luyện nói</button>
       <button data-tab="flashcards" class="nav-tab-mobile"><i data-lucide="layers" class="w-4 h-4"></i>Thẻ nhớ</button>
@@ -893,6 +895,11 @@
     <!-- VIEW: XẾP CÂU (JS orRender) -->
     <section id="view-order" class="hidden">
       <div id="orRoot" class="max-w-3xl mx-auto space-y-4"></div>
+    </section>
+
+    <!-- VIEW: XEM & GHI (JS wtRender) -->
+    <section id="view-watch" class="hidden">
+      <div id="wtRoot" class="max-w-6xl mx-auto space-y-4"></div>
     </section>
 
     <section id="view-dictation" class="hidden">
@@ -1117,7 +1124,7 @@
             <i data-lucide="upload-cloud" class="w-4 h-4"></i>Video MP4 / Google Drive / Vimeo
           </button>
           <button data-vsub="youtube" class="vsub-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="external-link" class="w-4 h-4"></i>Kho YouTube tham khảo (15 video)
+            <i data-lucide="play-circle" class="w-4 h-4"></i>Kho YouTube (43 video · xem ngay trên web)
           </button>
         </div>
         <span class="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg font-semibold">
@@ -1307,10 +1314,12 @@
                   <i data-lucide="play" class="w-8 h-8 fill-white ml-1"></i>
                 </div>
                 <span class="mt-3 px-3.5 py-1.5 rounded-full bg-black/75 text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5">
-                  Xem video trên YouTube (Mở tab mới) <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  Bấm để xem ngay trên web
                 </span>
               </div>
             </a>
+            <!-- Trình phát YouTube nhúng (hiện khi bấm xem; youtube-nocookie: không đặt cookie theo dõi trước khi phát) -->
+            <div id="ytPlayerBox" class="hidden lg:col-span-8 bg-stone-950 aspect-video relative"></div>
             <div class="lg:col-span-4 p-5 flex flex-col justify-between bg-[#faf7f2]/50">
               <div class="space-y-3">
                 <div class="flex items-center gap-2">
@@ -1326,7 +1335,7 @@
                   class="w-full py-2.5 px-4 rounded-xl bg-[#b9382c] hover:bg-[#932a20] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition">
                   <i data-lucide="external-link" class="w-4 h-4"></i>Mở trực tiếp trên YouTube
                 </a>
-                <p class="text-[11px] text-stone-500 text-center">Mở tab mới trên YouTube giúp xem mượt 1080p, đầy đủ phụ đề và không bị Lỗi 153.</p>
+                <p class="text-[11px] text-stone-500 text-center">Video phát ngay trên web. Nếu video không chạy, bấm nút trên để mở bằng YouTube.</p>
               </div>
             </div>
           </div>
@@ -1335,7 +1344,7 @@
         <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
-              <h3 class="text-sm font-bold text-stone-900">Kho 15 Video YouTube HSK 1–5 tham khảo</h3>
+              <h3 class="text-sm font-bold text-stone-900">Kho 43 video YouTube HSK 1–5</h3>
               <p class="text-xs text-stone-500">Có thể dán thêm link YouTube cá nhân để lưu chung vào kho này.</p>
             </div>
             <button id="toggleAddVideoBtn" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center gap-1.5 transition">
@@ -2598,7 +2607,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="data.js?v=202611280948"></script>
-  <script src="app.js?v=202611280948"></script>
+  <script src="data.js?v=202611281013"></script>
+  <script src="app.js?v=202611281013"></script>
 </body>
 </html>
