@@ -2005,6 +2005,126 @@
       if (startBtn) startBtn.disabled = on.length === 0;
     }
 
+    // ---------- Đáp án nhiễu "gần giống": chỉ lệch 1–2 từ so với câu đúng ----------
+    const EX4_NUM_CN = "一二三四五六七八九十两";
+    const EX4_NUM_VI = ["một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười", "hai"];
+    const EX4_SWAP_POS = /^(Danh từ|Động từ|Tính từ|Số từ|Lượng từ)/;
+    let ex4VocabIdx = null;
+    function ex4Index() {
+      if (ex4VocabIdx) return ex4VocabIdx;
+      const map = new Map();
+      VOCAB.forEach(w => { if (w.hanzi && w.hanzi.length <= 4 && !map.has(w.hanzi)) map.set(w.hanzi, w); });
+      return (ex4VocabIdx = map);
+    }
+    function ex4Toneless(py) { return String(py || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z]/gi, "").toLowerCase(); }
+    function ex4ShortVi(m) { return String(m || "").split(/[,;，；(（/]/)[0].trim(); }
+    function ex4EscRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+    // Thay đúng 1 lần cụm `from` (nguyên từ) trong câu Việt bằng `to`; trả null nếu không thấy hoặc thấy nhiều lần
+    function ex4ViSwap(vi, from, to) {
+      if (!from || from.length < 2 || !to) return null;
+      const re = new RegExp(`(^|[^\\p{L}])(${ex4EscRe(from)})(?![\\p{L}])`, "giu");
+      const hits = [...vi.matchAll(re)];
+      if (hits.length !== 1) return null;
+      const h = hits[0], orig = h[2];
+      let rep = to;
+      rep = orig[0] === orig[0].toUpperCase() ? rep[0].toUpperCase() + rep.slice(1) : rep[0].toLowerCase() + rep.slice(1);
+      const at = h.index + h[1].length;
+      return vi.slice(0, at) + rep + vi.slice(at + orig.length);
+    }
+    // Tách câu thành các từ có trong kho (khớp dài nhất), chỉ giữ từ thay được (danh/động/tính/số/lượng từ) và chữ số
+    function ex4Tokens(cn) {
+      const idx = ex4Index(), out = [];
+      for (let i = 0; i < cn.length;) {
+        let hit = null;
+        for (let L = 4; L >= 1; L--) { const w = idx.get(cn.substr(i, L)); if (w) { hit = w; break; } }
+        if (hit) {
+          // Chỉ thay nguyên từ ≥ 2 chữ (thay 1 chữ dễ cắt ngang từ ghép: 西安 → 牙安); chữ số thì đổi số
+          if (hit.hanzi.length === 1 && EX4_NUM_CN.includes(hit.hanzi)) out.push({ at: i, num: EX4_NUM_CN.indexOf(hit.hanzi), text: hit.hanzi });
+          else if (hit.hanzi.length >= 2 && EX4_SWAP_POS.test(hit.pos)) out.push({ at: i, w: hit, text: hit.hanzi });
+          i += hit.hanzi.length;
+        } else {
+          if (EX4_NUM_CN.includes(cn[i])) out.push({ at: i, num: EX4_NUM_CN.indexOf(cn[i]), text: cn[i] });
+          i++;
+        }
+      }
+      // Số: không đổi 一/两 (thường mang nghĩa "một cái", "một mình"); trong cụm số (二十, 十一) chỉ đổi chữ đầu nếu là 2–9
+      const isNum = t => t && t.num !== undefined;
+      return out.filter((t, k) => {
+        if (!isNum(t)) return true;
+        const prev = out[k - 1];
+        if (isNum(prev) && prev.at === t.at - 1) return false;
+        return t.num >= 1 && t.num <= 8; // chỉ 二…九
+      });
+    }
+    // Sinh tối đa n câu chỉ khác câu gốc 1–2 từ. needVi = cần đổi cả bản dịch (đề HSK 1–2 hiện nghĩa Việt)
+    function ex4NearMiss(item, n, needVi) {
+      const toks = ex4Tokens(item.cn);
+      if (!toks.length) return [];
+      const lvl = item.hsk || 1;
+      const out = [], seenCn = new Set([item.cn]), seenVi = new Set([item.vi]);
+      const swapOne = (t, cur) => {
+        if (t.num !== undefined) {
+          const choices = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => k !== t.num);
+          const k = choices[Math.floor(Math.random() * choices.length)];
+          const vi = needVi ? ex4ViSwap(cur.vi, EX4_NUM_VI[t.num], EX4_NUM_VI[k]) : cur.vi;
+          return vi == null ? null : { rep: EX4_NUM_CN[k], vi };
+        }
+        const pos0 = t.w.pos.split("/")[0];
+        const all = VOCAB.filter(r => r.hanzi.length === t.w.hanzi.length && r.hanzi !== t.w.hanzi && r.pos.split("/")[0] === pos0
+          && Math.abs(r.hsk - lvl) <= 1 && !item.cn.includes(r.hanzi));
+        // Ưu tiên từ cùng chủ đề để câu sai vẫn nghe hợp lý
+        const sameTopic = all.filter(r => r.topic === t.w.topic);
+        const cands = sameTopic.length >= 3 ? sameTopic : all;
+        for (let tries = 0; tries < 6 && cands.length; tries++) {
+          const r = cands[Math.floor(Math.random() * cands.length)];
+          if (!needVi) return { rep: r.hanzi, vi: cur.vi };
+          const vi = ex4ViSwap(cur.vi, ex4ShortVi(t.w.meaning), ex4ShortVi(r.meaning));
+          if (vi != null) return { rep: r.hanzi, vi };
+        }
+        return null;
+      };
+      for (let attempt = 0; attempt < 40 && out.length < n; attempt++) {
+        const pickN = toks.length >= 3 && Math.random() < 0.35 ? 2 : 1;
+        const chosen = [...toks].sort(() => Math.random() - 0.5).slice(0, pickN).sort((a, b) => b.at - a.at);
+        let cur = { cn: item.cn, vi: item.vi }, ok = true;
+        for (const t of chosen) {
+          const s = swapOne(t, cur);
+          if (!s) { ok = false; break; }
+          cur = { cn: cur.cn.slice(0, t.at) + s.rep + cur.cn.slice(t.at + t.text.length), vi: s.vi };
+        }
+        if (!ok || seenCn.has(cur.cn) || (needVi && seenVi.has(cur.vi))) continue;
+        seenCn.add(cur.cn); seenVi.add(cur.vi);
+        out.push({ cn: cur.cn, py: "", vi: cur.vi, hsk: item.hsk, near: true });
+      }
+      return out;
+    }
+    // Câu khác trong kho giống câu gốc nhất (nhiều chữ chung nhất) — dùng bù khi không sinh đủ câu lệch
+    function ex4Similar(item, pool, n, exclude = []) {
+      const set = new Set(item.cn);
+      const skip = new Set([item.cn, ...exclude.map(x => x.cn)]);
+      return pool.filter(x => !skip.has(x.cn))
+        .map(x => ({ x, s: [...new Set(x.cn)].filter(c => set.has(c) && !/[，。？！、]/.test(c)).length + Math.random() * 0.5 }))
+        .sort((a, b) => b.s - a.s).slice(0, n).map(o => o.x);
+    }
+    // Từ nghe gần giống: cùng âm (khác thanh) → chung chữ → chung âm đầu, cùng độ dài
+    function ex4SoundAlike(w, n) {
+      const tl = ex4Toneless(w.pinyin);
+      const pool = VOCAB.filter(x => x.id !== w.id && x.hanzi !== w.hanzi && x.hanzi.length <= 4);
+      const score = x => {
+        const xt = ex4Toneless(x.pinyin);
+        let s = 0;
+        if (xt === tl) s += 10;
+        if ([...x.hanzi].some(c => w.hanzi.includes(c))) s += 6;
+        if (xt.slice(0, 2) === tl.slice(0, 2)) s += 2;
+        if (x.hanzi.length === w.hanzi.length) s += 2;
+        if (Math.abs(x.hsk - w.hsk) <= 1) s += 1;
+        return s + Math.random();
+      };
+      const seen = new Set();
+      return pool.map(x => ({ x, s: score(x) })).sort((a, b) => b.s - a.s)
+        .filter(o => !seen.has(o.x.hanzi) && seen.add(o.x.hanzi)).slice(0, n).map(o => o.x);
+    }
+
     function startExam4() {
       if (!guestUse("quiz")) return;
       stopExam4Timer();
@@ -2039,17 +2159,25 @@
           const ltype = LTYPES[i % LTYPES.length];
           if (ltype === "word" && words[i]) {
             const w = words[i];
-            questions.push({ skill: "listen", ltype, points: P, word: w, adv: w.hsk >= 3, options: shuffle([w, ...wordDistractors(w)]) });
+            // Đáp án nhiễu là từ nghe gần giống (cùng âm khác thanh, chung chữ…), không còn chọn ngẫu nhiên
+            const alike = ex4SoundAlike(w, 3);
+            questions.push({ skill: "listen", ltype, points: P, word: w, adv: w.hsk >= 3, options: shuffle([w, ...(alike.length === 3 ? alike : wordDistractors(w))]) });
             return;
           }
+          const adv = item.hsk >= 3;
           const same = allClauses.filter(x => x.cn !== item.cn && x.hsk === item.hsk);
-          const distractors = pickRand(same.length >= 3 ? same : allClauses.filter(x => x.cn !== item.cn), 3);
+          const simPool = same.length >= 3 ? same : allClauses.filter(x => x.cn !== item.cn);
           if (ltype === "judge") {
             const match = Math.random() < 0.5;
-            questions.push({ skill: "listen", ltype, points: P, item, adv: item.hsk >= 3, statement: match ? item : distractors[0], match });
+            // Câu "sai" chỉ lệch 1–2 từ so với câu nghe, phải nghe kỹ cả câu mới biết
+            const near = match ? null : (ex4NearMiss(item, 1, false)[0] || ex4Similar(item, simPool, 1)[0]);
+            questions.push({ skill: "listen", ltype, points: P, item, adv, statement: match ? item : near, match });
             return;
           }
-          questions.push({ skill: "listen", ltype: "choose", points: P, item, adv: item.hsk >= 3, options: shuffle([item, ...distractors]) });
+          // 3 đáp án nhiễu chỉ lệch 1–2 từ; thiếu thì bù bằng câu giống nhất trong kho
+          const near = ex4NearMiss(item, 3, !adv);
+          const distractors = near.concat(ex4Similar(item, simPool, 3 - near.length, near));
+          questions.push({ skill: "listen", ltype: "choose", points: P, item, adv, options: shuffle([item, ...distractors]) });
         });
       }
       if (on("speak")) {
